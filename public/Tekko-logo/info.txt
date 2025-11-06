@@ -1,0 +1,14 @@
+
+Hope you enjoy your new logo, here are the people that
+made your beautiful logo happen :)
+font name: iAWriterDuospace-Bold
+font link: https://ia.net/topics/in-search-of-the-perfect-writing-font
+font author: iA
+font author site: https://ia.net/
+
+
+icon designer: Larisa Skosyrska
+icon designer link: /creator/Lara.Skosyrska/
+        
+{"bg":"transparent","icon-gradient-0":"#87544E","icon-gradient-1":"#87544E","font":"#000000","slogan":"#141414"}
+      
