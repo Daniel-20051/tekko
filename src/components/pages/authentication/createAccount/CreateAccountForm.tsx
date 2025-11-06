@@ -12,20 +12,18 @@ const CreateAccountForm = () => {
   const { formData, setFormData } = useAuthStore()
   
   const [email, setEmail] = useState(formData?.email || '')
-  const [password, setPassword] = useState(formData?.password || '')
-  const [confirmPassword, setConfirmPassword] = useState(formData?.confirmPassword || '')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [agreeToTerms, setAgreeToTerms] = useState(formData?.agreeToTerms || false)
   const [isLoading, setIsLoading] = useState(false)
   
-  // Save form data to store whenever it changes
+  // Save only email and agreeToTerms to store (no passwords for security)
   useEffect(() => {
     setFormData({
       email,
-      password,
-      confirmPassword,
       agreeToTerms
     })
-  }, [email, password, confirmPassword, agreeToTerms, setFormData])
+  }, [email, agreeToTerms, setFormData])
   
   // Field-level errors
   const [emailError, setEmailError] = useState('')
@@ -79,8 +77,7 @@ const CreateAccountForm = () => {
     setTimeout(() => {
       setIsLoading(false)
       
-      // Store email for verification page
-      localStorage.setItem('pendingVerificationEmail', email)
+      // Email will be passed via route search params, no need for localStorage
       
       // Don't clear form data yet - keep it in case user goes back
       

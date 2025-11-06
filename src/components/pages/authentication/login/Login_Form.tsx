@@ -1,15 +1,23 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
 import { Link } from '@tanstack/react-router'
-
+import { useAuthStore } from '../../../../store/auth.store'
 
 const Login_Form = () => {
-  const [email, setEmail] = useState('')
+  const { loginEmail, setLoginEmail } = useAuthStore()
+  const [email, setEmail] = useState(loginEmail || '')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  // Save email to store whenever it changes
+  useEffect(() => {
+    if (email) {
+      setLoginEmail(email)
+    }
+  }, [email, setLoginEmail])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -66,12 +74,12 @@ const Login_Form = () => {
             onChange={(e) => setRememberMe(e.target.checked)}
           />
           
-          <a 
-            href="/forgot-password" 
+          <Link 
+            to="/forgot-password"
             className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         {/* Login button */}

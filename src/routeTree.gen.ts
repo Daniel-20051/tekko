@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthValidateLoginRouteImport } from './routes/_auth/validate-login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthCreateAccountRouteImport } from './routes/_auth/create-account'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -39,6 +40,11 @@ const AuthValidateLoginRoute = AuthValidateLoginRouteImport.update({
   path: '/validate-login',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
   id: '/create-account',
   path: '/create-account',
@@ -47,12 +53,14 @@ const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/create-account': typeof AuthCreateAccountRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
   '/validate-login': typeof AuthValidateLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/create-account': typeof AuthCreateAccountRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
   '/validate-login': typeof AuthValidateLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
@@ -62,20 +70,32 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/create-account': typeof AuthCreateAccountRoute
+  '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/validate-login': typeof AuthValidateLoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/create-account' | '/validate-login' | '/dashboard' | '/'
+  fullPaths:
+    | '/create-account'
+    | '/forgot-password'
+    | '/validate-login'
+    | '/dashboard'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/create-account' | '/validate-login' | '/dashboard' | '/'
+  to:
+    | '/create-account'
+    | '/forgot-password'
+    | '/validate-login'
+    | '/dashboard'
+    | '/'
   id:
     | '__root__'
     | '/_auth'
     | '/_authenticated'
     | '/_auth/create-account'
+    | '/_auth/forgot-password'
     | '/_auth/validate-login'
     | '/_authenticated/dashboard'
     | '/_auth/'
@@ -123,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthValidateLoginRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/forgot-password': {
+      id: '/_auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/create-account': {
       id: '/_auth/create-account'
       path: '/create-account'
@@ -135,12 +162,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthCreateAccountRoute: typeof AuthCreateAccountRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthValidateLoginRoute: typeof AuthValidateLoginRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCreateAccountRoute: AuthCreateAccountRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthValidateLoginRoute: AuthValidateLoginRoute,
   AuthIndexRoute: AuthIndexRoute,
 }

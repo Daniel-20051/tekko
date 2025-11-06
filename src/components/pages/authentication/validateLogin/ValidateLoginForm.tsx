@@ -8,14 +8,14 @@ const ValidateLoginForm = () => {
   const { clearFormData } = useAuthStore()
   const search = useSearch({ from: '/_auth/validate-login' })
   
-  // Get email from route search params or localStorage, or use default
+  // Get email from route search params, store, or use default
+  const { formData } = useAuthStore()
   const getEmail = () => {
     // Try to get from route search params first
     if (search?.email) return search.email as string
     
-    // Try to get from localStorage (set during account creation)
-    const storedEmail = localStorage.getItem('pendingVerificationEmail')
-    if (storedEmail) return storedEmail
+    // Try to get from store (sessionStorage)
+    if (formData?.email) return formData.email
     
     return 'chidi@email.com' // Default fallback
   }
