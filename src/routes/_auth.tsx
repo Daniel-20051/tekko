@@ -34,12 +34,12 @@ function AuthLayout() {
             {/* Navigation - Right Side */}
             <div className="flex items-center gap-6">
               {/* Login Link */}
-              <a
-                href="/login"
+              <Link
+                to="/"
                 className="text-sm text-black dark:text-dark-text hover:text-gray-300 transition-colors font-medium"
               >
                 Login
-              </a>
+              </Link>
              
 
               {/* Language Selector */}
