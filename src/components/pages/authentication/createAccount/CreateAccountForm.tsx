@@ -2,10 +2,12 @@ import { useState, type FormEvent } from 'react'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { validateCreateAccountForm, validateEmail, validatePassword, validatePasswordMatch } from '../../../../services/validation.service'
+import { disablePaste } from '../../../../services/input.service'
 
 const CreateAccountForm = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -63,6 +65,15 @@ const CreateAccountForm = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
+      
+      // Store email for verification page
+      localStorage.setItem('pendingVerificationEmail', email)
+      
+      // Navigate to validate-login page with email parameter
+      navigate({ 
+        to: '/validate-login',
+        search: { email }
+      })
     }, 1500)
   }
 
@@ -142,6 +153,7 @@ const CreateAccountForm = () => {
               }
             }
           }}
+          onPaste={disablePaste}
           required
           error={confirmPasswordError}
         />

@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthValidateLoginRouteImport } from './routes/_auth/validate-login'
 import { Route as AuthCreateAccountRouteImport } from './routes/_auth/create-account'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -33,6 +34,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthValidateLoginRoute = AuthValidateLoginRouteImport.update({
+  id: '/validate-login',
+  path: '/validate-login',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
   id: '/create-account',
   path: '/create-account',
@@ -41,11 +47,13 @@ const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/create-account': typeof AuthCreateAccountRoute
+  '/validate-login': typeof AuthValidateLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/create-account': typeof AuthCreateAccountRoute
+  '/validate-login': typeof AuthValidateLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
 }
@@ -54,19 +62,21 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/create-account': typeof AuthCreateAccountRoute
+  '/_auth/validate-login': typeof AuthValidateLoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/create-account' | '/dashboard' | '/'
+  fullPaths: '/create-account' | '/validate-login' | '/dashboard' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/create-account' | '/dashboard' | '/'
+  to: '/create-account' | '/validate-login' | '/dashboard' | '/'
   id:
     | '__root__'
     | '/_auth'
     | '/_authenticated'
     | '/_auth/create-account'
+    | '/_auth/validate-login'
     | '/_authenticated/dashboard'
     | '/_auth/'
   fileRoutesById: FileRoutesById
@@ -106,6 +116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_auth/validate-login': {
+      id: '/_auth/validate-login'
+      path: '/validate-login'
+      fullPath: '/validate-login'
+      preLoaderRoute: typeof AuthValidateLoginRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/create-account': {
       id: '/_auth/create-account'
       path: '/create-account'
@@ -118,11 +135,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthCreateAccountRoute: typeof AuthCreateAccountRoute
+  AuthValidateLoginRoute: typeof AuthValidateLoginRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCreateAccountRoute: AuthCreateAccountRoute,
+  AuthValidateLoginRoute: AuthValidateLoginRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 

@@ -13,9 +13,54 @@
   
   /* Font family */
   --font-family-sans: 'Stack Sans Notch', ui-sans-serif, system-ui, sans-serif;
+  
+  /* Scrollbar colors - Light mode */
+  --scrollbar-track: #f0f0f0;
+  --scrollbar-thumb: #c0c0c0;
+  --scrollbar-thumb-hover: #a0a0a0;
 }
 
 /* Apply font globally to body - will inherit to text elements naturally */
 body {
   font-family: 'Stack Sans Notch', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Custom Scrollbar Styles - Theme Aware */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 1px solid var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Dark mode scrollbar colors */
+html.dark,
+html.dark * {
+  --scrollbar-track: #1a1a1a;
+  --scrollbar-thumb: #555555;
+  --scrollbar-thumb-hover: #666666;
 }
