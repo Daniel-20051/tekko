@@ -1,18 +1,31 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { validateCreateAccountForm, validateEmail, validatePassword, validatePasswordMatch } from '../../../../services/validation.service'
 import { disablePaste } from '../../../../services/input.service'
+import { useAuthStore } from '../../../../store/auth.store'
 
 const CreateAccountForm = () => {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const { formData, setFormData } = useAuthStore()
+  
+  const [email, setEmail] = useState(formData?.email || '')
+  const [password, setPassword] = useState(formData?.password || '')
+  const [confirmPassword, setConfirmPassword] = useState(formData?.confirmPassword || '')
+  const [agreeToTerms, setAgreeToTerms] = useState(formData?.agreeToTerms || false)
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Save form data to store whenever it changes
+  useEffect(() => {
+    setFormData({
+      email,
+      password,
+      confirmPassword,
+      agreeToTerms
+    })
+  }, [email, password, confirmPassword, agreeToTerms, setFormData])
   
   // Field-level errors
   const [emailError, setEmailError] = useState('')
@@ -68,6 +81,8 @@ const CreateAccountForm = () => {
       
       // Store email for verification page
       localStorage.setItem('pendingVerificationEmail', email)
+      
+      // Don't clear form data yet - keep it in case user goes back
       
       // Navigate to validate-login page with email parameter
       navigate({ 

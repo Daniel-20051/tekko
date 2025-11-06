@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, type FormEvent, type KeyboardEvent } from 'react'
 import Button from '../../../ui/Button'
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useAuthStore } from '../../../../store/auth.store'
 
 const ValidateLoginForm = () => {
   const navigate = useNavigate()
+  const { clearFormData } = useAuthStore()
   const search = useSearch({ from: '/_auth/validate-login' })
   
   // Get email from route search params or localStorage, or use default
@@ -98,6 +100,10 @@ const ValidateLoginForm = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
+      
+      // Clear form data after successful verification
+      clearFormData()
+      
       // Navigate to dashboard or next step
       navigate({ to: '/dashboard' })
     }, 1500)
@@ -118,6 +124,17 @@ const ValidateLoginForm = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate({ to: '/create-account' })}
+        className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4 text-sm font-medium"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
       {/* Header */}
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
