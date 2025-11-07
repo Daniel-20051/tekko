@@ -49,9 +49,9 @@ const Login_Form = () => {
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <Input
-          label="Email or Username"
+          label="Email"
           type="text"
-          placeholder="Enter your email or username"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required

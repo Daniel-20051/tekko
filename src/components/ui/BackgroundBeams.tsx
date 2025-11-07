@@ -9,8 +9,8 @@ export const BackgroundBeams = React.memo(
     const isDark = theme === 'dark'
     
     // Colors and opacity adjusted for better visibility
-    const animatedPathOpacity = isDark ? 0.6 : 0.5
-    const basePathOpacity = isDark ? 0.15 : 0.2
+    const animatedPathOpacity = isDark ? 0.4 : 0.35
+    const basePathOpacity = isDark ? 0.1 : 0.12
     const strokeWidth = isDark ? 0.7 : 0.6
     
     // Colors for light mode (darker for visibility) and dark mode (lighter for visibility)
