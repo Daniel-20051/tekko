@@ -6,16 +6,17 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { validateCreateAccountForm, validateEmail, validatePassword, validatePasswordMatch } from '../../../../services/validation.service'
 import { disablePaste } from '../../../../services/input.service'
 import { useAuthStore } from '../../../../store/auth.store'
+import { useRegister } from '../../../../hooks/useAuth'
 
 const CreateAccountForm = () => {
   const navigate = useNavigate()
   const { formData, setFormData } = useAuthStore()
+  const registerMutation = useRegister()
   
   const [email, setEmail] = useState(formData?.email || '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [agreeToTerms, setAgreeToTerms] = useState(formData?.agreeToTerms || false)
-  const [isLoading, setIsLoading] = useState(false)
   
   // Save only email and agreeToTerms to store (no passwords for security)
   useEffect(() => {
@@ -29,6 +30,7 @@ const CreateAccountForm = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
+  const [apiError, setApiError] = useState('')
   
  
 
@@ -39,6 +41,7 @@ const CreateAccountForm = () => {
     setEmailError('')
     setPasswordError('')
     setConfirmPasswordError('')
+    setApiError('')
     
     // Validate form using service
     const validation = validateCreateAccountForm({
@@ -49,8 +52,6 @@ const CreateAccountForm = () => {
     })
     
     if (!validation.isValid) {
-      
-      
       // Set field-level errors
       if (!email || !validateEmail(email)) {
         setEmailError('Please enter a valid email address')
@@ -68,25 +69,34 @@ const CreateAccountForm = () => {
       return
     }
     
-    setIsLoading(true)
-    
-    // TODO: Implement signup logic
-    console.log({ email, password, agreeToTerms })
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      
-      // Email will be passed via route search params, no need for localStorage
-      
-      // Don't clear form data yet - keep it in case user goes back
-      
-      // Navigate to validate-login page with email parameter
-      navigate({ 
-        to: '/validate-login',
-        search: { email }
-      })
-    }, 1500)
+    // Call register API
+    registerMutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          // Navigate to validate-login page with email parameter
+          navigate({ 
+            to: '/validate-login',
+            search: { email }
+          })
+        },
+        onError: (error: unknown) => {
+          // Handle API errors - extract from API response structure
+          let errorMessage = 'Registration failed. Please try again.'
+          
+          if (error instanceof Error) {
+            // Error from api-client interceptor (already extracted)
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            // Handle axios error structure directly
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.message || errorMessage
+          }
+          
+          setApiError(errorMessage)
+        }
+      }
+    )
   }
 
   const handleGoogleSignup = () => {
@@ -110,7 +120,7 @@ const CreateAccountForm = () => {
 
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <Input
           label="Email Address"
           type="email"
@@ -188,15 +198,22 @@ const CreateAccountForm = () => {
           </label>
         </div>
 
+        {/* API Error Message */}
+        {apiError && (
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            {apiError}
+          </div>
+        )}
+
         {/* Create Account button */}
         <Button
           type="submit"
           variant="primary"
           size="md"
           fullWidth
-          disabled={isLoading || !agreeToTerms}
+          disabled={registerMutation.isPending || !agreeToTerms}
         >
-          {isLoading ? 'Creating Account...' : 'Create Account'}
+          {registerMutation.isPending ? 'Creating Account...' : 'Create Account'}
         </Button>
 
         {/* Divider */}

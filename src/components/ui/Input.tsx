@@ -1,12 +1,14 @@
 import { forwardRef, useState, type InputHTMLAttributes } from 'react'
+import ValidationError from './ValidationError'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
+  showError?: boolean
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = '', type, ...props }, ref) => {
+  ({ label, error, showError = true, className = '', type, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false)
     const isPassword = type === 'password'
     const inputType = isPassword && showPassword ? 'text' : type
@@ -30,7 +32,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               placeholder-gray-400 dark:placeholder-[#ADAEBC]
               focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
               transition-all duration-200
-              ${error ? 'border-red-500' : ''}
+              ${error ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : ''}
               ${isPassword ? 'pr-10' : ''}
               ${className}
             `}
@@ -57,9 +59,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error && (
-          <p className="mt-1 text-sm text-red-500">{error}</p>
-        )}
+        <ValidationError message={error || ''} show={showError && !!error} />
       </div>
     )
   }

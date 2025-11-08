@@ -2,15 +2,20 @@ import { useState, useEffect, type FormEvent } from 'react'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
+import Spinner from '../../../ui/Spinner'
 import { Link } from '@tanstack/react-router'
 import { useAuthStore } from '../../../../store/auth.store'
+import { useLogin } from '../../../../hooks/useAuth'
 
 const Login_Form = () => {
   const { loginEmail, setLoginEmail } = useAuthStore()
+  const loginMutation = useLogin()
   const [email, setEmail] = useState(loginEmail || '')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
   // Save email to store whenever it changes
   useEffect(() => {
@@ -21,15 +26,53 @@ const Login_Form = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     
-    // TODO: Implement login logic
-    console.log({ email, password, rememberMe })
+    // Clear previous errors
+    setApiError('')
+    setEmailError('')
+    setPasswordError('')
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1500)
+    // Custom validation
+    let isValid = true
+    
+    if (!email || email.trim() === '') {
+      setEmailError('Please enter your email address')
+      isValid = false
+    } else if (!email.includes('@') || !email.includes('.')) {
+      setEmailError('Please enter a valid email address')
+      isValid = false
+    }
+    
+    if (!password || password.trim() === '') {
+      setPasswordError('Please enter your password')
+      isValid = false
+    }
+    
+    if (!isValid) {
+      return
+    }
+    
+    // Call login API
+    loginMutation.mutate(
+      { email, password },
+      {
+        onError: (error: unknown) => {
+          // Handle API errors - extract from API response structure
+          let errorMessage = 'Login failed. Please try again.'
+          
+          if (error instanceof Error) {
+            // Error from api-client interceptor (already extracted)
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            // Handle axios error structure directly
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.error || errorMessage
+          }
+          
+          setApiError(errorMessage)
+        }
+      }
+    )
   }
 
   const handleGoogleLogin = () => {
@@ -47,14 +90,18 @@ const Login_Form = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-3.5">
+      <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
         <Input
           label="Email"
-          type="text"
+          type="email"
           placeholder="Enter your email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          error={emailError}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (emailError) setEmailError('')
+            if (apiError) setApiError('')
+          }}
         />
 
         <Input
@@ -62,8 +109,12 @@ const Login_Form = () => {
           type="password"
           placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          error={passwordError}
+          onChange={(e) => {
+            setPassword(e.target.value)
+            if (passwordError) setPasswordError('')
+            if (apiError) setApiError('')
+          }}
         />
 
         {/* Remember me and Forgot password */}
@@ -82,20 +133,29 @@ const Login_Form = () => {
           </Link>
         </div>
 
+        {/* API Error Message */}
+        {apiError && (
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            {apiError}
+          </div>
+        )}
+
         {/* Login button */}
         <Button
           type="submit"
           variant="primary"
           size="md"
           fullWidth
-          disabled={isLoading}
+          disabled={loginMutation.isPending}
           icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            loginMutation.isPending ? (
+              <Spinner size="sm" variant="white" />
+            ) : (
+              ""
+            )
           }
         >
-          {isLoading ? 'Logging in...' : 'Login'}
+          {loginMutation.isPending ? 'Logging in...' : 'Login'}
         </Button>
 
         {/* Divider */}

@@ -47,8 +47,8 @@ const Button = ({
       disabled={disabled}
       {...props}
     >
-      {icon && <span>{icon}</span>}
       {children}
+      {icon && <span className="flex items-center justify-center shrink-0">{icon}</span>}
     </button>
   )
 }

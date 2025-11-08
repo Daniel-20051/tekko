@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import * as authApi from '../api/auth.api'
 import type { LoginCredentials, RegisterCredentials } from '../types/auth'
+import { useTokenStore } from '../store/token.store'
 
 // Query key factory for auth-related queries
 export const authKeys = {
@@ -11,10 +12,12 @@ export const authKeys = {
 
 // Hook to get current user
 export const useCurrentUser = () => {
+  const accessToken = useTokenStore((state) => state.accessToken)
+  
   return useQuery({
     queryKey: authKeys.currentUser(),
     queryFn: authApi.getCurrentUser,
-    enabled: !!localStorage.getItem('authToken'), // Only fetch if token exists
+    enabled: !!accessToken, // Only fetch if token exists in memory
     retry: false,
   })
 }
@@ -25,17 +28,24 @@ export const useLogin = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (credentials: LoginCredentials) => authApi.login(credentials),
+    mutationFn: (credentials: LoginCredentials) => {
+      
+      return authApi.login(credentials)
+    },
     onSuccess: (data) => {
-      // Store auth token
-      localStorage.setItem('authToken', data.token)
-      localStorage.setItem('isAuthenticated', 'true')
-      
-      // Invalidate and refetch user data
-      queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
-      
-      // Navigate to dashboard
-      navigate({ to: '/dashboard' })
+      // Check if response is success (type guard)
+      if (data.success && 'data' in data) {
+        // Store access token in memory only (Zustand)
+        // Refresh token is set as HttpOnly cookie by backend
+        useTokenStore.getState().setAccessToken(data.data.accessToken)
+        
+        // Invalidate and refetch user data
+        queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+        
+        // Navigate to dashboard
+        console.log('[useAuth] Navigating to dashboard')
+        navigate({ to: '/dashboard' })
+      } 
     },
     onError: (error) => {
       console.error('Login failed:', error)
@@ -45,21 +55,18 @@ export const useLogin = () => {
 
 // Hook for register mutation
 export const useRegister = () => {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (credentials: RegisterCredentials) => authApi.register(credentials),
-    onSuccess: (data) => {
-      // Store auth token
-      localStorage.setItem('authToken', data.token)
-      localStorage.setItem('isAuthenticated', 'true')
+    mutationFn: (credentials: RegisterCredentials) => {
+     
+      return authApi.register(credentials)
+    },
+    onSuccess: () => {
+    
       
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
-      
-      // Navigate to dashboard
-      navigate({ to: '/dashboard' })
     },
     onError: (error) => {
       console.error('Registration failed:', error)
@@ -75,15 +82,42 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
-      // Clear auth data
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('isAuthenticated')
+      // Clear access token from memory
+      useTokenStore.getState().clearAccessToken()
+      
+      // Backend clears HttpOnly refresh cookie
       
       // Clear all queries
       queryClient.clear()
       
       // Navigate to login
       navigate({ to: '/' })
+    },
+    onError: () => {
+      // Even if logout API call fails, clear client-side state
+      useTokenStore.getState().clearAccessToken()
+      queryClient.clear()
+      navigate({ to: '/' })
+    },
+  })
+}
+
+// Hook to refresh token (used for initial session restore)
+export const useRefreshToken = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: authApi.refreshToken,
+    onSuccess: (data) => {
+      // Store new access token in memory
+      useTokenStore.getState().setAccessToken(data.accessToken)
+      
+      // Invalidate and refetch user data
+      queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+    },
+    onError: () => {
+      // Refresh failed - clear token (no valid session)
+      useTokenStore.getState().clearAccessToken()
     },
   })
 }

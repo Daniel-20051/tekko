@@ -1,14 +1,50 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-
+import { useTokenStore } from '../store/token.store'
+import { useLogout } from '../hooks/useAuth'
+import axios from 'axios'
 
 // This layout route protects all child routes
 export const Route = createFileRoute('/_authenticated')({
   // beforeLoad runs before the route loads - perfect for auth checks
   beforeLoad: async ({ location }) => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true'
+    // Check if access token exists in memory (Zustand store)
+    let accessToken = useTokenStore.getState().accessToken
     
-    if (!isAuthenticated) {
-      // Redirect to login (root) if not authenticated
+    // If no token, try to refresh (only attempt refresh when accessing protected routes)
+    if (!accessToken) {
+      try {
+        // Attempt to refresh token using HttpOnly cookie
+        // Use axios directly to avoid interceptor loop
+        const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.example.com'
+        const response = await axios.post<{ accessToken: string }>(
+          `${baseURL}/auth/refresh`,
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        // Store the new access token
+        useTokenStore.getState().setAccessToken(response.data.accessToken)
+        accessToken = response.data.accessToken
+      } catch (error) {
+        // Refresh failed - no valid session, redirect to login
+        useTokenStore.getState().clearAccessToken()
+        throw redirect({
+          to: '/',
+          search: {
+            // Save the page they tried to visit so we can redirect back after login
+            redirect: location.href,
+          },
+        })
+      }
+    }
+
+    // If still no token after refresh attempt, redirect to login
+    if (!accessToken) {
       throw redirect({
         to: '/',
         search: {
@@ -22,9 +58,10 @@ export const Route = createFileRoute('/_authenticated')({
 })
 
 function DashboardLayout() {
+  const { mutate: logout } = useLogout()
+
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated')
-    window.location.href = '/'
+    logout()
   }
 
   return (
