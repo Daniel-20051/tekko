@@ -31,7 +31,12 @@ const CreateAccountForm = () => {
   const [passwordError, setPasswordError] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [apiError, setApiError] = useState('')
-  
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Trigger animation on mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
  
 
   const handleSubmit = async (e: FormEvent) => {
@@ -105,7 +110,7 @@ const CreateAccountForm = () => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+    <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 ${isMounted ? 'animate-fade-in-left' : 'opacity-0'}`}>
      
 
       {/* Header */}

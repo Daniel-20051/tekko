@@ -64,3 +64,35 @@ html.dark * {
   --scrollbar-thumb: #555555;
   --scrollbar-thumb-hover: #666666;
 }
+
+/* Fade in from right animation */
+@keyframes fadeInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-right {
+  animation: fadeInFromRight 0.6s ease-out forwards;
+}
+
+/* Fade in from left animation */
+@keyframes fadeInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-left {
+  animation: fadeInFromLeft 0.6s ease-out forwards;
+}

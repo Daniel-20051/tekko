@@ -20,6 +20,12 @@ const Login_Form = () => {
   
   // 2FA state
   const [requires2FA, setRequires2FA] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Trigger animation on mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Save email to store whenever it changes
   useEffect(() => {
@@ -96,15 +102,15 @@ const Login_Form = () => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 relative overflow-hidden">
+    <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 relative overflow-hidden ${isMounted ? 'animate-fade-in-left' : 'opacity-0'}`}>
       {/* Forms Container - relative positioning for absolute children */}
       <div className="relative">
         {/* Login Form */}
         <div 
-          className={`w-full transition-opacity duration-300 ease-out ${
+          className={`w-full transition-all duration-500 ease-out ${
             requires2FA 
-              ? 'absolute top-0 left-0 right-0 opacity-0 pointer-events-none invisible' 
-              : 'relative opacity-100 pointer-events-auto visible'
+              ? 'absolute top-0 left-0 right-0 opacity-0 -translate-x-8 pointer-events-none invisible' 
+              : 'relative opacity-100 translate-x-0 pointer-events-auto visible'
           }`}
         >
           {/* Header */}
@@ -240,7 +246,7 @@ const Login_Form = () => {
 
         {/* 2FA Form */}
         <div 
-          className={`w-full transition-all duration-300 ease-out ${
+          className={`w-full transition-all duration-500 ease-out ${
             requires2FA 
               ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
               : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'

@@ -28,6 +28,12 @@ const ValidateLoginForm = () => {
   const [resendTimer, setResendTimer] = useState(60) // 60 seconds countdown
   const [canResend, setCanResend] = useState(false)
   const [codeError, setCodeError] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Trigger animation on mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Countdown timer for resend
   useEffect(() => {
@@ -82,7 +88,7 @@ const ValidateLoginForm = () => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+    <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 ${isMounted ? 'animate-fade-in-right' : 'opacity-0'}`}>
       {/* Back Button */}
       <button
         onClick={() => navigate({ to: '/create-account' })}

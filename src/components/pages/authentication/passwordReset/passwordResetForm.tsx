@@ -12,6 +12,12 @@ const PasswordResetForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Trigger animation on mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Load email from store on mount
   useEffect(() => {
@@ -60,7 +66,7 @@ const PasswordResetForm = () => {
 
   if (isSubmitted) {
     return (
-      <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+      <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 ${isMounted ? 'animate-fade-in-right' : 'opacity-0'}`}>
         {/* Success Message */}
         <div className="text-center space-y-6">
           {/* Success Icon */}
@@ -112,7 +118,7 @@ const PasswordResetForm = () => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+    <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 ${isMounted ? 'animate-fade-in-right' : 'opacity-0'}`}>
       {/* Back Button */}
       <button
         onClick={() => navigate({ to: '/' })}
