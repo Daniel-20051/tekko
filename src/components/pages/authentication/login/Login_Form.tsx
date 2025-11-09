@@ -6,6 +6,7 @@ import Spinner from '../../../ui/Spinner'
 import { Link } from '@tanstack/react-router'
 import { useAuthStore } from '../../../../store/auth.store'
 import { useLogin } from '../../../../hooks/useAuth'
+import TwoFactorForm from './TwoFactorForm'
 
 const Login_Form = () => {
   const { loginEmail, setLoginEmail } = useAuthStore()
@@ -16,6 +17,9 @@ const Login_Form = () => {
   const [apiError, setApiError] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  
+  // 2FA state
+  const [requires2FA, setRequires2FA] = useState(false)
 
   // Save email to store whenever it changes
   useEffect(() => {
@@ -56,6 +60,12 @@ const Login_Form = () => {
     loginMutation.mutate(
       { email, password },
       {
+        onSuccess: (data) => {
+          // Check if 2FA is required
+          if ('requires2FA' in data && data.requires2FA) {
+            setRequires2FA(true)
+          }
+        },
         onError: (error: unknown) => {
           // Handle API errors - extract from API response structure
           let errorMessage = 'Login failed. Please try again.'
@@ -80,17 +90,31 @@ const Login_Form = () => {
     console.log('Google login clicked')
   }
 
-  return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-      {/* Header */}
-      <div className="mb-5 text-center">
-        <h1 className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-1">
-          Welcome to TEKKO !
-        </h1>
-      </div>
+  const handle2FABack = () => {
+    setRequires2FA(false)
+    setApiError('')
+  }
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
+  return (
+    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 relative overflow-hidden">
+      {/* Forms Container - relative positioning for absolute children */}
+      <div className="relative">
+        {/* Login Form */}
+        <div 
+          className={`w-full transition-opacity duration-300 ease-out ${
+            requires2FA 
+              ? 'absolute top-0 left-0 right-0 opacity-0 pointer-events-none invisible' 
+              : 'relative opacity-100 pointer-events-auto visible'
+          }`}
+        >
+          {/* Header */}
+          <div className="mb-5 text-center">
+            <h1 className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-1">
+              Welcome to TEKKO !
+            </h1>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
         <Input
           label="Email"
           type="email"
@@ -212,6 +236,25 @@ const Login_Form = () => {
           </p>
         </div>
       </form>
+        </div>
+
+        {/* 2FA Form */}
+        <div 
+          className={`w-full transition-all duration-300 ease-out ${
+            requires2FA 
+              ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
+              : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'
+          }`}
+        >
+          <TwoFactorForm
+            email={email}
+            password={password}
+            loginMutation={loginMutation}
+            isVisible={requires2FA}
+            onBack={handle2FABack}
+          />
+        </div>
+      </div>
     </div>
   )
 }

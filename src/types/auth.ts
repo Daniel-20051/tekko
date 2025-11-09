@@ -2,6 +2,7 @@
 export interface LoginCredentials {
   email: string
   password: string
+  twoFactorToken?: string
 }
 
 export interface RegisterCredentials {
@@ -36,13 +37,20 @@ export interface ErrorResponse {
   timestamp: string
 }
 
+// 2FA required response structure
+export interface Login2FAResponse {
+  success: true
+  requires2FA: true
+  message: string
+}
+
 
 
 
 // Union type for register response (can be success or error)
 export type RegisterResponse = RegisterSuccessResponse | ErrorResponse
 
-export type LoginResponse = LoginSuccessResponse | ErrorResponse
+export type LoginResponse = LoginSuccessResponse | Login2FAResponse | ErrorResponse
 
 
 export interface User {

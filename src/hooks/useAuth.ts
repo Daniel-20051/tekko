@@ -33,7 +33,13 @@ export const useLogin = () => {
       return authApi.login(credentials)
     },
     onSuccess: (data) => {
-      // Check if response is success (type guard)
+      // Check if 2FA is required - don't navigate, let component handle it
+      if (data.success && 'requires2FA' in data && data.requires2FA) {
+        // 2FA required - component will show 2FA form
+        return
+      }
+      
+      // Check if response is success with data (full login success)
       if (data.success && 'data' in data) {
         // Store access token in memory only (Zustand)
         // Refresh token is set as HttpOnly cookie by backend
