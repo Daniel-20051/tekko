@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
 import { useLogout } from '../hooks/useAuth'
 import axios from 'axios'
+  import type { RefreshTokenResponse } from '../types/auth'
 
 // This layout route protects all child routes
 export const Route = createFileRoute('/_authenticated')({
@@ -16,7 +17,7 @@ export const Route = createFileRoute('/_authenticated')({
         // Attempt to refresh token using HttpOnly cookie
         // Use axios directly to avoid interceptor loop
         const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.example.com'
-        const response = await axios.post<{ accessToken: string }>(
+        const response = await axios.post<RefreshTokenResponse>(
           `${baseURL}/auth/refresh`,
           {},
           {
@@ -27,9 +28,20 @@ export const Route = createFileRoute('/_authenticated')({
           }
         )
 
+        // Extract accessToken from nested response structure
+        if (!response.data.success) {
+          throw new Error('Refresh token failed')
+        }
+        
+        const newAccessToken = response.data.data.accessToken
+        
+        if (!newAccessToken) {
+          throw new Error('No access token received from refresh endpoint')
+        }
+
         // Store the new access token
-        useTokenStore.getState().setAccessToken(response.data.accessToken)
-        accessToken = response.data.accessToken
+        useTokenStore.getState().setAccessToken(newAccessToken)
+        accessToken = newAccessToken
       } catch (error) {
         console.error('Refresh token failed', error)
         // Refresh failed - no valid session, redirect to login

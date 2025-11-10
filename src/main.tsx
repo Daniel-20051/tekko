@@ -3,8 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import axios from 'axios'
 import { initializeTheme } from './store/theme.store'
 import './index.css'
+
+// Configure axios to include credentials (cookies) in all requests
+axios.defaults.withCredentials = true
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'

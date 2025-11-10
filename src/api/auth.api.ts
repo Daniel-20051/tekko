@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, RefreshTokenResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -29,8 +29,14 @@ export const getCurrentUser = async (): Promise<User> => {
 // Refresh token API call
 // Backend validates HttpOnly refresh cookie and returns new access token
 export const refreshToken = async (): Promise<{ accessToken: string }> => {
-  const response = await apiClient.post<{ accessToken: string }>('/auth/refresh', {})
-  return response.data
+  const response = await apiClient.post<RefreshTokenResponse>('/auth/refresh', {})
+  
+  // Extract accessToken from nested response structure
+  if (response.data.success && response.data.data?.accessToken) {
+    return { accessToken: response.data.data.accessToken }
+  }
+  
+  throw new Error('Invalid refresh token response')
 }
 
 // Logout API call

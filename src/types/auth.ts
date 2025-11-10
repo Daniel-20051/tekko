@@ -74,6 +74,16 @@ export interface ResendVerificationSuccessResponse {
   }
 }
 
+// Refresh token success response structure
+export interface RefreshTokenSuccessResponse {
+  success: true
+  message: string
+  data: {
+    accessToken: string
+    user: User
+  }
+}
+
 // Union type for register response (can be success or error)
 export type RegisterResponse = RegisterSuccessResponse | ErrorResponse
 
@@ -82,6 +92,8 @@ export type LoginResponse = LoginSuccessResponse | Login2FAResponse | ErrorRespo
 export type VerifyEmailResponse = VerifyEmailSuccessResponse | ErrorResponse
 
 export type ResendVerificationResponse = ResendVerificationSuccessResponse | ErrorResponse
+
+export type RefreshTokenResponse = RefreshTokenSuccessResponse | ErrorResponse
 
 
 export interface User {

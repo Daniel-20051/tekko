@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useTokenStore } from '../store/token.store'
+import type { RefreshTokenResponse } from '../types/auth'
 
 // Create axios instance with default config
 export const apiClient = axios.create({
@@ -85,7 +86,7 @@ apiClient.interceptors.response.use(
       try {
         // Call refresh endpoint (browser automatically includes HttpOnly refresh cookie)
         // Use axios directly to avoid interceptor loop
-        const response = await axios.post<{ accessToken: string }>(
+        const response = await axios.post<RefreshTokenResponse>(
           `${apiClient.defaults.baseURL}/auth/refresh`,
           {},
           {
@@ -96,7 +97,16 @@ apiClient.interceptors.response.use(
           }
         )
 
-        const { accessToken } = response.data
+        // Extract accessToken from nested response structure
+        if (!response.data.success) {
+          throw new Error('Refresh token failed')
+        }
+        
+        const accessToken = response.data.data.accessToken
+
+        if (!accessToken) {
+          throw new Error('No access token received from refresh endpoint')
+        }
 
         // Update token in Zustand store
         useTokenStore.getState().setAccessToken(accessToken)
