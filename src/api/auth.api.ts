@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -37,5 +37,17 @@ export const refreshToken = async (): Promise<{ accessToken: string }> => {
 // Backend clears the HttpOnly refresh cookie
 export const logout = async (): Promise<void> => {
   await apiClient.post('/auth/logout')
+}
+
+// Verify email API call
+export const verifyEmail = async (credentials: VerifyEmailCredentials): Promise<VerifyEmailResponse> => {
+  const response = await apiClient.post<VerifyEmailResponse>('/auth/verify-email', credentials)
+  return response.data
+}
+
+// Resend verification email API call
+export const resendVerification = async (credentials: ResendVerificationCredentials): Promise<ResendVerificationResponse> => {
+  const response = await apiClient.post<ResendVerificationResponse>('/auth/resend-verification', credentials)
+  return response.data
 }
 

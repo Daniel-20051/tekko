@@ -13,7 +13,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthValidateLoginRouteImport } from './routes/_auth/validate-login'
+import { Route as AuthVerifyEmailRouteImport } from './routes/_auth/verify-email'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthCreateAccountRouteImport } from './routes/_auth/create-account'
 
@@ -35,9 +35,9 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthValidateLoginRoute = AuthValidateLoginRouteImport.update({
-  id: '/validate-login',
-  path: '/validate-login',
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
@@ -54,14 +54,14 @@ const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
 export interface FileRoutesByFullPath {
   '/create-account': typeof AuthCreateAccountRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
-  '/validate-login': typeof AuthValidateLoginRoute
+  '/verify-email': typeof AuthVerifyEmailRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/create-account': typeof AuthCreateAccountRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
-  '/validate-login': typeof AuthValidateLoginRoute
+  '/verify-email': typeof AuthVerifyEmailRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthIndexRoute
 }
@@ -71,7 +71,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/create-account': typeof AuthCreateAccountRoute
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/_auth/validate-login': typeof AuthValidateLoginRoute
+  '/_auth/verify-email': typeof AuthVerifyEmailRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_auth/': typeof AuthIndexRoute
 }
@@ -80,14 +80,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/create-account'
     | '/forgot-password'
-    | '/validate-login'
+    | '/verify-email'
     | '/dashboard'
     | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/create-account'
     | '/forgot-password'
-    | '/validate-login'
+    | '/verify-email'
     | '/dashboard'
     | '/'
   id:
@@ -96,7 +96,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_auth/create-account'
     | '/_auth/forgot-password'
-    | '/_auth/validate-login'
+    | '/_auth/verify-email'
     | '/_authenticated/dashboard'
     | '/_auth/'
   fileRoutesById: FileRoutesById
@@ -136,11 +136,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_auth/validate-login': {
-      id: '/_auth/validate-login'
-      path: '/validate-login'
-      fullPath: '/validate-login'
-      preLoaderRoute: typeof AuthValidateLoginRouteImport
+    '/_auth/verify-email': {
+      id: '/_auth/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/forgot-password': {
@@ -163,14 +163,14 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthCreateAccountRoute: typeof AuthCreateAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthValidateLoginRoute: typeof AuthValidateLoginRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCreateAccountRoute: AuthCreateAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthValidateLoginRoute: AuthValidateLoginRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 

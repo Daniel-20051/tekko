@@ -44,13 +44,44 @@ export interface Login2FAResponse {
   message: string
 }
 
+// Verify email request
+export interface VerifyEmailCredentials {
+  token: string
+}
 
+// Verify email success response structure
+export interface VerifyEmailSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
 
+// Resend verification email request
+export interface ResendVerificationCredentials {
+  email: string
+}
+
+// Resend verification email success response structure
+export interface ResendVerificationSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
 
 // Union type for register response (can be success or error)
 export type RegisterResponse = RegisterSuccessResponse | ErrorResponse
 
 export type LoginResponse = LoginSuccessResponse | Login2FAResponse | ErrorResponse
+
+export type VerifyEmailResponse = VerifyEmailSuccessResponse | ErrorResponse
+
+export type ResendVerificationResponse = ResendVerificationSuccessResponse | ErrorResponse
 
 
 export interface User {

@@ -31,6 +31,7 @@ export const Route = createFileRoute('/_authenticated')({
         useTokenStore.getState().setAccessToken(response.data.accessToken)
         accessToken = response.data.accessToken
       } catch (error) {
+        console.error('Refresh token failed', error)
         // Refresh failed - no valid session, redirect to login
         useTokenStore.getState().clearAccessToken()
         throw redirect({

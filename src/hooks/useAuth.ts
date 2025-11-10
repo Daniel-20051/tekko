@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import * as authApi from '../api/auth.api'
-import type { LoginCredentials, RegisterCredentials } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials } from '../types/auth'
 import { useTokenStore } from '../store/token.store'
 
 // Query key factory for auth-related queries
@@ -124,6 +124,38 @@ export const useRefreshToken = () => {
     onError: () => {
       // Refresh failed - clear token (no valid session)
       useTokenStore.getState().clearAccessToken()
+    },
+  })
+}
+
+// Hook for verify email mutation
+export const useVerifyEmail = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: VerifyEmailCredentials) => {
+      return authApi.verifyEmail(credentials)
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        // Invalidate and refetch user data
+        queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+      }
+    },
+    onError: (error) => {
+      console.error('Email verification failed:', error)
+    },
+  })
+}
+
+// Hook for resend verification email mutation
+export const useResendVerification = () => {
+  return useMutation({
+    mutationFn: (credentials: ResendVerificationCredentials) => {
+      return authApi.resendVerification(credentials)
+    },
+    onError: (error) => {
+      console.error('Resend verification failed:', error)
     },
   })
 }

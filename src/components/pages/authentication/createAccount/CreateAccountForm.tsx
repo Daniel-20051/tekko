@@ -6,12 +6,13 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { validateCreateAccountForm, validateEmail, validatePassword, validatePasswordMatch } from '../../../../services/validation.service'
 import { disablePaste } from '../../../../services/input.service'
 import { useAuthStore } from '../../../../store/auth.store'
-import { useRegister } from '../../../../hooks/useAuth'
+import { useRegister, useResendVerification } from '../../../../hooks/useAuth'
 
 const CreateAccountForm = () => {
   const navigate = useNavigate()
   const { formData, setFormData } = useAuthStore()
   const registerMutation = useRegister()
+  const resendVerificationMutation = useResendVerification()
   
   const [email, setEmail] = useState(formData?.email || '')
   const [password, setPassword] = useState('')
@@ -32,11 +33,38 @@ const CreateAccountForm = () => {
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [apiError, setApiError] = useState('')
   const [isMounted, setIsMounted] = useState(false)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [resendTimer, setResendTimer] = useState(90) // 90 seconds countdown
+  const [canResend, setCanResend] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const [resendError, setResendError] = useState('')
 
   // Trigger animation on mount
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // Reset timer when success message is shown
+  useEffect(() => {
+    if (showSuccessMessage) {
+      setResendTimer(90)
+      setCanResend(false)
+      setResendSuccess(false)
+      setResendError('')
+    }
+  }, [showSuccessMessage])
+
+  // Countdown timer for resend - starts when success message is shown
+  useEffect(() => {
+    if (showSuccessMessage && resendTimer > 0) {
+      const timer = setTimeout(() => {
+        setResendTimer((prev) => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    } else if (showSuccessMessage && resendTimer === 0) {
+      setCanResend(true)
+    }
+  }, [showSuccessMessage, resendTimer])
  
 
   const handleSubmit = async (e: FormEvent) => {
@@ -79,11 +107,8 @@ const CreateAccountForm = () => {
       { email, password },
       {
         onSuccess: () => {
-          // Navigate to validate-login page with email parameter
-          navigate({ 
-            to: '/validate-login',
-            search: { email }
-          })
+          // Show success message instead of navigating
+          setShowSuccessMessage(true)
         },
         onError: (error: unknown) => {
           // Handle API errors - extract from API response structure
@@ -107,6 +132,107 @@ const CreateAccountForm = () => {
   const handleGoogleSignup = () => {
     // TODO: Implement Google OAuth
     console.log('Google signup clicked')
+  }
+
+  const handleResendVerification = () => {
+    if (!canResend || resendVerificationMutation.isPending) return
+    
+    setResendError('')
+    setResendSuccess(false)
+    
+    resendVerificationMutation.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          setResendSuccess(true)
+          setResendTimer(90)
+          setCanResend(false)
+        },
+        onError: (error: unknown) => {
+          let errorMessage = 'Failed to resend verification email. Please try again.'
+          
+          if (error instanceof Error) {
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.message || axiosError.response?.data?.error || errorMessage
+          }
+          
+          setResendError(errorMessage)
+        }
+      }
+    )
+  }
+
+  // Show success message if account was created successfully
+  if (showSuccessMessage) {
+    return (
+      <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 ${isMounted ? 'animate-fade-in-left' : 'opacity-0'}`}>
+        {/* Success Message */}
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Verification Link Sent
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            We've sent a verification link to <span className="font-semibold text-gray-900 dark:text-white">{email}</span>. Please check your email and click the link to verify your account.
+          </p>
+          
+          {/* Resend Verification Section */}
+          <div className="mb-6">
+            <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
+              Didn't receive the email?
+            </p>
+            {resendSuccess && (
+              <div className="p-3 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg mb-3">
+                Verification email sent successfully!
+              </div>
+            )}
+            {resendError && (
+              <div className="p-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-3">
+                {resendError}
+              </div>
+            )}
+            {canResend ? (
+              <button
+                onClick={handleResendVerification}
+                disabled={resendVerificationMutation.isPending}
+                className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resendVerificationMutation.isPending ? 'Sending...' : 'Click here to resend'}
+              </button>
+            ) : (
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Resend available in {resendTimer}s
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowSuccessMessage(false)
+                setPassword('')
+                setConfirmPassword('')
+              }}
+              className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={() => navigate({ to: '/' })}
+              className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
