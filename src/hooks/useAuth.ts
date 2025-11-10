@@ -35,7 +35,6 @@ export const useLogin = () => {
     onSuccess: (data) => {
       // Check if 2FA is required - don't navigate, let component handle it
       if (data.success && 'requires2FA' in data && data.requires2FA) {
-        // 2FA required - component will show 2FA form
         return
       }
       

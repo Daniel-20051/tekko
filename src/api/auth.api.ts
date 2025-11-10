@@ -3,15 +3,8 @@ import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResp
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-  
-  
-  try {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials)
- 
-    return response.data
-  } catch (error) {
-    throw error
-  }
+  const response = await apiClient.post<LoginResponse>('/auth/login', credentials)
+  return response.data
 }
 
 // Register API call

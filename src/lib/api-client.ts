@@ -40,10 +40,7 @@ apiClient.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    console.error('[API Request Error]', error)
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 // Response interceptor - handles 401 errors and token refresh
@@ -138,7 +135,7 @@ apiClient.interceptors.response.use(
     }
 
     // Handle timeout errors
-    if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || error.message?.includes('Timeout')) {
       return Promise.reject(new Error('Request timed out. Please try again.'))
     }
 

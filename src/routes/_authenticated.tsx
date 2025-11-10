@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
 import { useLogout } from '../hooks/useAuth'
 import axios from 'axios'
-  import type { RefreshTokenResponse } from '../types/auth'
+import type { RefreshTokenResponse } from '../types/auth'
 
 // This layout route protects all child routes
 export const Route = createFileRoute('/_authenticated')({
@@ -43,7 +43,6 @@ export const Route = createFileRoute('/_authenticated')({
         useTokenStore.getState().setAccessToken(newAccessToken)
         accessToken = newAccessToken
       } catch (error) {
-        console.error('Refresh token failed', error)
         // Refresh failed - no valid session, redirect to login
         useTokenStore.getState().clearAccessToken()
         throw redirect({

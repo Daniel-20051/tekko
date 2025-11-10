@@ -21,11 +21,8 @@ const CreateAccountForm = () => {
   
   // Save only email and agreeToTerms to store (no passwords for security)
   useEffect(() => {
-    setFormData({
-      email,
-      agreeToTerms
-    })
-  }, [email, agreeToTerms, setFormData])
+    setFormData({ email, agreeToTerms })
+  }, [email, agreeToTerms])
   
   // Field-level errors
   const [emailError, setEmailError] = useState('')
