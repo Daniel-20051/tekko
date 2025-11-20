@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, PieChart, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
+import { useBalanceStore } from '../../store/balance.store'
 
 interface PortfolioWithWalletsProps {
   totalValue: number
@@ -58,7 +59,7 @@ const wallets = [
 
 const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: PortfolioWithWalletsProps) => {
   const [showWallets, setShowWallets] = useState(false)
-  const [hideBalance, setHideBalance] = useState(false)
+  const { hideBalance, toggleHideBalance } = useBalanceStore()
   const isPositive = change24h >= 0
 
   return (
@@ -90,7 +91,7 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setHideBalance(!hideBalance)}
+            onClick={toggleHideBalance}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label={hideBalance ? 'Show balance' : 'Hide balance'}
           >

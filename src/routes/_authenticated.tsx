@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
 import { useLogout } from '../hooks/useAuth'
 import ThemeToggle from '../components/ui/ThemeToggle'
@@ -80,6 +80,7 @@ function DashboardLayout() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
 
   const handleLogout = () => {
     logout()
@@ -101,6 +102,11 @@ function DashboardLayout() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showUserMenu])
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setMobileSidebarOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="relative min-h-screen  bg-gray-50 dark:bg-dark-surface transition-colors">
