@@ -9,8 +9,8 @@ const marketData = [
     price: '₦95.5M',
     change: 2.4,
     icon: Bitcoin,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10'
+    color: 'text-orange-500 dark:text-orange-400',
+    bgColor: 'bg-orange-500/10 dark:bg-orange-500/20'
   },
   {
     name: 'Ethereum',
@@ -18,8 +18,8 @@ const marketData = [
     price: '₦3.2M',
     change: -1.2,
     icon: Waves,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10'
+    color: 'text-blue-500 dark:text-blue-400',
+    bgColor: 'bg-blue-500/10 dark:bg-blue-500/20'
   },
   {
     name: 'Tether',
@@ -27,8 +27,8 @@ const marketData = [
     price: '₦1,650',
     change: 0.1,
     icon: DollarSign,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10'
+    color: 'text-green-500 dark:text-green-400',
+    bgColor: 'bg-green-500/10 dark:bg-green-500/20'
   }
 ]
 
@@ -72,7 +72,7 @@ const MarketOverviewCompact = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 + index * 0.1 }}
               whileHover={{ scale: 1.02, x: 4 }}
-              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-primary/5 border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all group cursor-pointer"
+              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all group cursor-pointer"
             >
               <div className="flex items-center gap-3 flex-1">
                 <motion.div 

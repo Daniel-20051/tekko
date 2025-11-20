@@ -24,7 +24,7 @@ function Dashboard() {
       >
         <div className="flex-1 min-w-0">
           <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mb-0.5">
-            Welcome back, Chidi! 👋
+            Welcome back, SAGE! 
           </h1>
           <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">
             Here's what's happening with your portfolio today.

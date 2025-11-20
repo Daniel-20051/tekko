@@ -9,8 +9,8 @@ const activities = [
     value: '₦18,500',
     time: '2 hours ago',
     icon: TrendingUp,
-    color: 'text-green-500',
-    bgColor: 'bg-green-100 dark:bg-green-900/20'
+    color: 'text-green-500 dark:text-green-400',
+    bgColor: 'bg-green-100 dark:bg-green-900/30'
   },
   {
     type: 'sell',
@@ -19,8 +19,8 @@ const activities = [
     value: '₦16,000',
     time: 'Yesterday',
     icon: TrendingDown,
-    color: 'text-red-500',
-    bgColor: 'bg-red-100 dark:bg-red-900/20'
+    color: 'text-red-500 dark:text-red-400',
+    bgColor: 'bg-red-100 dark:bg-red-900/30'
   },
   {
     type: 'deposit',
@@ -29,8 +29,8 @@ const activities = [
     value: '₦50,000',
     time: '2 days ago',
     icon: Wallet,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-100 dark:bg-blue-900/20'
+    color: 'text-blue-500 dark:text-blue-400',
+    bgColor: 'bg-blue-100 dark:bg-blue-900/30'
   },
   {
     type: 'buy',
@@ -39,8 +39,8 @@ const activities = [
     value: '₦50,325',
     time: '3 days ago',
     icon: TrendingUp,
-    color: 'text-green-500',
-    bgColor: 'bg-green-100 dark:bg-green-900/20'
+    color: 'text-green-500 dark:text-green-400',
+    bgColor: 'bg-green-100 dark:bg-green-900/30'
   }
 ]
 
@@ -72,7 +72,7 @@ const ActivityCard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + index * 0.1 }}
               whileHover={{ scale: 1.02, x: 4 }}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-primary/10 transition-colors cursor-pointer group"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-primary/30 transition-colors cursor-pointer group"
             >
               <motion.div 
                 className={`p-1.5 rounded-md ${activity.bgColor}`}

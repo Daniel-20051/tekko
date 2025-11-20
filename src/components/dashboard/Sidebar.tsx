@@ -21,17 +21,17 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const matchRoute = useMatchRoute()
   
   const menuItems = [
-    { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'text-blue-500 dark:text-primary/70' },
-    { icon: Wallet, label: 'Wallets', path: '/wallets', color: 'text-green-500 dark:text-primary/80' },
-    { icon: TrendingUp, label: 'Markets', path: '/markets', color: 'text-purple-500 dark:text-primary/70' },
-    { icon: ArrowLeftRight, label: 'Trade', path: '/trade', color: 'text-orange-500 dark:text-primary/80' },
-    { icon: History, label: 'Transactions', path: '/transactions', color: 'text-pink-500 dark:text-primary/70' },
-    { icon: PieChart, label: 'Analytics', path: '/analytics', color: 'text-cyan-500 dark:text-primary/80' },
+    { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'text-gray-500 dark:text-white' },
+    { icon: Wallet, label: 'Wallets', path: '/wallets', color: 'text-gray-500 dark:text-white' },
+    { icon: TrendingUp, label: 'Markets', path: '/markets', color: 'text-gray-500 dark:text-white' },
+    { icon: ArrowLeftRight, label: 'Trade', path: '/trade', color: 'text-gray-500 dark:text-white' },
+    { icon: History, label: 'Transactions', path: '/transactions', color: 'text-gray-500dark:text-white' },
+    { icon: PieChart, label: 'Analytics', path: '/analytics', color: 'text-gray-500 dark:text-white' },
   ]
 
   const bottomItems = [
-    { icon: Settings, label: 'Settings', path: '/settings', color: 'text-gray-500 dark:text-primary/60' },
-    { icon: HelpCircle, label: 'Help & Support', path: '/help', color: 'text-gray-500 dark:text-primary/60' },
+    { icon: Settings, label: 'Settings', path: '/settings', color: 'text-gray-500 dark:text-white' },
+    { icon: HelpCircle, label: 'Help & Support', path: '/help', color: 'text-gray-500 dark:text-white' },
   ]
 
   const sidebarVariants: Variants = {
@@ -106,8 +106,8 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                   className={`
                     relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
                     ${active 
-                      ? 'bg-primary/10 dark:bg-primary/20 text-primary border-l-4 border-primary' 
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 border-l-4 border-transparent'
+                      ? 'bg-primary/10 dark:bg-dark-bg text-primary dark:text-gray-300 border-l-4 border-primary' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/30 border-l-4 border-transparent'
                     }
                   `}
                 >

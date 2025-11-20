@@ -19,8 +19,8 @@ const wallets = [
     change: '+2.4%',
     changeType: 'positive' as const,
     icon: Bitcoin,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10'
+    color: 'text-orange-500 dark:text-orange-400',
+    bgColor: 'bg-orange-500/10 dark:bg-orange-500/20'
   },
   {
     name: 'Ethereum',
@@ -30,8 +30,8 @@ const wallets = [
     change: '-1.2%',
     changeType: 'negative' as const,
     icon: Waves,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10'
+    color: 'text-blue-500 dark:text-blue-400',
+    bgColor: 'bg-blue-500/10 dark:bg-blue-500/20'
   },
   {
     name: 'USDT',
@@ -41,8 +41,8 @@ const wallets = [
     change: '+0.1%',
     changeType: 'positive' as const,
     icon: DollarSign,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10'
+    color: 'text-green-500 dark:text-green-400',
+    bgColor: 'bg-green-500/10 dark:bg-green-500/20'
   },
   {
     name: 'Naira',
@@ -52,8 +52,8 @@ const wallets = [
     change: '0%',
     changeType: 'neutral' as const,
     icon: Landmark,
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-500/10'
+    color: 'text-gray-500 dark:text-gray-400',
+    bgColor: 'bg-gray-500/10 dark:bg-gray-500/20'
   }
 ]
 
@@ -155,13 +155,13 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
         </div>
 
         {/* Expandable Wallets Section */}
-        <div className="border-t border-gray-200 dark:border-primary/50 pt-3">
+        <div className="border-t  border-gray-200 dark:border-primary/50 pt-3">
           <motion.button
             onClick={() => setShowWallets(!showWallets)}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-primary/30 transition-colors"
+            className="w-full flex items-center cursor-pointer justify-between px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-primary/30 transition-colors"
             whileHover={{ x: 4 }}
           >
-            <span className="text-xs font-semibold text-gray-900 dark:text-white">
+            <span className="text-xs  font-semibold text-gray-900 dark:text-white">
               View Wallet Breakdown ({wallets.length})
             </span>
             <motion.div
@@ -193,7 +193,7 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         whileHover={{ scale: 1.005, y: -1 }}
-                        className="p-3 rounded-lg bg-gray-50 dark:bg-primary/5 border border-gray-200 dark:border-primary/50 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all cursor-pointer group"
+                        className="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/50 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all cursor-pointer group"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">

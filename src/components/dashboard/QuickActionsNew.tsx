@@ -66,7 +66,7 @@ const QuickActionsNew = () => {
               `}
             >
               {/* Background gradient effect on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               
               <div className="relative">
                 <Icon className={`w-6 h-6 ${action.color} group-hover:text-white transition-colors`} />

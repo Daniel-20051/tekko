@@ -5,10 +5,11 @@
 
 @theme {
   --color-primary: #743a34;
+  --color-primary-light: #a65b52;
   
-  /* Dark mode colors */
-  --color-dark-bg: #111111;
-  --color-dark-surface: #1a1a1a;
+  /* Dark mode colors - Brighter */
+  --color-dark-bg: #1a1a1a;
+  --color-dark-surface: #242424;
   --color-dark-text: #ffffff;
   
   /* Font family */

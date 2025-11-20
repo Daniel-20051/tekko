@@ -109,7 +109,7 @@ function DashboardLayout() {
   }, [location.pathname])
 
   return (
-    <div className="relative min-h-screen  bg-gray-50 dark:bg-dark-surface transition-colors">
+    <div className="relative min-h-screen  bg-gray-50 dark:bg-dark-bg transition-colors">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
@@ -218,7 +218,7 @@ function DashboardLayout() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-primary/30 cursor-pointer transition-colors"
                   >
                     <div className="text-right hidden sm:block">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">Chidi</p>

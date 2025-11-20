@@ -37,7 +37,7 @@ const QuickActionsModern = () => {
               transition={{ delay: 0.3 + index * 0.1 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              className="flex flex-col lg:flex-row items-center gap-2 p-2 rounded-md bg-gray-50 dark:bg-primary/5 border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all duration-200 flex-1 lg:flex-none"
+              className="flex flex-col lg:flex-row items-center gap-2 p-2 rounded-md bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all duration-200 flex-1 lg:flex-none"
             >
               <motion.div 
                 className="p-1.5 rounded-md bg-primary/10"
