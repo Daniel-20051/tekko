@@ -1,30 +1,72 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { motion } from 'framer-motion'
+import PortfolioWithWallets from '../../components/dashboard/PortfolioWithWallets'
+import QuickActionsModern from '../../components/dashboard/QuickActionsModern'
+import MarketOverviewCompact from '../../components/dashboard/MarketOverviewCompact'
+import ActivityCard from '../../components/dashboard/ActivityCard'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: Dashboard,
 })
 
 function Dashboard() {
+  // Get current time for last login
+  const now = new Date()
+  const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+  
   return (
-    <div>
-      <h1 className="text-4xl font-bold mb-4">Dashboard Overview</h1>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600 mb-4">
-          🔒 This is a protected page! You can only see this if you're logged in.
-        </p>
-        <div className="grid grid-cols-3 gap-4 mt-6">
-          <div className="bg-blue-50 p-4 rounded">
-            <h3 className="font-semibold text-blue-900">Total Users</h3>
-            <p className="text-3xl font-bold text-blue-600">1,234</p>
+    <div className="max-w-[1600px] mx-auto space-y-3">
+      {/* Welcome Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-start md:items-center justify-between gap-2 md:gap-4"
+      >
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mb-0.5">
+            Welcome back, Chidi! 👋
+          </h1>
+          <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">
+            Here's what's happening with your portfolio today.
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-dark-surface rounded-lg px-2 md:px-3 py-1 md:py-1.5 border border-gray-200 dark:border-primary/50 shrink-0">
+          <p className="text-[8px] md:text-[10px] text-gray-500 dark:text-gray-400 whitespace-nowrap">Last login</p>
+          <p className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">Today, {timeString}</p>
+        </div>
+      </motion.div>
+
+      {/* Main Layout - Portfolio and Quick Actions Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Left Column - Portfolio and Content (2/3 width) */}
+        <div className="lg:col-span-2 space-y-3">
+          {/* Portfolio Card with Wallets */}
+          <PortfolioWithWallets 
+            totalValue={2500000000.00}
+            change24h={5.2}
+            changeAmount={12400}
+          />
+          
+          {/* Quick Actions - Mobile Only */}
+          <div className="lg:hidden">
+            <div className="flex flex-col gap-0">
+              <QuickActionsModern />
+              <ActivityCard />
+            </div>
           </div>
-          <div className="bg-green-50 p-4 rounded">
-            <h3 className="font-semibold text-green-900">Revenue</h3>
-            <p className="text-3xl font-bold text-green-600">$45.2K</p>
-          </div>
-          <div className="bg-purple-50 p-4 rounded">
-            <h3 className="font-semibold text-purple-900">Orders</h3>
-            <p className="text-3xl font-bold text-purple-600">892</p>
-          </div>
+          
+          {/* Market Overview */}
+          <MarketOverviewCompact />
+        </div>
+        
+        {/* Right Column - Quick Actions and Activity (1/3 width) - Desktop Only */}
+        <div className="hidden lg:flex lg:col-span-1 flex-col gap-0">
+          {/* Quick Actions */}
+          <QuickActionsModern />
+          
+          {/* Activity Card */}
+          <ActivityCard />
         </div>
       </div>
     </div>
