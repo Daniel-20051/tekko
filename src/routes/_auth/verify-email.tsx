@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import VerifyEmail from '../../pages/authentication/verifyEmail/VerifyEmail'
+import { lazy } from 'react'
+
+const VerifyEmail = lazy(() => import('../../pages/authentication/verifyEmail/VerifyEmail'))
 
 export const Route = createFileRoute('/_auth/verify-email')({
   validateSearch: (search: Record<string, unknown>) => {
@@ -7,9 +9,5 @@ export const Route = createFileRoute('/_auth/verify-email')({
       token: (search.token as string) || undefined,
     }
   },
-  component: RouteComponent,
+  component: VerifyEmail,
 })
-
-function RouteComponent() {
-  return <VerifyEmail />
-}
