@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
+import { useLoadingStore } from '../store/loading.store'
 import { useLogout } from '../hooks/useAuth'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/dashboard/Sidebar'
@@ -8,6 +9,7 @@ import { Bell, User, UserCircle, Settings, LogOut, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import type { RefreshTokenResponse } from '../types/auth'
+import { showRefreshLoader, removeRefreshLoader } from '../utils/loader-utils'
 
 // This layout route protects all child routes
 export const Route = createFileRoute('/_authenticated')({
@@ -18,6 +20,12 @@ export const Route = createFileRoute('/_authenticated')({
 
     // If no token, try to refresh (only attempt refresh when accessing protected routes)
     if (!accessToken) {
+      // Show loader IMMEDIATELY and synchronously before any async operations
+      // This prevents the white flash
+      showRefreshLoader()
+      // Also set loading state for React components
+      useLoadingStore.getState().setRefreshingToken(true)
+      
       try {
         // Attempt to refresh token using HttpOnly cookie
         // Use axios directly to avoid interceptor loop
@@ -57,6 +65,10 @@ export const Route = createFileRoute('/_authenticated')({
             redirect: location.href,
           },
         })
+      } finally {
+        // Remove loader from DOM and clear loading state
+        removeRefreshLoader()
+        useLoadingStore.getState().setRefreshingToken(false)
       }
     }
 

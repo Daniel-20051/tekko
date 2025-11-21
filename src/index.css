@@ -3,6 +3,7 @@
 /* Enable dark mode with class strategy */
 @variant dark (&:is(.dark *));
 
+
 @theme {
   --color-primary: #743a34;
   --color-primary-light: #a65b52;
@@ -24,6 +25,15 @@
 /* Apply font globally to body - will inherit to text elements naturally */
 body {
   font-family: 'Stack Sans Notch', ui-sans-serif, system-ui, sans-serif;
+  /* Set default background to prevent white flash - will be overridden by theme */
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark mode body background */
+html.dark body {
+  background-color: #1a1a1a;
 }
 
 /* Custom Scrollbar Styles - Theme Aware */

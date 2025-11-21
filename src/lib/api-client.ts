@@ -1,5 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useTokenStore } from '../store/token.store'
+import { useLoadingStore } from '../store/loading.store'
+import { showRefreshLoader, removeRefreshLoader } from '../utils/loader-utils'
 import type { RefreshTokenResponse } from '../types/auth'
 
 // Create axios instance with default config
@@ -80,6 +82,11 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
+      // Show loader immediately by injecting into DOM
+      showRefreshLoader()
+      // Also set loading state for React components
+      useLoadingStore.getState().setRefreshingToken(true)
+
       try {
         // Call refresh endpoint (browser automatically includes HttpOnly refresh cookie)
         // Use axios directly to avoid interceptor loop
@@ -131,6 +138,9 @@ apiClient.interceptors.response.use(
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
+        // Remove loader from DOM and clear loading state
+        removeRefreshLoader()
+        useLoadingStore.getState().setRefreshingToken(false)
       }
     }
 
