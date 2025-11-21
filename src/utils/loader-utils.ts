@@ -50,21 +50,34 @@ export function showRefreshLoader() {
   // Set body background immediately
   if (document.body) {
     document.body.style.backgroundColor = bgColor
+    createLoader()
   } else {
     // If body isn't ready, wait for DOMContentLoaded
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
-        document.body.style.backgroundColor = bgColor
-        createLoader()
+        if (document.body) {
+          document.body.style.backgroundColor = bgColor
+          createLoader()
+        }
       })
       return
     }
+    // If document is ready but body still doesn't exist, try again after a short delay
+    setTimeout(() => {
+      if (document.body) {
+        document.body.style.backgroundColor = bgColor
+        createLoader()
+      }
+    }, 0)
     return
   }
   
-  createLoader()
-  
   function createLoader() {
+    // Double-check body exists before creating loader
+    if (!document.body) {
+      return
+    }
+    
     const textColor = theme === 'dark' ? '#ffffff' : '#111827'
     const primaryColor = '#743a34'
     

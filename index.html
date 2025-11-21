@@ -33,11 +33,23 @@
           return prefersDark ? 'dark' : 'light';
         }
         
-        const theme = getTheme();
-        const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
-        document.body.style.backgroundColor = bgColor;
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
+        function setBodyStyles() {
+          if (document.body) {
+            const theme = getTheme();
+            const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+            document.body.style.backgroundColor = bgColor;
+            document.body.style.margin = '0';
+            document.body.style.padding = '0';
+          }
+        }
+        
+        // Try immediately, or wait for DOMContentLoaded
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setBodyStyles);
+        } else {
+          // DOM is already loaded, but body might not be ready yet
+          setTimeout(setBodyStyles, 0);
+        }
       })();
     </script>
   </head>

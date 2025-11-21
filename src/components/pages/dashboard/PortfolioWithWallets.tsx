@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, PieChart, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
-import { useBalanceStore } from '../../store/balance.store'
+import { useBalanceStore } from '../../../store/balance.store'
 
 interface PortfolioWithWalletsProps {
   totalValue: number
