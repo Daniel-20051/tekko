@@ -53,12 +53,17 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    // Don't attempt refresh for auth endpoints (login, register, refresh, logout)
+    // Don't attempt refresh for auth endpoints (login, register, refresh, logout, password reset, password change, verify-device)
     // These endpoints should handle their own errors
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/login') ||
                            originalRequest?.url?.includes('/auth/register') ||
                            originalRequest?.url?.includes('/auth/refresh') ||
-                           originalRequest?.url?.includes('/auth/logout')
+                           originalRequest?.url?.includes('/auth/logout') ||
+                           originalRequest?.url?.includes('/auth/logout-all') ||
+                           originalRequest?.url?.includes('/auth/password/forgot') ||
+                           originalRequest?.url?.includes('/auth/password/reset') ||
+                           originalRequest?.url?.includes('/auth/password/change') ||
+                           originalRequest?.url?.includes('/auth/verify-device')
 
     // Handle 401 Unauthorized - attempt token refresh
     // Skip refresh for auth endpoints and if already retried

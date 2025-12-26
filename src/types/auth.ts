@@ -44,6 +44,14 @@ export interface Login2FAResponse {
   message: string
 }
 
+// Device verification required response structure
+export interface LoginDeviceVerificationResponse {
+  success: true
+  requiresDeviceVerification: true
+  message: string
+  deviceName: string
+}
+
 // Verify email request
 export interface VerifyEmailCredentials {
   token: string
@@ -74,6 +82,53 @@ export interface ResendVerificationSuccessResponse {
   }
 }
 
+// Forgot password request
+export interface ForgotPasswordCredentials {
+  email: string
+}
+
+// Forgot password success response structure
+export interface ForgotPasswordSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
+
+// Reset password request
+export interface ResetPasswordCredentials {
+  token: string
+  newPassword: string
+}
+
+// Reset password success response structure
+export interface ResetPasswordSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
+
+// Change password request
+export interface ChangePasswordCredentials {
+  currentPassword: string
+  newPassword: string
+}
+
+// Change password success response structure
+export interface ChangePasswordSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
+
 // Refresh token success response structure
 export interface RefreshTokenSuccessResponse {
   success: true
@@ -87,22 +142,152 @@ export interface RefreshTokenSuccessResponse {
 // Union type for register response (can be success or error)
 export type RegisterResponse = RegisterSuccessResponse | ErrorResponse
 
-export type LoginResponse = LoginSuccessResponse | Login2FAResponse | ErrorResponse
+export type LoginResponse = LoginSuccessResponse | Login2FAResponse | LoginDeviceVerificationResponse | ErrorResponse
 
 export type VerifyEmailResponse = VerifyEmailSuccessResponse | ErrorResponse
 
 export type ResendVerificationResponse = ResendVerificationSuccessResponse | ErrorResponse
 
+export type ForgotPasswordResponse = ForgotPasswordSuccessResponse | ErrorResponse
+
+export type ResetPasswordResponse = ResetPasswordSuccessResponse | ErrorResponse
+
+export type ChangePasswordResponse = ChangePasswordSuccessResponse | ErrorResponse
+
 export type RefreshTokenResponse = RefreshTokenSuccessResponse | ErrorResponse
 
+// Get current user success response structure
+export interface GetCurrentUserSuccessResponse {
+  success: true
+  message: string
+  data: {
+    user: User
+  }
+}
+
+export type GetCurrentUserResponse = GetCurrentUserSuccessResponse | ErrorResponse
 
 export interface User {
   id: number
   email: string
+  phoneNumber: string | null
+  phoneVerified: boolean
+  emailVerified: boolean
+  kycLevel: string
   role: string
-  status?: string
+  status: string
+  createdAt: string
+  lastLoginAt: string | null
+  lastLoginIp: string | null
   twoFactorEnabled?: boolean
-  emailVerified?: boolean
-
 }
+
+// Profile response structure
+export interface ProfileSuccessResponse {
+  success: true
+  message: string
+  data: {
+    user: User
+  }
+}
+
+export type ProfileResponse = ProfileSuccessResponse | ErrorResponse
+
+// Security status response
+export interface SecurityStatusData {
+  twoFactorEnabled: boolean
+  pinSet: boolean
+  emailVerified: boolean
+  phoneVerified: boolean
+  lastLogin: {
+    at: string
+    ip: string
+  }
+  activeSessions: number
+}
+
+export interface SecurityStatusSuccessResponse {
+  success: true
+  message: string
+  data: SecurityStatusData
+}
+
+export type SecurityStatusResponse = SecurityStatusSuccessResponse | ErrorResponse
+
+// Session data from API
+export interface SessionData {
+  id: string
+  userId: number
+  refreshToken: string
+  isActive: boolean
+  ipAddress: string
+  userAgent: string
+  device: string
+  browser: string
+  os: string
+  country: string
+  city: string
+  lastActive: string
+  createdAt: string
+  expiresAt: string
+}
+
+// Get sessions success response structure
+export interface GetSessionsSuccessResponse {
+  success: true
+  message: string
+  data: {
+    sessions: SessionData[]
+  }
+}
+
+export type GetSessionsResponse = GetSessionsSuccessResponse | ErrorResponse
+
+// PIN status response
+export interface PinStatusData {
+  hasPin: boolean
+  message: string
+}
+
+export interface PinStatusSuccessResponse {
+  success: true
+  data: PinStatusData
+}
+
+export type PinStatusResponse = PinStatusSuccessResponse | ErrorResponse
+
+// Create PIN request
+export interface CreatePinCredentials {
+  pin: string
+}
+
+export interface CreatePinSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
+
+export type CreatePinResponse = CreatePinSuccessResponse | ErrorResponse
+
+// Device verification request
+export interface VerifyDeviceCredentials {
+  email: string
+  verificationCode: string
+}
+
+// Device verification success response structure
+export interface VerifyDeviceSuccessResponse {
+  success: true
+  message: string
+  data: {
+    accessToken: string
+    refreshToken?: string
+    user: User
+  }
+}
+
+export type VerifyDeviceResponse = VerifyDeviceSuccessResponse | ErrorResponse
 

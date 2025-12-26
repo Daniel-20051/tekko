@@ -4,13 +4,15 @@ import Button from '../../../ui/Button'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '../../../../store/auth.store'
 import { validateEmail } from '../../../../services/validation.service'
+import { useForgotPassword } from '../../../../hooks/useAuth'
 
 const PasswordResetForm = () => {
   const navigate = useNavigate()
   const { loginEmail, setLoginEmail, clearLoginEmail } = useAuthStore()
+  const forgotPasswordMutation = useForgotPassword()
   const [email, setEmail] = useState(loginEmail || '')
-  const [isLoading, setIsLoading] = useState(false)
   const [emailError, setEmailError] = useState('')
+  const [apiError, setApiError] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
@@ -38,6 +40,7 @@ const PasswordResetForm = () => {
     
     // Clear previous errors
     setEmailError('')
+    setApiError('')
     
     // Validate email
     if (!email) {
@@ -50,18 +53,34 @@ const PasswordResetForm = () => {
       return
     }
     
-    setIsLoading(true)
-    
-    // TODO: Implement password reset logic
-    console.log('Password reset requested for:', email)
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      setIsSubmitted(true)
-      // Clear login email after successful submission
-      clearLoginEmail()
-    }, 1500)
+    // Call forgot password API
+    forgotPasswordMutation.mutate(
+      { email },
+      {
+        onSuccess: (data) => {
+          if (data.success) {
+            setIsSubmitted(true)
+            // Clear login email after successful submission
+            clearLoginEmail()
+          }
+        },
+        onError: (error: unknown) => {
+          // Handle API errors
+          let errorMessage = 'Failed to send reset link. Please try again.'
+          
+          if (error instanceof Error) {
+            // Error from api-client interceptor (already extracted)
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            // Handle axios error structure directly
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || errorMessage
+          }
+          
+          setApiError(errorMessage)
+        }
+      }
+    )
   }
 
   if (isSubmitted) {
@@ -150,10 +169,18 @@ const PasswordResetForm = () => {
           onChange={(e) => {
             setEmail(e.target.value)
             if (emailError) setEmailError('')
+            if (apiError) setApiError('')
           }}
           required
           error={emailError}
         />
+
+        {/* API Error Message */}
+        {apiError && (
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            {apiError}
+          </div>
+        )}
 
         {/* Reset Password Button */}
         <Button
@@ -161,9 +188,9 @@ const PasswordResetForm = () => {
           variant="primary"
           size="md"
           fullWidth
-          disabled={isLoading}
+          disabled={forgotPasswordMutation.isPending}
         >
-          {isLoading ? 'Sending...' : 'Send Reset Link'}
+          {forgotPasswordMutation.isPending ? 'Sending...' : 'Send Reset Link'}
         </Button>
 
         

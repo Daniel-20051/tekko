@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import axios from 'axios'
 import { initializeTheme } from './store/theme.store'
+import { setQueryClient } from './utils/query-client'
 import './index.css'
 
 // Configure axios to include credentials (cookies) in all requests
@@ -36,6 +37,9 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Set the query client instance for use in loaders
+setQueryClient(queryClient)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

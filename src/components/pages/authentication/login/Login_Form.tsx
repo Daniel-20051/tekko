@@ -5,12 +5,14 @@ import Checkbox from '../../../ui/Checkbox'
 import Spinner from '../../../ui/Spinner'
 import { Link } from '@tanstack/react-router'
 import { useAuthStore } from '../../../../store/auth.store'
-import { useLogin } from '../../../../hooks/useAuth'
+import { useLogin, useVerifyDevice } from '../../../../hooks/useAuth'
 import TwoFactorForm from './TwoFactorForm'
+import DeviceVerificationForm from './DeviceVerificationForm'
 
 const Login_Form = () => {
   const { loginEmail, setLoginEmail } = useAuthStore()
   const loginMutation = useLogin()
+  const verifyDeviceMutation = useVerifyDevice()
   const [email, setEmail] = useState(loginEmail || '')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -20,6 +22,9 @@ const Login_Form = () => {
   
   // 2FA state
   const [requires2FA, setRequires2FA] = useState(false)
+  // Device verification state
+  const [requiresDeviceVerification, setRequiresDeviceVerification] = useState(false)
+  const [deviceName, setDeviceName] = useState('')
   const [isMounted, setIsMounted] = useState(false)
 
   // Trigger animation on mount
@@ -70,6 +75,14 @@ const Login_Form = () => {
           // Check if 2FA is required
           if ('requires2FA' in data && data.requires2FA) {
             setRequires2FA(true)
+            return
+          }
+          
+          // Check if device verification is required
+          if ('requiresDeviceVerification' in data && data.requiresDeviceVerification) {
+            setRequiresDeviceVerification(true)
+            setDeviceName(data.deviceName || 'Unknown Device')
+            return
           }
         },
         onError: (error: unknown) => {
@@ -101,6 +114,12 @@ const Login_Form = () => {
     setApiError('')
   }
 
+  const handleDeviceVerificationBack = () => {
+    setRequiresDeviceVerification(false)
+    setDeviceName('')
+    setApiError('')
+  }
+
   return (
     <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 relative overflow-hidden ${isMounted ? 'animate-fade-in-left' : 'opacity-0'}`}>
       {/* Forms Container - relative positioning for absolute children */}
@@ -108,7 +127,7 @@ const Login_Form = () => {
         {/* Login Form */}
         <div 
           className={`w-full transition-all duration-500 ease-out ${
-            requires2FA 
+            requires2FA || requiresDeviceVerification
               ? 'absolute top-0 left-0 right-0 opacity-0 -translate-x-8 pointer-events-none invisible' 
               : 'relative opacity-100 translate-x-0 pointer-events-auto visible'
           }`}
@@ -247,7 +266,7 @@ const Login_Form = () => {
         {/* 2FA Form */}
         <div 
           className={`w-full transition-all duration-500 ease-out ${
-            requires2FA 
+            requires2FA && !requiresDeviceVerification
               ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
               : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'
           }`}
@@ -258,6 +277,23 @@ const Login_Form = () => {
             loginMutation={loginMutation}
             isVisible={requires2FA}
             onBack={handle2FABack}
+          />
+        </div>
+
+        {/* Device Verification Form */}
+        <div 
+          className={`w-full transition-all duration-500 ease-out ${
+            requiresDeviceVerification
+              ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
+              : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'
+          }`}
+        >
+          <DeviceVerificationForm
+            email={email}
+            deviceName={deviceName}
+            verifyDeviceMutation={verifyDeviceMutation}
+            isVisible={requiresDeviceVerification}
+            onBack={handleDeviceVerificationBack}
           />
         </div>
       </div>

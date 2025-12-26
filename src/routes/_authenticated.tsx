@@ -1,9 +1,10 @@
 import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
 import { useLoadingStore } from '../store/loading.store'
-import { useLogout } from '../hooks/useAuth'
+import { useLogout, useCurrentUser, usePinStatus } from '../hooks/useAuth'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/pages/dashboard/Sidebar'
+import CreatePinModal from '../components/pages/settings/CreatePinModal'
 import { useState, useRef, useEffect } from 'react'
 import { Bell, User, UserCircle, Settings, LogOut, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -88,11 +89,35 @@ export const Route = createFileRoute('/_authenticated')({
 
 function DashboardLayout() {
   const { mutate: logout, isPending: isLoggingOut } = useLogout()
+  const { data: currentUser, isLoading: isLoadingUser } = useCurrentUser()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [showPinModal, setShowPinModal] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
+  const accessToken = useTokenStore((state) => state.accessToken)
+  
+  // Check PIN status 5 seconds after app load
+  const { data: pinStatus } = usePinStatus()
+  
+  useEffect(() => {
+    if (!accessToken) return
+
+    const timer = setTimeout(() => {
+      if (pinStatus && !pinStatus.hasPin) {
+        setShowPinModal(true)
+      }
+    }, 5000) // 5 seconds delay
+
+    return () => clearTimeout(timer)
+  }, [pinStatus, accessToken])
+
+  // Extract display name from email (part before @) or use email
+  const displayName = currentUser?.email 
+    ? currentUser.email.split('@')[0].charAt(0).toUpperCase() + currentUser.email.split('@')[0].slice(1)
+    : 'User'
+  const userRole = currentUser?.role || 'User'
 
   const handleLogout = () => {
     logout()
@@ -233,8 +258,14 @@ function DashboardLayout() {
                     className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-primary/30 cursor-pointer transition-colors"
                   >
                     <div className="text-right hidden sm:block">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">Chidi</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">User</p>
+                      {isLoadingUser ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                      ) : (
+                        <>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{displayName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{userRole}</p>
+                        </>
+                      )}
                     </div>
                     <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold">
                       <User className="w-5 h-5" />
@@ -296,6 +327,12 @@ function DashboardLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Create PIN Modal */}
+      <CreatePinModal
+        isOpen={showPinModal}
+        onClose={() => setShowPinModal(false)}
+      />
     </div>
   )
 }

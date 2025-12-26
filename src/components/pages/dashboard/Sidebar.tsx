@@ -152,8 +152,8 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                 className={`
                   relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
                   ${active 
-                    ? 'bg-primary/10 dark:bg-primary/20 text-primary border-l-4 border-primary' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 border-l-4 border-transparent'
+                   ? 'bg-primary/10 dark:bg-dark-bg text-primary dark:text-gray-300 border-l-4 border-primary' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/30 border-l-4 border-transparent'
                   }
                 `}
               >
