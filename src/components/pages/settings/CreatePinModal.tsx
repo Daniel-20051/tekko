@@ -1,26 +1,34 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import Modal from '../../ui/Modal'
-import PinInput from '../../ui/PinInput'
-import Button from '../../ui/Button'
-import { useCreatePin } from '../../../hooks/useAuth'
+import Alert from '../../ui/Alert'
+import StepIndicator from './CreatePinModal/StepIndicator'
+import CreatePinStep from './CreatePinModal/CreatePinStep'
+import ConfirmPinStep from './CreatePinModal/ConfirmPinStep'
+import OtpStep from './CreatePinModal/OtpStep'
+import { useCreatePin, useRequestPinOtp } from '../../../hooks/useAuth'
+import { settingsKeys } from '../../../hooks/useSettings'
 
 interface CreatePinModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-type Step = 'create' | 'confirm'
+type Step = 'create' | 'confirm' | 'otp'
 
 const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
   const [step, setStep] = useState<Step>('create')
   const [pin, setPin] = useState<string[]>([])
   const [confirmPin, setConfirmPin] = useState<string[]>([])
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
   const [pinLength] = useState(4)
-  const [errors, setErrors] = useState<{ pin?: string; confirmPin?: string; general?: string }>({})
+  const [errors, setErrors] = useState<{ pin?: string; confirmPin?: string; otp?: string; general?: string }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false)
 
-  const { mutate: createPin, isPending } = useCreatePin()
+  const queryClient = useQueryClient()
+  const { mutate: createPin, isPending: isCreatingPin } = useCreatePin()
+  const { mutate: requestOtp, isPending: isRequestingOtp } = useRequestPinOtp()
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -28,13 +36,15 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
       setStep('create')
       setPin([])
       setConfirmPin([])
+      setOtp(['', '', '', '', '', ''])
       setErrors({})
       setIsSubmitting(false)
+      setShowSuccessAlert(false)
     }
   }, [isOpen])
 
   // Handle moving to confirm step
-  const handleNext = () => {
+  const handleCreateNext = () => {
     // Validate PIN is complete
     if (pin.length === pinLength && pin.every(digit => digit !== '')) {
       setErrors({})
@@ -44,41 +54,71 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
     }
   }
 
-  // Check if PIN is complete
-  const isPinComplete = pin.length === pinLength && pin.every(digit => digit !== '')
-
-  // Handle PIN completion in confirm step
-  const handleConfirmPinComplete = useCallback((confirmPinValue: string) => {
-    // Prevent multiple calls
-    if (isSubmitting || isPending) return
-    
-    // Validate PINs match
+  // Handle confirm step next - request OTP
+  const handleConfirmNext = () => {
     const pinValue = pin.join('')
-    if (pinValue !== confirmPinValue) {
+    const confirmPinValue = confirmPin.join('')
+    if (confirmPinValue.length === pinLength && confirmPinValue === pinValue) {
+      setErrors({})
+      // Request OTP before moving to OTP step
+      requestOtp(undefined, {
+        onSuccess: (response) => {
+          if (response.success) {
+            setStep('otp')
+          } else {
+            setErrors({ general: 'Failed to request OTP. Please try again.' })
+          }
+        },
+        onError: (error: Error) => {
+          setErrors({ general: error.message || 'Failed to request OTP. Please try again.' })
+        },
+      })
+    } else if (confirmPinValue.length === pinLength) {
       setErrors({ confirmPin: 'PINs do not match. Please try again.' })
       setConfirmPin([])
-      return
+    } else {
+      setErrors({ confirmPin: 'Please enter all 4 digits' })
     }
+  }
 
+
+  // Handle OTP completion - call API
+  const handleOtpComplete = useCallback((otpValue: string) => {
+    // Prevent multiple calls
+    if (isSubmitting || isCreatingPin) return
+
+    const pinValue = pin.join('')
+    
     // Clear errors and call API
     setIsSubmitting(true)
     setErrors({})
     createPin(
-      { pin: pinValue },
+      { pin: pinValue, otp: otpValue },
       {
         onSuccess: (response) => {
           setIsSubmitting(false)
           if (response.success) {
             setPin([])
             setConfirmPin([])
+            setOtp(['', '', '', '', '', ''])
             setErrors({})
             setStep('create')
-            onClose()
+            // Mark PIN modal as shown since PIN was created
+            sessionStorage.setItem('pinModalShown', 'true')
+            // Invalidate security status to update PIN status
+            queryClient.invalidateQueries({ queryKey: settingsKeys.securityStatus() })
+            // Show success alert
+            setShowSuccessAlert(true)
+            // Close modal after a short delay to show the alert
+            setTimeout(() => {
+              onClose()
+            }, 500)
           } else {
             setErrors({ general: 'Failed to create PIN. Please try again.' })
             setStep('create')
             setPin([])
             setConfirmPin([])
+            setOtp(['', '', '', '', '', ''])
           }
         },
         onError: (error: Error) => {
@@ -87,61 +127,57 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
           setStep('create')
           setPin([])
           setConfirmPin([])
+          setOtp(['', '', '', '', '', ''])
         },
       }
     )
-  }, [pin, createPin, onClose, isSubmitting, isPending])
+  }, [pin, createPin, onClose, isSubmitting, isCreatingPin])
 
-  const handleBack = () => {
-    if (step === 'confirm' && !isPending) {
+  const handleBack = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    if (isRequestingOtp || isCreatingPin || isSubmitting) return
+
+    if (step === 'confirm') {
       setStep('create')
       setConfirmPin([])
+      setErrors({})
+    } else if (step === 'otp') {
+      setStep('confirm')
+      setOtp(['', '', '', '', '', ''])
       setErrors({})
     }
   }
 
   const handleClose = () => {
-    if (!isPending) {
+    if (!isRequestingOtp && !isCreatingPin && !isSubmitting) {
       setStep('create')
       setPin([])
       setConfirmPin([])
+      setOtp(['', '', '', '', '', ''])
       setErrors({})
       onClose()
     }
   }
 
   return (
+    <>
     <Modal isOpen={isOpen} onClose={handleClose} title="Create Transfer PIN" size="md">
       <div className="space-y-6">
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-            step === 'create' 
-              ? 'bg-primary text-white' 
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-          }`}>
-            1
-          </div>
-          <div className={`w-12 h-0.5 transition-colors ${
-            step === 'confirm' 
-              ? 'bg-primary' 
-              : 'bg-gray-200 dark:bg-gray-700'
-          }`} />
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-            step === 'confirm' 
-              ? 'bg-primary text-white' 
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-          }`}>
-            2
-          </div>
-        </div>
+        <StepIndicator currentStep={step} />
 
         {/* Description */}
         <div className="text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {step === 'create' 
               ? 'Create a transfer PIN to enable transactions. This PIN will be required for all financial operations.'
-              : 'Please confirm your PIN to complete the setup.'}
+              : step === 'confirm'
+              ? 'Please confirm your PIN to complete the setup.'
+              : 'Enter the 6-digit OTP sent to your email to verify and complete PIN setup.'}
           </p>
         </div>
 
@@ -154,83 +190,59 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
 
         {/* Step 1: Create PIN */}
         {step === 'create' && (
-          <div className="space-y-4">
-            <PinInput
-              value={pin}
-              onChange={setPin}
-              length={4}
-              error={errors.pin}
-              autoFocus={true}
-              disabled={isPending}
-              label="Enter your PIN (4 digits)"
-            />
-            <div className="flex items-center gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isPending}
-                fullWidth
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                onClick={handleNext}
-                disabled={!isPinComplete || isPending}
-                fullWidth
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <CreatePinStep
+            pin={pin}
+            onPinChange={setPin}
+            error={errors.pin}
+            onNext={handleCreateNext}
+            onCancel={handleClose}
+            disabled={isRequestingOtp || isCreatingPin}
+            pinLength={pinLength}
+          />
         )}
 
         {/* Step 2: Confirm PIN */}
         {step === 'confirm' && (
-          <div className="space-y-4">
-            <PinInput
-              value={confirmPin}
-              onChange={setConfirmPin}
-              onComplete={handleConfirmPinComplete}
-              length={pinLength}
-              error={errors.confirmPin}
-              autoFocus={true}
-              disabled={isPending}
-              label="Confirm your PIN"
-            />
-            <div className="flex items-center gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                disabled={isPending}
-                icon={<ArrowLeft className="w-4 h-4" />}
-                fullWidth
-              >
-                Back
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isPending}
-                fullWidth
-              >
-                Cancel
-              </Button>
-            </div>
-            {isPending && (
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Creating PIN...</span>
-              </div>
-            )}
-          </div>
+          <ConfirmPinStep
+            pin={pin}
+            confirmPin={confirmPin}
+            onConfirmPinChange={setConfirmPin}
+            error={errors.confirmPin}
+            onBack={handleBack}
+            onNext={handleConfirmNext}
+            disabled={isRequestingOtp || isCreatingPin}
+            isRequestingOtp={isRequestingOtp}
+            pinLength={pinLength}
+          />
+        )}
+
+        {/* Step 3: Enter OTP */}
+        {step === 'otp' && (
+          <OtpStep
+            otp={otp}
+            onOtpChange={(code) => {
+              setOtp(code)
+              if (errors.otp) setErrors({ ...errors, otp: undefined })
+              if (errors.general) setErrors({ ...errors, general: undefined })
+            }}
+            onOtpComplete={handleOtpComplete}
+            error={errors.otp}
+            onBack={handleBack}
+            onCancel={handleClose}
+            disabled={isCreatingPin || isSubmitting}
+            isSubmitting={isCreatingPin || isSubmitting}
+          />
         )}
       </div>
     </Modal>
+    <Alert
+      message="Transaction PIN created successfully!"
+      type="success"
+      isVisible={showSuccessAlert}
+      onClose={() => setShowSuccessAlert(false)}
+      duration={3000}
+    />
+    </>
   )
 }
 

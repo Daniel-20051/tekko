@@ -256,9 +256,18 @@ export interface PinStatusSuccessResponse {
 
 export type PinStatusResponse = PinStatusSuccessResponse | ErrorResponse
 
+// Request PIN OTP
+export interface RequestPinOtpSuccessResponse {
+  success: true
+  message: string
+}
+
+export type RequestPinOtpResponse = RequestPinOtpSuccessResponse | ErrorResponse
+
 // Create PIN request
 export interface CreatePinCredentials {
   pin: string
+  otp: string
 }
 
 export interface CreatePinSuccessResponse {

@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, VerifyDeviceCredentials, VerifyDeviceResponse } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -97,6 +97,12 @@ export const getPinStatus = async (): Promise<PinStatusData> => {
     return response.data.data
   }
   throw new Error(response.data.error || 'Failed to fetch PIN status')
+}
+
+// Request PIN OTP API call
+export const requestPinOtp = async (): Promise<RequestPinOtpResponse> => {
+  const response = await apiClient.post<RequestPinOtpResponse>('/auth/pin/create/request-otp', {})
+  return response.data
 }
 
 // Create PIN API call

@@ -80,11 +80,11 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
         
         <div className="flex items-center gap-3 mb-2">
           <motion.h2 
-            className={`text-3xl md:text-4xl font-bold text-gray-900 dark:text-white ${hideBalance ? 'blur-md select-none' : ''} transition-all duration-300`}
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white transition-all duration-300"
             animate={{ scale: hideBalance ? 1 : [1, 1.02, 1] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            ₦{totalValue.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {hideBalance ? '*****' : `₦${totalValue.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           </motion.h2>
           
           {/* Hide/Show Balance Button */}
@@ -103,25 +103,31 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
           </motion.button>
         </div>
 
-        <div className={`flex items-center gap-2 mb-4 ${hideBalance ? 'blur-md select-none' : ''} transition-all duration-300`}>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-            className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-              isPositive 
-                ? 'bg-green-500/20 text-green-400' 
-                : 'bg-red-500/20 text-red-400'
-            }`}
-          >
-            <TrendingUp className={`w-3 h-3 ${isPositive ? '' : 'rotate-180'}`} />
-            <span className="font-bold text-xs">
-              {isPositive ? '+' : ''}{change24h.toFixed(1)}%
-            </span>
-          </motion.div>
-          <span className="text-gray-500 dark:text-gray-400 text-xs">
-            (₦{changeAmount.toLocaleString('en-NG')}) Last 24h
-          </span>
+        <div className="flex items-center gap-2 mb-4 transition-all duration-300">
+          {hideBalance ? (
+            <span className="text-gray-500 dark:text-gray-400 text-xs">*****</span>
+          ) : (
+            <>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+                  isPositive 
+                    ? 'bg-green-500/20 text-green-400' 
+                    : 'bg-red-500/20 text-red-400'
+                }`}
+              >
+                <TrendingUp className={`w-3 h-3 ${isPositive ? '' : 'rotate-180'}`} />
+                <span className="font-bold text-xs">
+                  {isPositive ? '+' : ''}{change24h.toFixed(1)}%
+                </span>
+              </motion.div>
+              <span className="text-gray-500 dark:text-gray-400 text-xs">
+                (₦{changeAmount.toLocaleString('en-NG')}) Last 24h
+              </span>
+            </>
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -231,12 +237,12 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
                           )}
                         </div>
                         
-                        <div className={`space-y-0.5 ${hideBalance ? 'blur-md select-none' : ''} transition-all duration-300`}>
+                        <div className="space-y-0.5 transition-all duration-300">
                           <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">
-                            {wallet.balance} {wallet.symbol}
+                            {hideBalance ? '*****' : `${wallet.balance} ${wallet.symbol}`}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            ≈ ₦{wallet.value.toLocaleString('en-NG')}
+                            {hideBalance ? '*****' : `≈ ₦${wallet.value.toLocaleString('en-NG')}`}
                           </p>
                         </div>
                       </motion.div>

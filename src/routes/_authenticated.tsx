@@ -101,13 +101,27 @@ function DashboardLayout() {
   // Check PIN status 5 seconds after app load
   const { data: pinStatus } = usePinStatus()
   
+  // Track if PIN modal has been shown in this session
   useEffect(() => {
     if (!accessToken) return
+    if (!pinStatus) return
 
+    // If user already has a PIN, mark modal as shown and don't show it
+    if (pinStatus.hasPin) {
+      sessionStorage.setItem('pinModalShown', 'true')
+      return
+    }
+
+    // Check if modal has already been shown in this session
+    const pinModalShown = sessionStorage.getItem('pinModalShown')
+    if (pinModalShown === 'true') {
+      return
+    }
+
+    // Show modal after delay and mark as shown
     const timer = setTimeout(() => {
-      if (pinStatus && !pinStatus.hasPin) {
-        setShowPinModal(true)
-      }
+      setShowPinModal(true)
+      sessionStorage.setItem('pinModalShown', 'true')
     }, 5000) // 5 seconds delay
 
     return () => clearTimeout(timer)
@@ -331,7 +345,11 @@ function DashboardLayout() {
       {/* Create PIN Modal */}
       <CreatePinModal
         isOpen={showPinModal}
-        onClose={() => setShowPinModal(false)}
+        onClose={() => {
+          setShowPinModal(false)
+          // Mark as shown so it doesn't appear again this session
+          sessionStorage.setItem('pinModalShown', 'true')
+        }}
       />
     </div>
   )

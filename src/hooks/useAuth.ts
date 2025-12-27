@@ -110,6 +110,9 @@ export const useLogout = () => {
       
       // Backend clears HttpOnly refresh cookie
       
+      // Clear session storage (including PIN modal flag)
+      sessionStorage.removeItem('pinModalShown')
+      
       // Clear all queries
       queryClient.clear()
       
@@ -240,6 +243,18 @@ export const useChangePassword = () => {
     onSuccess: () => {
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+    },
+  })
+}
+
+// Hook for request PIN OTP mutation
+export const useRequestPinOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.requestPinOtp()
+    },
+    onError: (error) => {
+      console.error('Request PIN OTP failed:', error)
     },
   })
 }

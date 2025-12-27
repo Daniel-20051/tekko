@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Lock, LogOut, Loader2, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock } from 'lucide-react'
+import { Lock, LogOut, Loader2, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock, Key } from 'lucide-react'
 import Button from '../../ui/Button'
 import ChangePasswordModal from './ChangePasswordModal'
+import CreatePinModal from './CreatePinModal'
 import { useLogout, useLogoutAll } from '../../../hooks/useAuth'
 import { useSecurityStatus } from '../../../hooks/useSettings'
 
 const SecurityTab = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [isCreatingPin, setIsCreatingPin] = useState(false)
   const { mutate: logout, isPending: isLoggingOut } = useLogout()
   const { mutate: logoutAll, isPending: isLoggingOutAll } = useLogoutAll()
   const { data: securityStatus, isLoading, error, refetch } = useSecurityStatus()
@@ -21,6 +23,30 @@ const SecurityTab = () => {
     >
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-4">
+        {/* Transaction PIN Card */}
+        <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                Transaction PIN
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {securityStatus?.pinSet 
+                  ? 'Update your transaction PIN for secure financial operations'
+                  : 'Create a transaction PIN to enable secure financial operations'}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Key className="w-4 h-4" />}
+              onClick={() => setIsCreatingPin(true)}
+            >
+              {securityStatus?.pinSet ? 'Set PIN' : 'Create PIN'}
+            </Button>
+          </div>
+        </div>
+
         {/* Change Password Card */}
         <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
           <div className="flex items-center justify-between mb-6">
@@ -229,6 +255,16 @@ const SecurityTab = () => {
       <ChangePasswordModal
         isOpen={isChangingPassword}
         onClose={() => setIsChangingPassword(false)}
+      />
+
+      {/* Create/Set PIN Modal */}
+      <CreatePinModal
+        isOpen={isCreatingPin}
+        onClose={() => {
+          setIsCreatingPin(false)
+          // Refetch security status to update PIN status
+          refetch()
+        }}
       />
     </motion.div>
   )
