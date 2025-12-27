@@ -277,6 +277,11 @@ const Login_Form = () => {
             loginMutation={loginMutation}
             isVisible={requires2FA}
             onBack={handle2FABack}
+            onDeviceVerificationRequired={(deviceName) => {
+              setRequires2FA(false)
+              setRequiresDeviceVerification(true)
+              setDeviceName(deviceName)
+            }}
           />
         </div>
 

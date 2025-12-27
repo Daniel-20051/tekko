@@ -11,6 +11,7 @@ interface TwoFactorFormProps {
   loginMutation: UseMutationResult<LoginResponse, unknown, LoginCredentials, unknown>
   isVisible: boolean
   onBack: () => void
+  onDeviceVerificationRequired?: (deviceName: string) => void
 }
 
 const TwoFactorForm = ({ 
@@ -18,7 +19,8 @@ const TwoFactorForm = ({
   password, 
   loginMutation, 
   isVisible, 
-  onBack 
+  onBack,
+  onDeviceVerificationRequired
 }: TwoFactorFormProps) => {
   const [twoFactorCode, setTwoFactorCode] = useState(['', '', '', '', '', ''])
   const [twoFactorError, setTwoFactorError] = useState('')
@@ -41,6 +43,16 @@ const TwoFactorForm = ({
     loginMutation.mutate(
       { email, password, twoFactorToken: code },
       {
+        onSuccess: (data) => {
+          // Check if device verification is required after 2FA
+          if (data.success && 'requiresDeviceVerification' in data && data.requiresDeviceVerification) {
+            const deviceName = (data as { deviceName?: string }).deviceName || 'Unknown Device'
+            if (onDeviceVerificationRequired) {
+              onDeviceVerificationRequired(deviceName)
+            }
+            return
+          }
+        },
         onError: (error: unknown) => {
           // Handle API errors
           let errorMessage = 'Invalid verification code. Please try again.'
