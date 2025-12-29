@@ -193,9 +193,53 @@ export interface ProfileSuccessResponse {
 
 export type ProfileResponse = ProfileSuccessResponse | ErrorResponse
 
+// 2FA Setup response
+export interface TwoFactorSetupSuccessResponse {
+  success: true
+  message: string
+  data: {
+    secret: string // 32-character base32 string
+    qrCode: string // data URL image
+    otpauthUrl: string // for manual entry
+  }
+}
+
+export type TwoFactorSetupResponse = TwoFactorSetupSuccessResponse | ErrorResponse
+
+// 2FA Enable request
+export interface TwoFactorEnableCredentials {
+  token: string // 6-digit code from authenticator app
+}
+
+// 2FA Enable response
+export interface TwoFactorEnableSuccessResponse {
+  success: true
+  message: string
+  data: {
+    backupCodes: string[] // 10 backup codes, 8-character alphanumeric each
+  }
+}
+
+export type TwoFactorEnableResponse = TwoFactorEnableSuccessResponse | ErrorResponse
+
+// 2FA Disable request
+export interface TwoFactorDisableCredentials {
+  password: string
+  twoFactorToken: string
+}
+
+// 2FA Disable response
+export interface TwoFactorDisableSuccessResponse {
+  success: true
+  message: string
+}
+
+export type TwoFactorDisableResponse = TwoFactorDisableSuccessResponse | ErrorResponse
+
 // Security status response
 export interface SecurityStatusData {
   twoFactorEnabled: boolean
+  twoFactorSetupStarted: boolean
   pinSet: boolean
   emailVerified: boolean
   phoneVerified: boolean
@@ -267,6 +311,12 @@ export type RequestPinOtpResponse = RequestPinOtpSuccessResponse | ErrorResponse
 // Create PIN request
 export interface CreatePinCredentials {
   pin: string
+  otp: string
+}
+
+// Change PIN request
+export interface ChangePinCredentials {
+  newPin: string
   otp: string
 }
 

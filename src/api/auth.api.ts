@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, ChangePinCredentials, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse, TwoFactorSetupResponse, TwoFactorEnableCredentials, TwoFactorEnableResponse, TwoFactorDisableCredentials, TwoFactorDisableResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -105,15 +105,57 @@ export const requestPinOtp = async (): Promise<RequestPinOtpResponse> => {
   return response.data
 }
 
+// Resend PIN OTP API call
+export const resendPinOtp = async (): Promise<RequestPinOtpResponse> => {
+  const response = await apiClient.post<RequestPinOtpResponse>('/auth/pin/create/resend-otp', {})
+  return response.data
+}
+
 // Create PIN API call
 export const createPin = async (credentials: CreatePinCredentials): Promise<CreatePinResponse> => {
   const response = await apiClient.post<CreatePinResponse>('/auth/pin/create', credentials)
   return response.data
 }
 
+// Request Change PIN OTP API call
+export const requestChangePinOtp = async (): Promise<RequestPinOtpResponse> => {
+  const response = await apiClient.post<RequestPinOtpResponse>('/auth/pin/change/request-otp', {})
+  return response.data
+}
+
+// Resend Change PIN OTP API call
+export const resendChangePinOtp = async (): Promise<RequestPinOtpResponse> => {
+  const response = await apiClient.post<RequestPinOtpResponse>('/auth/pin/change/resend-otp', {})
+  return response.data
+}
+
+// Change PIN API call (works for both change and reset scenarios)
+export const changePin = async (credentials: ChangePinCredentials): Promise<CreatePinResponse> => {
+  const response = await apiClient.post<CreatePinResponse>('/auth/pin/change', credentials)
+  return response.data
+}
+
 // Verify device API call
 export const verifyDevice = async (credentials: VerifyDeviceCredentials): Promise<VerifyDeviceResponse> => {
   const response = await apiClient.post<VerifyDeviceResponse>('/auth/verify-device', credentials)
+  return response.data
+}
+
+// 2FA Setup API call
+export const setupTwoFactor = async (): Promise<TwoFactorSetupResponse> => {
+  const response = await apiClient.post<TwoFactorSetupResponse>('/auth/2fa/setup', {})
+  return response.data
+}
+
+// 2FA Enable API call
+export const enableTwoFactor = async (credentials: TwoFactorEnableCredentials): Promise<TwoFactorEnableResponse> => {
+  const response = await apiClient.post<TwoFactorEnableResponse>('/auth/2fa/enable', credentials)
+  return response.data
+}
+
+// 2FA Disable API call
+export const disableTwoFactor = async (credentials: TwoFactorDisableCredentials): Promise<TwoFactorDisableResponse> => {
+  const response = await apiClient.post<TwoFactorDisableResponse>('/auth/2fa/disable', credentials)
   return response.data
 }
 

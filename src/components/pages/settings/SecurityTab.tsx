@@ -2,17 +2,27 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Lock, LogOut, Loader2, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock, Key } from 'lucide-react'
 import Button from '../../ui/Button'
+import Toggle from '../../ui/Toggle'
 import ChangePasswordModal from './ChangePasswordModal'
 import CreatePinModal from './CreatePinModal'
+import TwoFactorSetupModal from './TwoFactorSetupModal'
+import TwoFactorEnableModal from './TwoFactorEnableModal'
+import TwoFactorDisableModal from './TwoFactorDisableModal'
 import { useLogout, useLogoutAll } from '../../../hooks/useAuth'
 import { useSecurityStatus } from '../../../hooks/useSettings'
 
 const SecurityTab = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [isCreatingPin, setIsCreatingPin] = useState(false)
+  const [isSettingUp2FA, setIsSettingUp2FA] = useState(false)
+  const [isEnabling2FA, setIsEnabling2FA] = useState(false)
+  const [isDisabling2FA, setIsDisabling2FA] = useState(false)
   const { mutate: logout, isPending: isLoggingOut } = useLogout()
   const { mutate: logoutAll, isPending: isLoggingOutAll } = useLogoutAll()
   const { data: securityStatus, isLoading, error, refetch } = useSecurityStatus()
+  
+  // Use twoFactorSetupStarted to determine if 2FA has been set up
+  const is2FASetup = securityStatus?.twoFactorSetupStarted ?? false
 
   return (
     <motion.div
@@ -214,14 +224,31 @@ const SecurityTab = () => {
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-gray-500 dark:text-gray-400'
                       }`}>
-                        {securityStatus.twoFactorEnabled ? 'Enabled' : 'Not enabled'}
+                        {securityStatus.twoFactorEnabled ? 'Enabled' : is2FASetup ? 'Disabled' : 'Not set up'}
                       </p>
                     </div>
                   </div>
-                  {!securityStatus.twoFactorEnabled && (
-                    <Button variant="outline" size="sm">
-                      Enable
+                  {!is2FASetup ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsSettingUp2FA(true)}
+                    >
+                      Setup
                     </Button>
+                  ) : (
+                    <Toggle
+                      enabled={securityStatus.twoFactorEnabled}
+                      onChange={(enabled) => {
+                        if (enabled) {
+                          // Enable 2FA - show enable modal (just needs verification code)
+                          setIsEnabling2FA(true)
+                        } else {
+                          // Disable 2FA - show disable modal (needs password and code)
+                          setIsDisabling2FA(true)
+                        }
+                      }}
+                    />
                   )}
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
@@ -263,6 +290,33 @@ const SecurityTab = () => {
         onClose={() => {
           setIsCreatingPin(false)
           // Refetch security status to update PIN status
+          refetch()
+        }}
+      />
+
+      {/* 2FA Setup Modal */}
+      <TwoFactorSetupModal
+        isOpen={isSettingUp2FA}
+        onClose={() => {
+          setIsSettingUp2FA(false)
+          refetch()
+        }}
+      />
+
+      {/* 2FA Enable Modal */}
+      <TwoFactorEnableModal
+        isOpen={isEnabling2FA}
+        onClose={() => {
+          setIsEnabling2FA(false)
+          refetch()
+        }}
+      />
+
+      {/* 2FA Disable Modal */}
+      <TwoFactorDisableModal
+        isOpen={isDisabling2FA}
+        onClose={() => {
+          setIsDisabling2FA(false)
           refetch()
         }}
       />

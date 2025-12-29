@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import * as authApi from '../api/auth.api'
-import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, VerifyDeviceCredentials } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, ChangePinCredentials, VerifyDeviceCredentials, TwoFactorEnableCredentials, TwoFactorDisableCredentials } from '../types/auth'
 import { useTokenStore } from '../store/token.store'
 
 // Query key factory for auth-related queries
@@ -259,6 +259,18 @@ export const useRequestPinOtp = () => {
   })
 }
 
+// Hook for resend PIN OTP mutation
+export const useResendPinOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.resendPinOtp()
+    },
+    onError: (error) => {
+      console.error('Resend PIN OTP failed:', error)
+    },
+  })
+}
+
 // Hook for create PIN mutation
 export const useCreatePin = () => {
   const queryClient = useQueryClient()
@@ -266,6 +278,45 @@ export const useCreatePin = () => {
   return useMutation({
     mutationFn: (credentials: CreatePinCredentials) => {
       return authApi.createPin(credentials)
+    },
+    onSuccess: () => {
+      // Invalidate and refetch PIN status
+      queryClient.invalidateQueries({ queryKey: authKeys.pinStatus() })
+    },
+  })
+}
+
+// Hook for request Change PIN OTP mutation
+export const useRequestChangePinOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.requestChangePinOtp()
+    },
+    onError: (error) => {
+      console.error('Request Change PIN OTP failed:', error)
+    },
+  })
+}
+
+// Hook for resend Change PIN OTP mutation
+export const useResendChangePinOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.resendChangePinOtp()
+    },
+    onError: (error) => {
+      console.error('Resend Change PIN OTP failed:', error)
+    },
+  })
+}
+
+// Hook for change PIN mutation
+export const useChangePin = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: ChangePinCredentials) => {
+      return authApi.changePin(credentials)
     },
     onSuccess: () => {
       // Invalidate and refetch PIN status
@@ -299,6 +350,54 @@ export const useVerifyDevice = () => {
     },
     onError: (error) => {
       console.error('Device verification failed:', error)
+    },
+  })
+}
+
+// Hook for 2FA setup mutation
+export const useSetupTwoFactor = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.setupTwoFactor()
+    },
+    onError: (error) => {
+      console.error('2FA setup failed:', error)
+    },
+  })
+}
+
+// Hook for 2FA enable mutation
+export const useEnableTwoFactor = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: TwoFactorEnableCredentials) => {
+      return authApi.enableTwoFactor(credentials)
+    },
+    onSuccess: () => {
+      // Invalidate security status to update 2FA status
+      queryClient.invalidateQueries({ queryKey: ['settings', 'security-status'] })
+    },
+    onError: (error) => {
+      console.error('2FA enable failed:', error)
+    },
+  })
+}
+
+// Hook for 2FA disable mutation
+export const useDisableTwoFactor = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: TwoFactorDisableCredentials) => {
+      return authApi.disableTwoFactor(credentials)
+    },
+    onSuccess: () => {
+      // Invalidate security status to update 2FA status
+      queryClient.invalidateQueries({ queryKey: ['settings', 'security-status'] })
+    },
+    onError: (error) => {
+      console.error('2FA disable failed:', error)
     },
   })
 }

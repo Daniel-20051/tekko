@@ -63,7 +63,12 @@ apiClient.interceptors.response.use(
                            originalRequest?.url?.includes('/auth/password/forgot') ||
                            originalRequest?.url?.includes('/auth/password/reset') ||
                            originalRequest?.url?.includes('/auth/password/change') ||
-                           originalRequest?.url?.includes('/auth/verify-device')
+                           originalRequest?.url?.includes('/auth/verify-device') ||
+                           originalRequest?.url?.includes('/auth/pin/create') ||
+                           originalRequest?.url?.includes('/auth/pin/change') ||
+                           originalRequest?.url?.includes('/auth/2fa/setup') ||
+                           originalRequest?.url?.includes('/auth/2fa/enable') ||
+                           originalRequest?.url?.includes('/auth/2fa/disable')
 
     // Handle 401 Unauthorized - attempt token refresh
     // Skip refresh for auth endpoints and if already retried

@@ -6,7 +6,7 @@ import StepIndicator from './CreatePinModal/StepIndicator'
 import CreatePinStep from './CreatePinModal/CreatePinStep'
 import ConfirmPinStep from './CreatePinModal/ConfirmPinStep'
 import OtpStep from './CreatePinModal/OtpStep'
-import { useCreatePin, useRequestPinOtp } from '../../../hooks/useAuth'
+import { useCreatePin, useRequestPinOtp, useResendPinOtp, useChangePin, useRequestChangePinOtp, useResendChangePinOtp, usePinStatus } from '../../../hooks/useAuth'
 import { settingsKeys } from '../../../hooks/useSettings'
 
 interface CreatePinModalProps {
@@ -27,8 +27,23 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false)
 
   const queryClient = useQueryClient()
+  const { data: pinStatus } = usePinStatus()
+  const hasPin = pinStatus?.hasPin ?? false
+
+  // Create PIN hooks
   const { mutate: createPin, isPending: isCreatingPin } = useCreatePin()
   const { mutate: requestOtp, isPending: isRequestingOtp } = useRequestPinOtp()
+  const { mutate: resendOtp, isPending: isResendingOtp } = useResendPinOtp()
+
+  // Change PIN hooks
+  const { mutate: changePin, isPending: isChangingPin } = useChangePin()
+  const { mutate: requestChangeOtp, isPending: isRequestingChangeOtp } = useRequestChangePinOtp()
+  const { mutate: resendChangeOtp, isPending: isResendingChangeOtp } = useResendChangePinOtp()
+
+  // Use appropriate hooks based on hasPin status
+  const isPending = hasPin ? isChangingPin : isCreatingPin
+  const isRequestingOtpPending = hasPin ? isRequestingChangeOtp : isRequestingOtp
+  const isResendingOtpPending = hasPin ? isResendingChangeOtp : isResendingOtp
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -60,8 +75,9 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
     const confirmPinValue = confirmPin.join('')
     if (confirmPinValue.length === pinLength && confirmPinValue === pinValue) {
       setErrors({})
-      // Request OTP before moving to OTP step
-      requestOtp(undefined, {
+      // Request OTP before moving to OTP step - use appropriate endpoint based on hasPin
+      const requestOtpFn = hasPin ? requestChangeOtp : requestOtp
+      requestOtpFn(undefined, {
         onSuccess: (response) => {
           if (response.success) {
             setStep('otp')
@@ -85,53 +101,70 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
   // Handle OTP completion - call API
   const handleOtpComplete = useCallback((otpValue: string) => {
     // Prevent multiple calls
-    if (isSubmitting || isCreatingPin) return
+    if (isSubmitting || isPending) return
 
     const pinValue = pin.join('')
     
-    // Clear errors and call API
+    // Clear errors and call API - use appropriate endpoint based on hasPin
     setIsSubmitting(true)
     setErrors({})
-    createPin(
-      { pin: pinValue, otp: otpValue },
-      {
-        onSuccess: (response) => {
-          setIsSubmitting(false)
-          if (response.success) {
-            setPin([])
-            setConfirmPin([])
-            setOtp(['', '', '', '', '', ''])
-            setErrors({})
-            setStep('create')
-            // Mark PIN modal as shown since PIN was created
-            sessionStorage.setItem('pinModalShown', 'true')
-            // Invalidate security status to update PIN status
-            queryClient.invalidateQueries({ queryKey: settingsKeys.securityStatus() })
-            // Show success alert
-            setShowSuccessAlert(true)
-            // Close modal after a short delay to show the alert
-            setTimeout(() => {
-              onClose()
-            }, 500)
-          } else {
-            setErrors({ general: 'Failed to create PIN. Please try again.' })
-            setStep('create')
-            setPin([])
-            setConfirmPin([])
-            setOtp(['', '', '', '', '', ''])
-          }
-        },
-        onError: (error: Error) => {
-          setIsSubmitting(false)
-          setErrors({ general: error.message || 'Failed to create PIN. Please try again.' })
-          setStep('create')
-          setPin([])
-          setConfirmPin([])
-          setOtp(['', '', '', '', '', ''])
-        },
+    
+    const handleSuccess = (response: { success: boolean }) => {
+      setIsSubmitting(false)
+      if (response.success) {
+        setPin([])
+        setConfirmPin([])
+        setOtp(['', '', '', '', '', ''])
+        setErrors({})
+        setStep('create')
+        // Mark PIN modal as shown since PIN was created/changed
+        sessionStorage.setItem('pinModalShown', 'true')
+        // Invalidate security status to update PIN status
+        queryClient.invalidateQueries({ queryKey: settingsKeys.securityStatus() })
+        // Show success alert
+        setShowSuccessAlert(true)
+        // Close modal after a short delay to show the alert
+        setTimeout(() => {
+          onClose()
+        }, 500)
+      } else {
+        setErrors({ general: `Failed to ${hasPin ? 'change' : 'create'} PIN. Please try again.` })
+        setStep('create')
+        setPin([])
+        setConfirmPin([])
+        setOtp(['', '', '', '', '', ''])
       }
-    )
-  }, [pin, createPin, onClose, isSubmitting, isCreatingPin])
+    }
+
+    const handleError = (error: Error) => {
+      setIsSubmitting(false)
+      setErrors({ general: error.message || `Failed to ${hasPin ? 'change' : 'create'} PIN. Please try again.` })
+      setStep('create')
+      setPin([])
+      setConfirmPin([])
+      setOtp(['', '', '', '', '', ''])
+    }
+
+    if (hasPin) {
+      // Use newPin for change PIN endpoint
+      changePin(
+        { newPin: pinValue, otp: otpValue },
+        {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        }
+      )
+    } else {
+      // Use pin for create PIN endpoint
+      createPin(
+        { pin: pinValue, otp: otpValue },
+        {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        }
+      )
+    }
+  }, [pin, createPin, changePin, onClose, isSubmitting, isPending, hasPin, queryClient])
 
   const handleBack = (e?: React.MouseEvent) => {
     if (e) {
@@ -139,7 +172,7 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
       e.stopPropagation()
     }
     
-    if (isRequestingOtp || isCreatingPin || isSubmitting) return
+    if (isRequestingOtpPending || isPending || isSubmitting) return
 
     if (step === 'confirm') {
       setStep('create')
@@ -153,7 +186,7 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
   }
 
   const handleClose = () => {
-    if (!isRequestingOtp && !isCreatingPin && !isSubmitting) {
+    if (!isRequestingOtpPending && !isPending && !isSubmitting) {
       setStep('create')
       setPin([])
       setConfirmPin([])
@@ -165,7 +198,7 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
 
   return (
     <>
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Transfer PIN" size="md">
+    <Modal isOpen={isOpen} onClose={handleClose} title={hasPin ? "Change Transfer PIN" : "Create Transfer PIN"} size="md">
       <div className="space-y-6">
         {/* Step Indicator */}
         <StepIndicator currentStep={step} />
@@ -174,7 +207,9 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
         <div className="text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {step === 'create' 
-              ? 'Create a transfer PIN to enable transactions. This PIN will be required for all financial operations.'
+              ? hasPin 
+                ? 'Change your transfer PIN. This PIN will be required for all financial operations.'
+                : 'Create a transfer PIN to enable transactions. This PIN will be required for all financial operations.'
               : step === 'confirm'
               ? 'Please confirm your PIN to complete the setup.'
               : 'Enter the 6-digit OTP sent to your email to verify and complete PIN setup.'}
@@ -196,7 +231,7 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
             error={errors.pin}
             onNext={handleCreateNext}
             onCancel={handleClose}
-            disabled={isRequestingOtp || isCreatingPin}
+            disabled={isRequestingOtpPending || isPending}
             pinLength={pinLength}
           />
         )}
@@ -210,8 +245,8 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
             error={errors.confirmPin}
             onBack={handleBack}
             onNext={handleConfirmNext}
-            disabled={isRequestingOtp || isCreatingPin}
-            isRequestingOtp={isRequestingOtp}
+            disabled={isRequestingOtpPending || isPending}
+            isRequestingOtp={isRequestingOtpPending}
             pinLength={pinLength}
           />
         )}
@@ -229,14 +264,30 @@ const CreatePinModal = ({ isOpen, onClose }: CreatePinModalProps) => {
             error={errors.otp}
             onBack={handleBack}
             onCancel={handleClose}
-            disabled={isCreatingPin || isSubmitting}
-            isSubmitting={isCreatingPin || isSubmitting}
+            disabled={isPending || isSubmitting}
+            isSubmitting={isPending || isSubmitting}
+            onResendOtp={() => {
+              const resendFn = hasPin ? resendChangeOtp : resendOtp
+              resendFn(undefined, {
+                onSuccess: (response) => {
+                  if (response.success) {
+                    setErrors({})
+                  } else {
+                    setErrors({ general: 'Failed to resend OTP. Please try again.' })
+                  }
+                },
+                onError: (error: Error) => {
+                  setErrors({ general: error.message || 'Failed to resend OTP. Please try again.' })
+                },
+              })
+            }}
+            isResendingOtp={isResendingOtpPending}
           />
         )}
       </div>
     </Modal>
     <Alert
-      message="Transaction PIN created successfully!"
+      message={`Transaction PIN ${hasPin ? 'changed' : 'created'} successfully!`}
       type="success"
       isVisible={showSuccessAlert}
       onClose={() => setShowSuccessAlert(false)}
