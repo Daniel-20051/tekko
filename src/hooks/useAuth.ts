@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import * as authApi from '../api/auth.api'
-import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, ChangePinCredentials, VerifyDeviceCredentials, TwoFactorEnableCredentials, TwoFactorDisableCredentials } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, ChangePinCredentials, VerifyDeviceCredentials, TwoFactorEnableCredentials, TwoFactorDisableCredentials, GoogleOAuthCallbackCredentials, LinkGoogleAccountCredentials } from '../types/auth'
 import { useTokenStore } from '../store/token.store'
 
 // Query key factory for auth-related queries
@@ -398,6 +398,71 @@ export const useDisableTwoFactor = () => {
     },
     onError: (error) => {
       console.error('2FA disable failed:', error)
+    },
+  })
+}
+
+// Hook for getting Google OAuth URL
+export const useGoogleOAuthUrl = () => {
+  return useQuery({
+    queryKey: ['auth', 'google', 'url'],
+    queryFn: () => authApi.getGoogleOAuthUrl(),
+    enabled: false, // Only fetch when explicitly called
+    retry: false,
+  })
+}
+
+// Hook for Google OAuth callback mutation
+export const useGoogleOAuthCallback = () => {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: GoogleOAuthCallbackCredentials) => {
+      return authApi.handleGoogleOAuthCallback(credentials)
+    },
+    onSuccess: (data) => {
+      if (data.success && 'data' in data) {
+        // Check if device verification is required
+        if ('requiresDeviceVerification' in data.data && data.data.requiresDeviceVerification) {
+          // Don't navigate, let component handle device verification
+          return
+        }
+        
+        // Store access token in memory only (Zustand)
+        // Refresh token is set as HttpOnly cookie by backend
+        if ('accessToken' in data.data) {
+          useTokenStore.getState().setAccessToken(data.data.accessToken)
+          
+          // Invalidate and refetch user data
+          queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+          
+          // Navigate to dashboard
+          console.log('[useAuth] Google OAuth successful, navigating to dashboard')
+          navigate({ to: '/dashboard' })
+        }
+      }
+    },
+    onError: (error) => {
+      console.error('Google OAuth callback failed:', error)
+    },
+  })
+}
+
+// Hook for linking Google account mutation
+export const useLinkGoogleAccount = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: LinkGoogleAccountCredentials) => {
+      return authApi.linkGoogleAccount(credentials)
+    },
+    onSuccess: () => {
+      // Invalidate user data to refresh
+      queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+    },
+    onError: (error) => {
+      console.error('Link Google account failed:', error)
     },
   })
 }

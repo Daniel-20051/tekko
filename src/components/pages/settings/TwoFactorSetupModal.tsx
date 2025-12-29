@@ -40,7 +40,6 @@ const TwoFactorSetupModal = ({ isOpen, onClose }: TwoFactorSetupModalProps) => {
           if (response.success && 'data' in response) {
             setSecret(response.data.secret)
             setQrCode(response.data.qrCode)
-            // otpauthUrl is available in response but not used in UI
           } else {
             setError('Failed to setup 2FA. Please try again.')
           }

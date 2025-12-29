@@ -236,6 +236,65 @@ export interface TwoFactorDisableSuccessResponse {
 
 export type TwoFactorDisableResponse = TwoFactorDisableSuccessResponse | ErrorResponse
 
+// Google OAuth URL response
+export interface GoogleOAuthUrlSuccessResponse {
+  success: true
+  message: string
+  data: {
+    authUrl: string
+    state: string
+  }
+}
+
+export type GoogleOAuthUrlResponse = GoogleOAuthUrlSuccessResponse | ErrorResponse
+
+// Google OAuth callback request
+export interface GoogleOAuthCallbackCredentials {
+  code: string
+  state: string
+}
+
+// Google OAuth callback success response
+export interface GoogleOAuthCallbackSuccessResponse {
+  success: true
+  message: string
+  data: {
+    accessToken: string
+    refreshToken?: string
+    user: User
+  }
+}
+
+// Google OAuth callback device verification response
+export interface GoogleOAuthCallbackDeviceVerificationResponse {
+  success: true
+  message: string
+  data: {
+    requiresDeviceVerification: true
+    deviceName: string
+  }
+}
+
+export type GoogleOAuthCallbackResponse = GoogleOAuthCallbackSuccessResponse | GoogleOAuthCallbackDeviceVerificationResponse | ErrorResponse
+
+// Link Google account request
+export interface LinkGoogleAccountCredentials {
+  password: string
+  code: string
+  state: string
+}
+
+// Link Google account response
+export interface LinkGoogleAccountSuccessResponse {
+  success: true
+  message: string
+  data: {
+    user: User
+  }
+}
+
+export type LinkGoogleAccountResponse = LinkGoogleAccountSuccessResponse | ErrorResponse
+
 // Security status response
 export interface SecurityStatusData {
   twoFactorEnabled: boolean

@@ -22,6 +22,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthVerifyEmailRouteImport } from './routes/_auth/verify-email'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
+import { Route as AuthGoogleCallbackRouteImport } from './routes/_auth/google-callback'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthCreateAccountRouteImport } from './routes/_auth/create-account'
 
@@ -89,6 +90,11 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthGoogleCallbackRoute = AuthGoogleCallbackRouteImport.update({
+  id: '/google-callback',
+  path: '/google-callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -103,6 +109,7 @@ const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
 export interface FileRoutesByFullPath {
   '/create-account': typeof AuthCreateAccountRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
+  '/google-callback': typeof AuthGoogleCallbackRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/verify-email': typeof AuthVerifyEmailRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/create-account': typeof AuthCreateAccountRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
+  '/google-callback': typeof AuthGoogleCallbackRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/verify-email': typeof AuthVerifyEmailRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/create-account': typeof AuthCreateAccountRoute
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/_auth/google-callback': typeof AuthGoogleCallbackRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_auth/verify-email': typeof AuthVerifyEmailRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/create-account'
     | '/forgot-password'
+    | '/google-callback'
     | '/reset-password'
     | '/verify-email'
     | '/analytics'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
   to:
     | '/create-account'
     | '/forgot-password'
+    | '/google-callback'
     | '/reset-password'
     | '/verify-email'
     | '/analytics'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_auth/create-account'
     | '/_auth/forgot-password'
+    | '/_auth/google-callback'
     | '/_auth/reset-password'
     | '/_auth/verify-email'
     | '/_authenticated/analytics'
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/google-callback': {
+      id: '/_auth/google-callback'
+      path: '/google-callback'
+      fullPath: '/google-callback'
+      preLoaderRoute: typeof AuthGoogleCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/forgot-password': {
       id: '/_auth/forgot-password'
       path: '/forgot-password'
@@ -316,6 +335,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthCreateAccountRoute: typeof AuthCreateAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthGoogleCallbackRoute: typeof AuthGoogleCallbackRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -324,6 +344,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCreateAccountRoute: AuthCreateAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthGoogleCallbackRoute: AuthGoogleCallbackRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   AuthIndexRoute: AuthIndexRoute,

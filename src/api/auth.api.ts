@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, ChangePinCredentials, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse, TwoFactorSetupResponse, TwoFactorEnableCredentials, TwoFactorEnableResponse, TwoFactorDisableCredentials, TwoFactorDisableResponse } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, ChangePinCredentials, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse, TwoFactorSetupResponse, TwoFactorEnableCredentials, TwoFactorEnableResponse, TwoFactorDisableCredentials, TwoFactorDisableResponse, GoogleOAuthUrlResponse, GoogleOAuthCallbackCredentials, GoogleOAuthCallbackResponse, LinkGoogleAccountCredentials, LinkGoogleAccountResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -156,6 +156,24 @@ export const enableTwoFactor = async (credentials: TwoFactorEnableCredentials): 
 // 2FA Disable API call
 export const disableTwoFactor = async (credentials: TwoFactorDisableCredentials): Promise<TwoFactorDisableResponse> => {
   const response = await apiClient.post<TwoFactorDisableResponse>('/auth/2fa/disable', credentials)
+  return response.data
+}
+
+// Google OAuth - Get OAuth URL
+export const getGoogleOAuthUrl = async (): Promise<GoogleOAuthUrlResponse> => {
+  const response = await apiClient.get<GoogleOAuthUrlResponse>('/auth/google')
+  return response.data
+}
+
+// Google OAuth - Handle callback
+export const handleGoogleOAuthCallback = async (credentials: GoogleOAuthCallbackCredentials): Promise<GoogleOAuthCallbackResponse> => {
+  const response = await apiClient.post<GoogleOAuthCallbackResponse>('/auth/google/callback', credentials)
+  return response.data
+}
+
+// Google OAuth - Link account
+export const linkGoogleAccount = async (credentials: LinkGoogleAccountCredentials): Promise<LinkGoogleAccountResponse> => {
+  const response = await apiClient.post<LinkGoogleAccountResponse>('/auth/google/link', credentials)
   return response.data
 }
 

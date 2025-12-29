@@ -68,7 +68,8 @@ apiClient.interceptors.response.use(
                            originalRequest?.url?.includes('/auth/pin/change') ||
                            originalRequest?.url?.includes('/auth/2fa/setup') ||
                            originalRequest?.url?.includes('/auth/2fa/enable') ||
-                           originalRequest?.url?.includes('/auth/2fa/disable')
+                           originalRequest?.url?.includes('/auth/2fa/disable') ||
+                           originalRequest?.url?.includes('/auth/google')
 
     // Handle 401 Unauthorized - attempt token refresh
     // Skip refresh for auth endpoints and if already retried
