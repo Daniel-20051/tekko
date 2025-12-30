@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useLocation, Link } from '@tanstack/react-router'
 import { useTokenStore } from '../store/token.store'
 import { useLoadingStore } from '../store/loading.store'
 import { useLogout, useCurrentUser, usePinStatus } from '../hooks/useAuth'
@@ -6,7 +6,7 @@ import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/pages/dashboard/Sidebar'
 import CreatePinModal from '../components/pages/settings/CreatePinModal'
 import { useState, useRef, useEffect, memo, Suspense } from 'react'
-import { Bell, User, UserCircle, Settings, LogOut, Loader2 } from 'lucide-react'
+import { Bell, User, Settings, LogOut, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import type { RefreshTokenResponse } from '../types/auth'
@@ -192,20 +192,14 @@ const Header = memo(({
                     exit={{ opacity: 0, y: 10 }}
                     className="absolute right-0 mt-2 w-52 backdrop-blur-xl bg-white/95 dark:bg-dark-surface/95 rounded-xl shadow-2xl border border-gray-200 dark:border-primary/30 py-2 overflow-hidden z-50"
                   >
-                    <button
-                      className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <UserCircle className="w-4 h-4" />
-                      <span>Profile</span>
-                    </button>
-                    <button
+                    <Link
+                      to="/settings"
                       className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 transition-colors"
                       onClick={() => setShowUserMenu(false)}
                     >
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
-                    </button>
+                    </Link>
                     <hr className="my-2 border-gray-200 dark:border-gray-700" />
                     <button
                       onClick={handleLogout}

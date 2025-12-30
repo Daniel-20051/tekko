@@ -172,12 +172,15 @@ const SessionsTab = () => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ duration: 0.2 }}
       className="grid grid-cols-1 lg:grid-cols-3 gap-4"
     >
       {/* Main Content - Active Sessions */}
       <div className="lg:col-span-2">
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+        <motion.div
+          whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150"
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -193,19 +196,20 @@ const SessionsTab = () => {
           </div>
 
           <div className="space-y-3">
-            {mappedSessions.map((session, index) => {
+            {mappedSessions.map((session) => {
               const DeviceIcon = session.icon
               return (
                 <motion.div
                   key={session.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ duration: 0.2 }}
+                  whileHover={{ scale: 1.02, x: 4, transition: { duration: 0.15 } }}
                   className={`
-                    p-4 rounded-lg border transition-all
+                    p-4 rounded-lg border transition-all duration-150 cursor-default
                     ${session.isCurrent
-                      ? 'border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10'
-                      : 'border-gray-200 dark:border-primary/30 bg-gray-50 dark:bg-gray-800/30'
+                      ? 'border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 hover:shadow-md hover:bg-primary/10 dark:hover:bg-primary/15'
+                      : 'border-gray-200 dark:border-primary/30 bg-gray-50 dark:bg-gray-800/30 hover:shadow-md hover:border-primary/40 dark:hover:border-primary/50'
                     }
                   `}
                 >
@@ -269,7 +273,7 @@ const SessionsTab = () => {
               )
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Sidebar - Terminate Sessions Actions */}
@@ -277,10 +281,11 @@ const SessionsTab = () => {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.2 }}
+          whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
           className="lg:sticky lg:top-4"
         >
-          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
               Terminate Sessions
             </h2>

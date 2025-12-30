@@ -56,15 +56,16 @@ const ProfileTab = () => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ duration: 0.2 }}
       className="grid grid-cols-1 lg:grid-cols-2 gap-4"
     >
       {/* Personal Information Card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6"
+        transition={{ duration: 0.2 }}
+        whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -174,8 +175,9 @@ const ProfileTab = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6"
+        transition={{ duration: 0.2 }}
+        whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
       >
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
@@ -215,8 +217,9 @@ const ProfileTab = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6"
+        transition={{ duration: 0.2 }}
+        whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
       >
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
@@ -246,8 +249,9 @@ const ProfileTab = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6"
+        transition={{ duration: 0.2 }}
+        whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
       >
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center">

@@ -170,3 +170,90 @@ html.dark .bg-gradient-animated::before {
   );
   background-size: 200% 200%;
 }
+
+/* Wallet Page Custom Scrollbars */
+/* Assets Sidebar Scrollbar */
+.wallet-assets-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(116, 58, 52, 0.3);
+  border-radius: 3px;
+  border: none;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 58, 52, 0.5);
+}
+
+html.dark .wallet-assets-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(116, 58, 52, 0.4);
+}
+
+html.dark .wallet-assets-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 58, 52, 0.6);
+}
+
+/* Transactions Scrollbar */
+.wallet-transactions-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 3px;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3);
+  border-radius: 3px;
+  border: none;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.3);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
+}
+
+/* Transaction Details Scrollbar */
+.wallet-details-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.4);
+  border-radius: 2.5px;
+  border: none;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 200, 200, 0.6);
+}
+
+html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.4);
+}
+
+html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.6);
+}

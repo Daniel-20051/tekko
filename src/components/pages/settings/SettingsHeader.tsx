@@ -46,7 +46,7 @@ const SettingsHeader = ({ activeTab, onTabChange }: SettingsHeaderProps) => {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`
-                relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors
+                relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
                 ${isActive 
                   ? 'text-primary dark:text-primary border-b-2 border-primary' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'

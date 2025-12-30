@@ -28,13 +28,16 @@ const SecurityTab = () => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ duration: 0.2 }}
       className="grid grid-cols-1 lg:grid-cols-3 gap-4"
     >
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-4">
         {/* Transaction PIN Card */}
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+        <motion.div
+          whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -55,10 +58,13 @@ const SecurityTab = () => {
               {securityStatus?.pinSet ? 'Set PIN' : 'Create PIN'}
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Change Password Card */}
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+        <motion.div
+          whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -124,7 +130,7 @@ const SecurityTab = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Sidebar - Security Status Overview */}
@@ -132,10 +138,11 @@ const SecurityTab = () => {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.2 }}
+          whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
           className="lg:sticky lg:top-4"
         >
-          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
+          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
               Security Status Overview
             </h2>

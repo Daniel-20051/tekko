@@ -14,7 +14,7 @@ const SettingsPage = () => {
   useProfile()
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-[1600px] mx-auto">
       <SettingsHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="space-y-4 pt-4">
