@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Lock, LogOut, Loader2, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock, Key } from 'lucide-react'
 import Button from '../../ui/Button'
 import Toggle from '../../ui/Toggle'
@@ -25,6 +25,14 @@ const SecurityTab = () => {
   
   // Use twoFactorSetupStarted to determine if 2FA has been set up
   const is2FASetup = securityStatus?.twoFactorSetupStarted ?? false
+
+  // Auto-open linking modal if we have linking data from OAuth callback
+  useEffect(() => {
+    const linkingData = sessionStorage.getItem('google_linking_data')
+    if (linkingData) {
+      setIsLinkingGoogle(true)
+    }
+  }, [])
 
   return (
     <motion.div

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SettingsHeader from '../../components/pages/settings/SettingsHeader'
 import { useSecurityStatus, useSessions, useProfile } from '../../hooks/useSettings'
 import ProfileTab from '../../components/pages/settings/ProfileTab'
@@ -12,6 +12,15 @@ const SettingsPage = () => {
   useSecurityStatus()
   useSessions()
   useProfile()
+
+  // Check for Google linking data and switch to Security tab
+  useEffect(() => {
+    const linkingData = sessionStorage.getItem('google_linking_data')
+    if (linkingData) {
+      // Switch to Security tab to show the linking modal
+      setActiveTab('security')
+    }
+  }, [])
 
   return (
     <div className="max-w-[1600px] mx-auto">
