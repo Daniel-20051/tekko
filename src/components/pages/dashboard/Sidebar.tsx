@@ -1,5 +1,6 @@
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Link, useMatchRoute } from '@tanstack/react-router'
+import { memo } from 'react'
 import { 
   Home, 
   Wallet, 
@@ -17,7 +18,7 @@ interface SidebarProps {
   onToggle: () => void
 }
 
-const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
+const Sidebar = memo(({ isOpen, onToggle }: SidebarProps) => {
   const matchRoute = useMatchRoute()
   
   const menuItems = [
@@ -103,6 +104,7 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
               >
                 <Link
                   to={item.path}
+                  preload="intent"
                   className={`
                     relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
                     ${active 
@@ -149,6 +151,7 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
               <Link
                 key={item.path}
                 to={item.path}
+                preload="intent"
                 className={`
                   relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
                   ${active 
@@ -198,7 +201,12 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
       </motion.button>
     </motion.aside>
   )
-}
+}, (prevProps, nextProps) => {
+  // Only re-render if isOpen changes
+  return prevProps.isOpen === nextProps.isOpen
+})
+
+Sidebar.displayName = 'Sidebar'
 
 export default Sidebar
 
