@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Loader2, AlertCircle } from 'lucide-react'
-import { useGoogleOAuthCallback } from '../../hooks/useAuth'
+import { useGoogleOAuthCallback, useLinkGoogleAccount } from '../../hooks/useAuth'
 import DeviceVerificationForm from '../../components/pages/authentication/login/DeviceVerificationForm'
 import { useVerifyDevice } from '../../hooks/useAuth'
+import Input from '../../components/ui/Input'
+import Button from '../../components/ui/Button'
 
 export const Route = createFileRoute('/_auth/google-callback')({
   validateSearch: (search: Record<string, unknown>) => {
@@ -22,15 +24,21 @@ function GoogleCallbackPage() {
   const [requiresVerification, setRequiresVerification] = useState(false)
   const [deviceName, setDeviceName] = useState('')
   const [requiresAccountLinking, setRequiresAccountLinking] = useState(false)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const [linkingData, setLinkingData] = useState<{
     email: string
     userId: number
     linkingToken: string
     message: string
+    code: string
+    state: string
   } | null>(null)
 
   const googleCallbackMutation = useGoogleOAuthCallback()
   const verifyDeviceMutation = useVerifyDevice()
+  const linkGoogleAccountMutation = useLinkGoogleAccount()
 
   useEffect(() => {
     const code = search.code
@@ -67,6 +75,8 @@ function GoogleCallbackPage() {
                 userId: data.userId,
                 linkingToken: data.linkingToken,
                 message: data.message,
+                code: code || '',
+                state: state || '',
               })
               return
             }
@@ -110,13 +120,47 @@ function GoogleCallbackPage() {
 
   const handleLinkGoogleAccount = () => {
     if (!linkingData) return
+    // Show password form
+    setShowPasswordForm(true)
+  }
+
+  const handleSubmitLinking = (e: React.FormEvent) => {
+    e.preventDefault()
     
-    // Store the linking data in sessionStorage and redirect to login page
-    sessionStorage.setItem('google_linking_data', JSON.stringify(linkingData))
-    navigate({ 
-      to: '/',
-      search: { linkGoogle: 'true', email: linkingData.email }
-    })
+    if (!linkingData) return
+    
+    // Clear previous errors
+    setPasswordError('')
+    setError(null)
+    
+    // Validate password
+    if (!password || password.trim() === '') {
+      setPasswordError('Please enter your password')
+      return
+    }
+    
+    // Call link API
+    linkGoogleAccountMutation.mutate(
+      {
+        password,
+        code: linkingData.code,
+        state: linkingData.state,
+      },
+      {
+        onError: (error: unknown) => {
+          let errorMessage = 'Failed to link Google account. Please try again.'
+          
+          if (error instanceof Error) {
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || errorMessage
+          }
+          
+          setError(errorMessage)
+        },
+      }
+    )
   }
 
   const handleSignInWithPassword = () => {
@@ -129,7 +173,84 @@ function GoogleCallbackPage() {
     })
   }
 
+  const handleBackToOptions = () => {
+    setShowPasswordForm(false)
+    setPassword('')
+    setPasswordError('')
+    setError(null)
+  }
+
   if (requiresAccountLinking && linkingData) {
+    // Show password form for linking
+    if (showPasswordForm) {
+      return (
+        <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <div className="flex justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                  <AlertCircle className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Link Google Account</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Enter your password to link your Google account
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Email: <span className="font-medium">{linkingData.email}</span>
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmitLinking} className="space-y-4">
+              <Input
+                type="password"
+                label="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={passwordError}
+                placeholder="Enter your password"
+                disabled={linkGoogleAccountMutation.isPending}
+              />
+
+              <div className="space-y-3">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full"
+                  disabled={linkGoogleAccountMutation.isPending}
+                >
+                  {linkGoogleAccountMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Linking...
+                    </>
+                  ) : (
+                    'Link Google Account'
+                  )}
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={handleBackToOptions}
+                  className="w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  disabled={linkGoogleAccountMutation.isPending}
+                >
+                  Back
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )
+    }
+
+    // Show initial options
     return (
       <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
         <div className="text-center space-y-6">
@@ -165,7 +286,7 @@ function GoogleCallbackPage() {
             </button>
 
             <button
-              onClick={() => navigate({ to: '/' })}
+              onClick={() => navigate({ to: '/', search: {} })}
               className="w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
             >
               Cancel

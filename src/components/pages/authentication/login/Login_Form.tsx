@@ -3,7 +3,7 @@ import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
 import Spinner from '../../../ui/Spinner'
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { useAuthStore } from '../../../../store/auth.store'
 import { useLogin, useVerifyDevice, useGoogleOAuthUrl } from '../../../../hooks/useAuth'
 import TwoFactorForm from './TwoFactorForm'
@@ -11,10 +11,13 @@ import DeviceVerificationForm from './DeviceVerificationForm'
 
 const Login_Form = () => {
   const { loginEmail, setLoginEmail } = useAuthStore()
+  const search = useSearch({ from: '/_auth/' })
   const loginMutation = useLogin()
   const verifyDeviceMutation = useVerifyDevice()
   const { refetch: getGoogleOAuthUrl, isFetching: isGettingGoogleUrl } = useGoogleOAuthUrl()
-  const [email, setEmail] = useState(loginEmail || '')
+  
+  // Initialize email from URL param or store
+  const [email, setEmail] = useState(search.email || loginEmail || '')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [apiError, setApiError] = useState('')
@@ -32,6 +35,14 @@ const Login_Form = () => {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // Prefill email from URL parameter
+  useEffect(() => {
+    if (search.email) {
+      setEmail(search.email)
+      setLoginEmail(search.email)
+    }
+  }, [search.email, setLoginEmail])
 
   // Save email to store whenever it changes
   useEffect(() => {
