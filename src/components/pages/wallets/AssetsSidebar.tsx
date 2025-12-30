@@ -137,9 +137,9 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => onSelectAsset(asset.id)}
-              className={`w-full p-3 flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-l-3 ${
+              className={`w-full p-3 flex items-center cursor-pointer gap-2.5 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors border-l-3 ${
                 isSelected 
-                  ? 'bg-primary/5 dark:bg-primary/10 border-primary' 
+                  ? 'bg-primary/5 dark:bg-dark-bg border-primary' 
                   : 'border-transparent'
               }`}
             >

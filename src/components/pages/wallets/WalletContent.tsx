@@ -109,8 +109,9 @@ const WalletContent = ({ selectedTransaction, onSelectTransaction }: WalletConte
               <motion.button
                 key={tx.id}
                 onClick={() => onSelectTransaction(tx.id)}
-                whileHover={{ x: 2 }}
-                className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
+                whileHover={{ x: 4, scale: 1.01 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all duration-150 ${
                   isSelected
                     ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-500/30'
                     : 'bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 hover:bg-amber-50 dark:hover:bg-amber-900/15'
@@ -147,14 +148,15 @@ const WalletContent = ({ selectedTransaction, onSelectTransaction }: WalletConte
               <motion.button
                 key={tx.id}
                 onClick={() => onSelectTransaction(tx.id)}
-                whileHover={{ x: 2 }}
-                className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
+                whileHover={{ x: 4, scale: 1.01 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className={`w-full p-3 rounded-lg flex cursor-pointer items-center gap-3 transition-all duration-150 ${
                   isSelected
-                    ? 'bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700'
-                    : 'bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-gray-100 dark:bg-dark-bg border border-gray-300 dark:border-primary/50'
+                    : 'bg-gray-50 dark:bg-dark-bg/50 border border-gray-200 dark:border-dark-bg hover:bg-gray-100 dark:hover:bg-dark-bg'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                   tx.type === 'buy' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'
                 }`}>
                   <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
