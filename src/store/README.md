@@ -6,6 +6,8 @@
 src/store/
 ├── theme.store.ts      # Light/Dark theme management
 ├── auth.store.ts       # Authentication state
+├── token.store.ts      # Access token management (in-memory only)
+├── balance.store.ts    # Balance visibility state (persisted)
 └── README.md          # This file
 ```
 

@@ -8,11 +8,11 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthLayout() {
   return (
-    <div className="relative min-h-screen bg-gray-100 dark:bg-dark-bg flex flex-col transition-colors overflow-hidden">
+    <div className="relative min-h-screen bg-gray-100 dark:bg-dark-bg flex flex-col transition-colors">
       {/* Background Beams */}
       <BackgroundBeams className="opacity-30 dark:opacity-50" />
       {/* Header */}
-      <header className="relative z-50 w-full  ">
+      <header className="sticky top-0 z-50 w-full  ">
         <div className="mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Logo - Left Side */}
@@ -34,12 +34,12 @@ function AuthLayout() {
             {/* Navigation - Right Side */}
             <div className="flex items-center gap-6">
               {/* Login Link */}
-              <a
-                href="/login"
+              <Link
+                to="/"
                 className="text-sm text-black dark:text-dark-text hover:text-gray-300 transition-colors font-medium"
               >
                 Login
-              </a>
+              </Link>
              
 
               {/* Language Selector */}

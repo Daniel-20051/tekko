@@ -3,19 +3,257 @@
 /* Enable dark mode with class strategy */
 @variant dark (&:is(.dark *));
 
+
 @theme {
   --color-primary: #743a34;
+  --color-primary-light: #a65b52;
   
-  /* Dark mode colors */
-  --color-dark-bg: #111111;
-  --color-dark-surface: #1a1a1a;
+  /* Dark mode colors - Brighter */
+  --color-dark-bg: #1a1a1a;
+  --color-dark-surface: #242424;
   --color-dark-text: #ffffff;
   
   /* Font family */
   --font-family-sans: 'Stack Sans Notch', ui-sans-serif, system-ui, sans-serif;
+  
+  /* Scrollbar colors - Light mode */
+  --scrollbar-track: #f0f0f0;
+  --scrollbar-thumb: #c0c0c0;
+  --scrollbar-thumb-hover: #a0a0a0;
 }
 
 /* Apply font globally to body - will inherit to text elements naturally */
 body {
   font-family: 'Stack Sans Notch', ui-sans-serif, system-ui, sans-serif;
+  /* Set default background to prevent white flash - will be overridden by theme */
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark mode body background */
+html.dark body {
+  background-color: #1a1a1a;
+}
+
+/* Custom Scrollbar Styles - Theme Aware */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 1px solid var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Dark mode scrollbar colors */
+html.dark,
+html.dark * {
+  --scrollbar-track: #1a1a1a;
+  --scrollbar-thumb: #555555;
+  --scrollbar-thumb-hover: #666666;
+}
+
+/* Fade in from right animation */
+@keyframes fadeInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-right {
+  animation: fadeInFromRight 0.6s ease-out forwards;
+}
+
+/* Fade in from left animation */
+@keyframes fadeInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-left {
+  animation: fadeInFromLeft 0.6s ease-out forwards;
+}
+
+/* Background pattern doodles */
+.bg-doodle-light {
+  background-color: #fafafa;
+  background-image: 
+    radial-gradient(circle at 25px 25px, rgba(0, 0, 0, 0.015) 2%, transparent 0%),
+    radial-gradient(circle at 75px 75px, rgba(0, 0, 0, 0.015) 2%, transparent 0%);
+  background-size: 100px 100px;
+}
+
+.bg-doodle-dark {
+  background-color: #1a1a1a;
+  background-image: 
+    radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.015) 2%, transparent 0%),
+    radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.015) 2%, transparent 0%);
+  background-size: 100px 100px;
+}
+
+/* Animated gradient overlay */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-animated {
+  position: relative;
+}
+
+.bg-gradient-animated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(
+    135deg,
+    rgba(116, 58, 52, 0.03) 0%,
+    rgba(59, 130, 246, 0.02) 50%,
+    rgba(168, 85, 247, 0.03) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.dark .bg-gradient-animated::before {
+  background: linear-gradient(
+    135deg,
+    rgba(116, 58, 52, 0.05) 0%,
+    rgba(59, 130, 246, 0.03) 50%,
+    rgba(168, 85, 247, 0.05) 100%
+  );
+  background-size: 200% 200%;
+}
+
+/* Wallet Page Custom Scrollbars */
+/* Assets Sidebar Scrollbar */
+.wallet-assets-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(116, 58, 52, 0.3);
+  border-radius: 3px;
+  border: none;
+}
+
+.wallet-assets-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 58, 52, 0.5);
+}
+
+html.dark .wallet-assets-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(116, 58, 52, 0.4);
+}
+
+html.dark .wallet-assets-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 58, 52, 0.6);
+}
+
+/* Transactions Scrollbar */
+.wallet-transactions-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 3px;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3);
+  border-radius: 3px;
+  border: none;
+}
+
+.wallet-transactions-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.3);
+}
+
+html.dark .wallet-transactions-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
+}
+
+/* Transaction Details Scrollbar */
+.wallet-details-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.4);
+  border-radius: 2.5px;
+  border: none;
+}
+
+.wallet-details-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 200, 200, 0.6);
+}
+
+html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.4);
+}
+
+html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.6);
 }

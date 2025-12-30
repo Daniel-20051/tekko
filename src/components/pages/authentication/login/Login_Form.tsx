@@ -1,52 +1,171 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Checkbox from '../../../ui/Checkbox'
+import Spinner from '../../../ui/Spinner'
 import { Link } from '@tanstack/react-router'
-
+import { useAuthStore } from '../../../../store/auth.store'
+import { useLogin, useVerifyDevice, useGoogleOAuthUrl } from '../../../../hooks/useAuth'
+import TwoFactorForm from './TwoFactorForm'
+import DeviceVerificationForm from './DeviceVerificationForm'
 
 const Login_Form = () => {
-  const [email, setEmail] = useState('')
+  const { loginEmail, setLoginEmail } = useAuthStore()
+  const loginMutation = useLogin()
+  const verifyDeviceMutation = useVerifyDevice()
+  const { refetch: getGoogleOAuthUrl, isFetching: isGettingGoogleUrl } = useGoogleOAuthUrl()
+  const [email, setEmail] = useState(loginEmail || '')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  
+  // 2FA state
+  const [requires2FA, setRequires2FA] = useState(false)
+  // Device verification state
+  const [requiresDeviceVerification, setRequiresDeviceVerification] = useState(false)
+  const [deviceName, setDeviceName] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Trigger animation on mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Save email to store whenever it changes
+  useEffect(() => {
+    if (email) {
+      setLoginEmail(email)
+    }
+  }, [email, setLoginEmail])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     
-    // TODO: Implement login logic
-    console.log({ email, password, rememberMe })
+    // Clear previous errors
+    setApiError('')
+    setEmailError('')
+    setPasswordError('')
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1500)
+    // Custom validation
+    let isValid = true
+    
+    if (!email || email.trim() === '') {
+      setEmailError('Please enter your email address')
+      isValid = false
+    } else if (!email.includes('@') || !email.includes('.')) {
+      setEmailError('Please enter a valid email address')
+      isValid = false
+    }
+    
+    if (!password || password.trim() === '') {
+      setPasswordError('Please enter your password')
+      isValid = false
+    }
+    
+    if (!isValid) {
+      return
+    }
+    
+    // Call login API
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          // Check if 2FA is required
+          if ('requires2FA' in data && data.requires2FA) {
+            setRequires2FA(true)
+            return
+          }
+          
+          // Check if device verification is required
+          if ('requiresDeviceVerification' in data && data.requiresDeviceVerification) {
+            setRequiresDeviceVerification(true)
+            setDeviceName(data.deviceName || 'Unknown Device')
+            return
+          }
+        },
+        onError: (error: unknown) => {
+          // Handle API errors - extract from API response structure
+          let errorMessage = 'Login failed. Please try again.'
+          
+          if (error instanceof Error) {
+            // Error from api-client interceptor (already extracted)
+            errorMessage = error.message
+          } else if (typeof error === 'object' && error !== null) {
+            // Handle axios error structure directly
+            const axiosError = error as { response?: { data?: { error?: string; message?: string } }; message?: string }
+            errorMessage = axiosError.response?.data?.error || errorMessage
+          }
+          
+          setApiError(errorMessage)
+        }
+      }
+    )
   }
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google login clicked')
+  const handleGoogleLogin = async () => {
+    try {
+      const { data } = await getGoogleOAuthUrl()
+      
+      if (data?.success && 'data' in data) {
+        // Store state in sessionStorage for verification
+        sessionStorage.setItem('google_oauth_state', data.data.state)
+        
+        // Redirect user to Google
+        window.location.href = data.data.authUrl
+      } else {
+        setApiError('Failed to initiate Google sign in. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error initiating Google OAuth:', error)
+      setApiError('Failed to initiate Google sign in. Please try again.')
+    }
+  }
+
+  const handle2FABack = () => {
+    setRequires2FA(false)
+    setApiError('')
+  }
+
+  const handleDeviceVerificationBack = () => {
+    setRequiresDeviceVerification(false)
+    setDeviceName('')
+    setApiError('')
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-      {/* Header */}
-      <div className="mb-5 text-center">
-        <h1 className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-1">
-          Welcome to TEKKO !
-        </h1>
-      </div>
+    <div className={`w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 relative overflow-hidden ${isMounted ? 'animate-fade-in-left' : 'opacity-0'}`}>
+      {/* Forms Container - relative positioning for absolute children */}
+      <div className="relative">
+        {/* Login Form */}
+        <div 
+          className={`w-full transition-all duration-500 ease-out ${
+            requires2FA || requiresDeviceVerification
+              ? 'absolute top-0 left-0 right-0 opacity-0 -translate-x-8 pointer-events-none invisible' 
+              : 'relative opacity-100 translate-x-0 pointer-events-auto visible'
+          }`}
+        >
+          {/* Header */}
+          <div className="mb-5 text-center">
+            <h1 className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-1">
+              Welcome to TEKKO !
+            </h1>
+          </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
         <Input
-          label="Email or Username"
-          type="text"
-          placeholder="Enter your email or username"
+          label="Email"
+          type="email"
+          placeholder="Enter your email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          error={emailError}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (emailError) setEmailError('')
+            if (apiError) setApiError('')
+          }}
         />
 
         <Input
@@ -54,8 +173,12 @@ const Login_Form = () => {
           type="password"
           placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          error={passwordError}
+          onChange={(e) => {
+            setPassword(e.target.value)
+            if (passwordError) setPasswordError('')
+            if (apiError) setApiError('')
+          }}
         />
 
         {/* Remember me and Forgot password */}
@@ -66,13 +189,20 @@ const Login_Form = () => {
             onChange={(e) => setRememberMe(e.target.checked)}
           />
           
-          <a 
-            href="/forgot-password" 
+          <Link 
+            to="/forgot-password"
             className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
+
+        {/* API Error Message */}
+        {apiError && (
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            {apiError}
+          </div>
+        )}
 
         {/* Login button */}
         <Button
@@ -80,14 +210,16 @@ const Login_Form = () => {
           variant="primary"
           size="md"
           fullWidth
-          disabled={isLoading}
+          disabled={loginMutation.isPending}
           icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            loginMutation.isPending ? (
+              <Spinner size="sm" variant="white" />
+            ) : (
+              ""
+            )
           }
         >
-          {isLoading ? 'Logging in...' : 'Login'}
+          {loginMutation.isPending ? 'Logging in...' : 'Login'}
         </Button>
 
         {/* Divider */}
@@ -107,8 +239,12 @@ const Login_Form = () => {
           size="md"
           fullWidth
           onClick={handleGoogleLogin}
+          disabled={isGettingGoogleUrl}
           icon={
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            isGettingGoogleUrl ? (
+              <Spinner size="sm" variant="gray" />
+            ) : (
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -125,10 +261,11 @@ const Login_Form = () => {
                 fill="currentColor"
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
-            </svg>
+              </svg>
+            )
           }
         >
-          Login with Google
+          {isGettingGoogleUrl ? 'Loading...' : 'Login with Google'}
         </Button>
 
         {/* Sign up link */}
@@ -144,6 +281,47 @@ const Login_Form = () => {
           </p>
         </div>
       </form>
+        </div>
+
+        {/* 2FA Form */}
+        <div 
+          className={`w-full transition-all duration-500 ease-out ${
+            requires2FA && !requiresDeviceVerification
+              ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
+              : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'
+          }`}
+        >
+          <TwoFactorForm
+            email={email}
+            password={password}
+            loginMutation={loginMutation}
+            isVisible={requires2FA}
+            onBack={handle2FABack}
+            onDeviceVerificationRequired={(deviceName) => {
+              setRequires2FA(false)
+              setRequiresDeviceVerification(true)
+              setDeviceName(deviceName)
+            }}
+          />
+        </div>
+
+        {/* Device Verification Form */}
+        <div 
+          className={`w-full transition-all duration-500 ease-out ${
+            requiresDeviceVerification
+              ? 'relative opacity-100 translate-x-0 pointer-events-auto visible' 
+              : 'absolute top-0 left-0 right-0 opacity-0 translate-x-8 pointer-events-none invisible'
+          }`}
+        >
+          <DeviceVerificationForm
+            email={email}
+            deviceName={deviceName}
+            verifyDeviceMutation={verifyDeviceMutation}
+            isVisible={requiresDeviceVerification}
+            onBack={handleDeviceVerificationBack}
+          />
+        </div>
+      </div>
     </div>
   )
 }

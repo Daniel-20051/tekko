@@ -8,6 +8,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>tekko</title>
+    <script>
+      // Set body background immediately to prevent white flash
+      (function() {
+        function getTheme() {
+          // Check if dark class is on html element
+          if (document.documentElement.classList.contains('dark')) {
+            return 'dark';
+          }
+          
+          // Check localStorage
+          const savedTheme = localStorage.getItem('theme-storage');
+          if (savedTheme) {
+            try {
+              const state = JSON.parse(savedTheme);
+              return state.state?.theme || 'light';
+            } catch {
+              return 'light';
+            }
+          }
+          
+          // Check system preference
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          return prefersDark ? 'dark' : 'light';
+        }
+        
+        function setBodyStyles() {
+          if (document.body) {
+            const theme = getTheme();
+            const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+            document.body.style.backgroundColor = bgColor;
+            document.body.style.margin = '0';
+            document.body.style.padding = '0';
+          }
+        }
+        
+        // Try immediately, or wait for DOMContentLoaded
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setBodyStyles);
+        } else {
+          // DOM is already loaded, but body might not be ready yet
+          setTimeout(setBodyStyles, 0);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

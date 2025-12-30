@@ -24,7 +24,7 @@ const Button = ({
   const variantStyles = {
     primary: 'bg-linear-to-r from-primary to-primary/90 text-white hover:from-primary/90 hover:to-primary/80 shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed',
     secondary: 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700 shadow-gray-200/50 dark:shadow-gray-800/50',
-    outline: 'bg-transparent border-2 border-primary text-primary hover:bg-primary/5',
+    outline: 'bg-transparent border-2 border-primary dark:border-primary text-primary dark:text-primary hover:bg-primary/5 dark:hover:bg-primary/10',
     ghost: 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-none'
   }
   
@@ -47,8 +47,8 @@ const Button = ({
       disabled={disabled}
       {...props}
     >
-      {icon && <span>{icon}</span>}
       {children}
+      {icon && <span className="flex items-center justify-center shrink-0">{icon}</span>}
     </button>
   )
 }
