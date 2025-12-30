@@ -21,6 +21,15 @@ function GoogleCallbackPage() {
   const [error, setError] = useState<string | null>(null)
   const [requiresVerification, setRequiresVerification] = useState(false)
   const [deviceName, setDeviceName] = useState('')
+  const [requiresAccountLinking, setRequiresAccountLinking] = useState(false)
+  const [linkingData, setLinkingData] = useState<{
+    email: string
+    userId: number
+    linkingToken: string
+    message: string
+    code: string
+    state: string
+  } | null>(null)
 
   const googleCallbackMutation = useGoogleOAuthCallback()
   const verifyDeviceMutation = useVerifyDevice()
@@ -50,6 +59,22 @@ function GoogleCallbackPage() {
       {
         onSuccess: (response) => {
           if (response.success && 'data' in response) {
+            const data = response.data as any
+            
+            // Check if account linking is required
+            if (data.requiresAction && data.action === 'link_google_or_password') {
+              setRequiresAccountLinking(true)
+              setLinkingData({
+                email: data.email,
+                userId: data.userId,
+                linkingToken: data.linkingToken,
+                message: data.message,
+                code: code || '',
+                state: state || '',
+              })
+              return
+            }
+
             // Check if device verification is required
             if ('requiresDeviceVerification' in response.data && response.data.requiresDeviceVerification) {
               setRequiresVerification(true)
@@ -85,6 +110,75 @@ function GoogleCallbackPage() {
     setRequiresVerification(false)
     setDeviceName('')
     navigate({ to: '/' })
+  }
+
+  const handleLinkGoogleAccount = () => {
+    if (!linkingData) return
+    // Store linking data and redirect to settings
+    sessionStorage.setItem('google_linking_data', JSON.stringify({
+      email: linkingData.email,
+      code: linkingData.code,
+      state: linkingData.state,
+    }))
+    navigate({ to: '/settings', search: {} })
+  }
+
+  const handleSignInWithPassword = () => {
+    if (!linkingData) return
+    
+    // Redirect to login page with the email pre-filled
+    navigate({ 
+      to: '/',
+      search: { email: linkingData.email }
+    })
+  }
+
+  if (requiresAccountLinking && linkingData) {
+    // Show options: Link account (redirects to settings) or Sign in with password
+    return (
+      <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Account Already Exists</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {linkingData.message}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+              Email: <span className="font-medium">{linkingData.email}</span>
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={handleLinkGoogleAccount}
+              className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+            >
+              Link Google Account (Login Required)
+            </button>
+            
+            <button
+              onClick={handleSignInWithPassword}
+              className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
+            >
+              Sign in with Password
+            </button>
+
+            <button
+              onClick={() => navigate({ to: '/', search: {} })}
+              className="w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (requiresVerification) {

@@ -289,6 +289,8 @@ export interface LinkGoogleAccountSuccessResponse {
   success: true
   message: string
   data: {
+    accessToken: string
+    refreshToken?: string
     user: User
   }
 }

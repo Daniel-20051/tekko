@@ -451,15 +451,26 @@ export const useGoogleOAuthCallback = () => {
 
 // Hook for linking Google account mutation
 export const useLinkGoogleAccount = () => {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (credentials: LinkGoogleAccountCredentials) => {
       return authApi.linkGoogleAccount(credentials)
     },
-    onSuccess: () => {
-      // Invalidate user data to refresh
-      queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+    onSuccess: (data) => {
+      if (data.success && 'data' in data && 'accessToken' in data.data) {
+        // Store access token in memory only (Zustand)
+        // Refresh token is set as HttpOnly cookie by backend
+        useTokenStore.getState().setAccessToken(data.data.accessToken)
+        
+        // Invalidate and refetch user data
+        queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+        
+        // Navigate to dashboard
+        console.log('[useAuth] Google account linked successfully, navigating to dashboard')
+        navigate({ to: '/dashboard' })
+      }
     },
     onError: (error) => {
       console.error('Link Google account failed:', error)
