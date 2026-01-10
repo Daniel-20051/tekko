@@ -25,12 +25,26 @@ export interface GetWalletBalancesResponse {
 }
 
 // Single Currency Balance Types
-export interface SingleCurrencyBalance {
+export interface WalletBalance {
+  id: number | null  // null if wallet doesn't exist yet
   currency: string
   balance: string
   availableBalance: string
   lockedBalance: string
-  pendingBalance: string
+  formattedBalance: string
+  fiatValue: {
+    NGN: string
+    USD: string
+  }
+  pricePerUnit: {
+    NGN: string
+    USD: string
+  }
+  priceStale: boolean
+}
+
+export interface SingleCurrencyBalance {
+  wallet: WalletBalance
 }
 
 export interface GetSingleCurrencyBalanceResponse {

@@ -14,10 +14,11 @@ const WalletsPage = () => {
   // Fetch balance to check if wallet exists
   const { data: balanceData, isLoading: isLoadingBalance, error: balanceError } = useSingleCurrencyBalance(selectedAsset.toUpperCase())
 
-  // Check if wallet doesn't exist (NOT_FOUND error)
-  const walletNotFound = balanceError && 
+  // Check if wallet doesn't exist (NOT_FOUND error OR id is null)
+  const walletNotFound = (balanceError && 
     (balanceError.message?.includes('not found') || 
-     balanceError.message?.includes('NOT_FOUND'))
+     balanceError.message?.includes('NOT_FOUND'))) ||
+    (balanceData?.wallet?.id === null)
 
   // Get currency name for display
   const selectedCurrency = supportedCurrencies?.currencies.find(

@@ -25,7 +25,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
   }, [selectedAsset])
 
   const Icon = iconConfig.icon
-  const balance = balanceData?.balance || '0'
+  const balance = balanceData?.wallet?.balance || '0'
   const currencyCode = selectedCurrency?.code || selectedAsset.toUpperCase()
   const currencyName = selectedCurrency?.name || selectedAsset
 
