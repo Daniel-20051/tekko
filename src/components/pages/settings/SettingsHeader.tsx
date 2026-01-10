@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion'
-import { User, Shield, Monitor } from 'lucide-react'
+import { User, Shield, Monitor, Award } from 'lucide-react'
 
 interface SettingsHeaderProps {
-  activeTab: 'profile' | 'security' | 'sessions'
-  onTabChange: (tab: 'profile' | 'security' | 'sessions') => void
+  activeTab: 'profile' | 'security' | 'sessions' | 'tiers'
+  onTabChange: (tab: 'profile' | 'security' | 'sessions' | 'tiers') => void
 }
 
 const tabs = [
   { id: 'profile' as const, label: 'Profile', icon: User },
   { id: 'security' as const, label: 'Security', icon: Shield },
+  { id: 'tiers' as const, label: 'Account Tiers', icon: Award },
   { id: 'sessions' as const, label: 'Sessions', icon: Monitor }
 ]
 

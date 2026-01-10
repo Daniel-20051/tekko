@@ -176,6 +176,8 @@ export interface User {
   kycLevel: string
   role: string
   status: string
+  name: string | null
+  profileImage: string | null
   createdAt: string
   lastLoginAt: string | null
   lastLoginIp: string | null

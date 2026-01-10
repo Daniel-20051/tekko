@@ -5,6 +5,7 @@ import { useLogout, useCurrentUser, usePinStatus } from '../hooks/useAuth'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/pages/dashboard/Sidebar'
 import CreatePinModal from '../components/pages/settings/CreatePinModal'
+import KycVerificationModal from '../components/pages/kyc/KycVerificationModal'
 import { useState, useRef, useEffect, memo, Suspense } from 'react'
 import { Bell, User, Settings, LogOut, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -112,120 +113,120 @@ const Header = memo(({
   userMenuRef
 }: HeaderProps) => {
   return (
-    <header className="sticky top-0 z-30 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-primary/50">
-      <div className="px-4 md:px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left - Mobile Toggle + Logo */}
-          <div className="flex items-center gap-3 flex-1">
-            {/* Mobile Sidebar Toggle Button - Left Side */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-primary/50 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle menu"
-            >
-              <svg className="w-5 h-5 text-gray-700 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </motion.button>
+        <header className="sticky top-0 z-30 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-primary/50">
+          <div className="px-4 md:px-6 py-4">
+            <div className="flex items-center justify-between">
+              {/* Left - Mobile Toggle + Logo */}
+              <div className="flex items-center gap-3 flex-1">
+                {/* Mobile Sidebar Toggle Button - Left Side */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-primary/50 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  <svg className="w-5 h-5 text-gray-700 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </motion.button>
 
-            {/* Logo */}
-            <div>
-              <img 
-                src="/Tekko-logo/cover.png" 
-                className="h-8 dark:hidden" 
-                alt="TEKKO" 
-              />
-              <img 
-                src="/Tekko-logo/vector/default-monochrome-white.svg" 
-                className="h-8 hidden dark:block" 
-                alt="TEKKO" 
-              />
-            </div>
-          </div>
-
-          {/* Right Side: Notifications, Theme, User */}
-          <div className="flex items-center gap-3 md:gap-4">
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
-            {/* Notifications */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            >
-              <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </motion.button>
-
-            {/* User Menu */}
-            <div className="relative" ref={userMenuRef}>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-primary/30 cursor-pointer transition-colors"
-              >
-                <div className="text-right hidden sm:block">
-                  {isLoadingUser ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                  ) : (
-                    <>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{displayName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{userRole}</p>
-                    </>
-                  )}
+                {/* Logo */}
+                <div>
+                  <img 
+                    src="/Tekko-logo/cover.png" 
+                    className="h-8 dark:hidden" 
+                    alt="TEKKO" 
+                  />
+                  <img 
+                    src="/Tekko-logo/vector/default-monochrome-white.svg" 
+                    className="h-8 hidden dark:block" 
+                    alt="TEKKO" 
+                  />
                 </div>
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold">
-                  <User className="w-5 h-5" />
-                </div>
-              </motion.button>
+              </div>
 
-              {/* User Dropdown */}
-              <AnimatePresence>
-                {showUserMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-52 backdrop-blur-xl bg-white/95 dark:bg-dark-surface/95 rounded-xl shadow-2xl border border-gray-200 dark:border-primary/30 py-2 overflow-hidden z-50"
+              {/* Right Side: Notifications, Theme, User */}
+              <div className="flex items-center gap-3 md:gap-4">
+                {/* Theme Toggle */}
+                <ThemeToggle />
+
+                {/* Notifications */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                </motion.button>
+
+                {/* User Menu */}
+                <div className="relative" ref={userMenuRef}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-primary/30 cursor-pointer transition-colors"
                   >
-                    <Link
-                      to="/settings"
-                      className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span>Settings</span>
-                    </Link>
-                    <hr className="my-2 border-gray-200 dark:border-gray-700" />
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoggingOut ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Logging out...</span>
-                        </>
+                    <div className="text-right hidden sm:block">
+                      {isLoadingUser ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
                       ) : (
                         <>
-                          <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{displayName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{userRole}</p>
                         </>
                       )}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold">
+                      <User className="w-5 h-5" />
+                    </div>
+                  </motion.button>
+
+                  {/* User Dropdown */}
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute right-0 mt-2 w-52 backdrop-blur-xl bg-white/95 dark:bg-dark-surface/95 rounded-xl shadow-2xl border border-gray-200 dark:border-primary/30 py-2 overflow-hidden z-50"
+                      >
+                    <Link
+                      to="/settings"
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-primary/10 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span>Settings</span>
+                    </Link>
+                        <hr className="my-2 border-gray-200 dark:border-gray-700" />
+                        <button
+                          onClick={handleLogout}
+                          disabled={isLoggingOut}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isLoggingOut ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Logging out...</span>
+                            </>
+                          ) : (
+                            <>
+                              <LogOut className="w-4 h-4" />
+                              <span>Logout</span>
+                            </>
+                          )}
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </header>
+        </header>
   )
 }, (prevProps, nextProps) => {
   // Only re-render if these specific props change
@@ -307,6 +308,7 @@ function DashboardLayout() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [showPinModal, setShowPinModal] = useState(false)
+  const [showKycModal, setShowKycModal] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
   const accessToken = useTokenStore((state) => state.accessToken)
@@ -340,8 +342,35 @@ function DashboardLayout() {
     return () => clearTimeout(timer)
   }, [pinStatus, accessToken])
 
-  // Extract display name from email (part before @) or use email
-  const displayName = currentUser?.email 
+  // Check KYC status and show modal after 2 seconds if unverified
+  useEffect(() => {
+    if (!accessToken) return
+    if (!currentUser) return
+
+    // If user is already verified, don't show modal
+    if (currentUser.kycLevel !== 'unverified') {
+      return
+    }
+
+    // Check if modal has already been shown in this session
+    const kycModalShown = sessionStorage.getItem('kycModalShown')
+    if (kycModalShown === 'true') {
+      return
+    }
+
+    // Show modal after 2 seconds delay
+    const timer = setTimeout(() => {
+      setShowKycModal(true)
+      sessionStorage.setItem('kycModalShown', 'true')
+    }, 2000) // 2 seconds delay
+
+    return () => clearTimeout(timer)
+  }, [currentUser, accessToken])
+
+  // Get display name: prioritize name field, then extract from email, then use default
+  const displayName = currentUser?.name 
+    ? currentUser.name.charAt(0).toUpperCase() + currentUser.name.slice(1)
+    : currentUser?.email 
     ? currentUser.email.split('@')[0].charAt(0).toUpperCase() + currentUser.email.split('@')[0].slice(1)
     : 'User'
   const userRole = currentUser?.role || 'User'
@@ -417,7 +446,7 @@ function DashboardLayout() {
               </motion.div>
             }
           >
-            <Outlet />
+          <Outlet />
           </Suspense>
         </main>
       </div>
@@ -429,6 +458,14 @@ function DashboardLayout() {
           setShowPinModal(false)
           // Mark as shown so it doesn't appear again this session
           sessionStorage.setItem('pinModalShown', 'true')
+        }}
+      />
+
+      {/* KYC Verification Modal */}
+      <KycVerificationModal
+        isOpen={showKycModal}
+        onClose={() => {
+          setShowKycModal(false)
         }}
       />
     </div>

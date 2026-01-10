@@ -1,66 +1,102 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, PieChart, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
 import { useBalanceStore } from '../../../store/balance.store'
+import type { Wallet, PortfolioTotal } from '../../../types/wallet'
 
 interface PortfolioWithWalletsProps {
-  totalValue: number
-  change24h: number
-  changeAmount: number
+  wallets: Wallet[]
+  portfolioTotal: PortfolioTotal
+  isLoading?: boolean
 }
 
-const wallets = [
-  {
+// Currency configuration mapping
+const currencyConfig: Record<string, { name: string; icon: typeof Bitcoin; color: string; bgColor: string }> = {
+  BTC: {
     name: 'Bitcoin',
-    symbol: 'BTC',
-    balance: '0.00521',
-    value: 150000,
-    change: '+2.4%',
-    changeType: 'positive' as const,
     icon: Bitcoin,
     color: 'text-orange-500 dark:text-orange-400',
     bgColor: 'bg-orange-500/10 dark:bg-orange-500/20'
   },
-  {
+  ETH: {
     name: 'Ethereum',
-    symbol: 'ETH',
-    balance: '0.0125',
-    value: 40000,
-    change: '-1.2%',
-    changeType: 'negative' as const,
     icon: Waves,
     color: 'text-blue-500 dark:text-blue-400',
     bgColor: 'bg-blue-500/10 dark:bg-blue-500/20'
   },
-  {
+  USDT: {
     name: 'USDT',
-    symbol: 'USDT',
-    balance: '60.50',
-    value: 60000,
-    change: '+0.1%',
-    changeType: 'positive' as const,
     icon: DollarSign,
     color: 'text-green-500 dark:text-green-400',
     bgColor: 'bg-green-500/10 dark:bg-green-500/20'
   },
-  {
+  NGN: {
     name: 'Naira',
-    symbol: 'NGN',
-    balance: '0.00',
-    value: 0,
-    change: '0%',
-    changeType: 'neutral' as const,
     icon: Landmark,
     color: 'text-gray-500 dark:text-gray-400',
     bgColor: 'bg-gray-500/10 dark:bg-gray-500/20'
+  },
+  USD: {
+    name: 'US Dollar',
+    icon: DollarSign,
+    color: 'text-green-600 dark:text-green-500',
+    bgColor: 'bg-green-500/10 dark:bg-green-500/20'
   }
-]
+}
 
-const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: PortfolioWithWalletsProps) => {
+const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioWithWalletsProps) => {
   const [showWallets, setShowWallets] = useState(false)
   const { hideBalance, toggleHideBalance } = useBalanceStore()
+  
+  // Get total portfolio value in NGN
+  const totalValueNGN = useMemo(() => {
+    return parseFloat(portfolioTotal.NGN || '0')
+  }, [portfolioTotal])
+  
+  // Map API wallets to display format
+  const displayWallets = useMemo(() => {
+    return wallets.map((wallet) => {
+      const config = currencyConfig[wallet.currency] || {
+        name: wallet.currency,
+        icon: DollarSign,
+        color: 'text-gray-500 dark:text-gray-400',
+        bgColor: 'bg-gray-500/10 dark:bg-gray-500/20'
+      }
+      
+      // For crypto currencies, we might need to calculate NGN value
+      // For now, we'll use the balance as is
+      const balance = parseFloat(wallet.availableBalance)
+      
+      return {
+        name: config.name,
+        symbol: wallet.currency,
+        balance: wallet.availableBalance,
+        value: balance, // This will be formatted based on currency
+        icon: config.icon,
+        color: config.color,
+        bgColor: config.bgColor
+      }
+    }).filter(wallet => parseFloat(wallet.balance) > 0) // Only show wallets with balance
+  }, [wallets])
+  
+  // For now, we'll show static change data (you can enhance this with historical data)
+  const change24h: number = 0
+  const changeAmount: number = 0
   const isPositive = change24h >= 0
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 p-4">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -84,7 +120,7 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
             animate={{ scale: hideBalance ? 1 : [1, 1.02, 1] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            {hideBalance ? '*****' : `₦${totalValue.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            {hideBalance ? '*****' : `₦${totalValueNGN.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           </motion.h2>
           
           {/* Hide/Show Balance Button */}
@@ -103,32 +139,34 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
           </motion.button>
         </div>
 
-        <div className="flex items-center gap-2 mb-4 transition-all duration-300">
-          {hideBalance ? (
-            <span className="text-gray-500 dark:text-gray-400 text-xs">*****</span>
-          ) : (
-            <>
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-                className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-                  isPositive 
-                    ? 'bg-green-500/20 text-green-400' 
-                    : 'bg-red-500/20 text-red-400'
-                }`}
-              >
-                <TrendingUp className={`w-3 h-3 ${isPositive ? '' : 'rotate-180'}`} />
-                <span className="font-bold text-xs">
-                  {isPositive ? '+' : ''}{change24h.toFixed(1)}%
+        {change24h !== 0 && (
+          <div className="flex items-center gap-2 mb-4 transition-all duration-300">
+            {hideBalance ? (
+              <span className="text-gray-500 dark:text-gray-400 text-xs">*****</span>
+            ) : (
+              <>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+                    isPositive 
+                      ? 'bg-green-500/20 text-green-400' 
+                      : 'bg-red-500/20 text-red-400'
+                  }`}
+                >
+                  <TrendingUp className={`w-3 h-3 ${isPositive ? '' : 'rotate-180'}`} />
+                  <span className="font-bold text-xs">
+                    {isPositive ? '+' : ''}{change24h.toFixed(1)}%
+                  </span>
+                </motion.div>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">
+                  (₦{changeAmount.toLocaleString('en-NG')}) Last 24h
                 </span>
-              </motion.div>
-              <span className="text-gray-500 dark:text-gray-400 text-xs">
-                (₦{changeAmount.toLocaleString('en-NG')}) Last 24h
-              </span>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-1.5 mb-3">
@@ -168,7 +206,7 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
             whileHover={{ x: 4 }}
           >
             <span className="text-xs  font-semibold text-gray-900 dark:text-white">
-              View Wallet Breakdown ({wallets.length})
+              View Wallet Breakdown ({displayWallets.length})
             </span>
             <motion.div
               animate={{ rotate: showWallets ? 180 : 0 }}
@@ -188,66 +226,55 @@ const PortfolioWithWallets = ({ totalValue, change24h, changeAmount }: Portfolio
                 className="overflow-hidden"
               >
                 <div className="grid grid-cols-2 gap-2 mt-3">
-                  {wallets.map((wallet, index) => {
-                    const Icon = wallet.icon
-                    const isPositive = wallet.changeType === 'positive'
-                    
-                    return (
-                      <motion.div
-                        key={wallet.symbol}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.005, y: -1 }}
-                        className="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/50 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <motion.div 
-                              className={`p-1.5 rounded-md ${wallet.bgColor}`}
-                              whileHover={{ rotate: 180 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <Icon className={`w-4 h-4 ${wallet.color}`} />
-                            </motion.div>
-                            <div>
-                              <h3 className="font-semibold text-gray-900 dark:text-white text-xs">
-                                {wallet.name}
-                              </h3>
-                              <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                                {wallet.symbol}
-                              </p>
+                  {displayWallets.length > 0 ? (
+                    displayWallets.map((wallet, index) => {
+                      const Icon = wallet.icon
+                      
+                      return (
+                        <motion.div
+                          key={wallet.symbol}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ scale: 1.005, y: -1 }}
+                          className="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/50 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all cursor-pointer group"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <motion.div 
+                                className={`p-1.5 rounded-md ${wallet.bgColor}`}
+                                whileHover={{ rotate: 180 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <Icon className={`w-4 h-4 ${wallet.color}`} />
+                              </motion.div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900 dark:text-white text-xs">
+                                  {wallet.name}
+                                </h3>
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                                  {wallet.symbol}
+                                </p>
+                              </div>
                             </div>
                           </div>
                           
-                          {wallet.changeType !== 'neutral' && (
-                            <motion.div 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ delay: index * 0.1 + 0.2, type: 'spring' }}
-                              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                                isPositive 
-                                  ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
-                                  : 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                              }`}
-                            >
-                              <TrendingUp className={`w-2.5 h-2.5 ${isPositive ? '' : 'rotate-180'}`} />
-                              {wallet.change}
-                            </motion.div>
-                          )}
-                        </div>
-                        
-                        <div className="space-y-0.5 transition-all duration-300">
-                          <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">
-                            {hideBalance ? '*****' : `${wallet.balance} ${wallet.symbol}`}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {hideBalance ? '*****' : `≈ ₦${wallet.value.toLocaleString('en-NG')}`}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )
-                  })}
+                          <div className="space-y-0.5 transition-all duration-300">
+                            <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">
+                              {hideBalance ? '*****' : `${wallet.balance} ${wallet.symbol}`}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {hideBalance ? '*****' : `≈ ₦${wallet.value.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )
+                    })
+                  ) : (
+                    <div className="col-span-2 text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
+                      No wallet balances found
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

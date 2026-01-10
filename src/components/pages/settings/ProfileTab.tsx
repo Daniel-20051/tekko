@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Edit2, Loader2, Shield, User, Clock } from 'lucide-react'
+import { Edit2, Loader2, Shield, User, Clock, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import Input from '../../ui/Input'
 import Button from '../../ui/Button'
 import { useProfile } from '../../../hooks/useSettings'
@@ -219,13 +219,25 @@ const ProfileTab = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
         whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
-        className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150 cursor-default"
+        className={`bg-white dark:bg-dark-surface rounded-xl border p-6 hover:shadow-lg transition-all duration-150 cursor-default ${
+          profileData.kycLevel === 'unverified'
+            ? 'border-amber-200 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50'
+            : 'border-gray-200 dark:border-primary/50 hover:border-primary/50 dark:hover:border-primary/70'
+        }`}
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+            profileData.kycLevel === 'unverified'
+              ? 'bg-amber-100 dark:bg-amber-900/20'
+              : 'bg-green-100 dark:bg-green-900/20'
+          }`}>
+            {profileData.kycLevel === 'unverified' ? (
+              <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            ) : (
+              <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+            )}
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
               KYC Information
             </h2>
@@ -239,9 +251,14 @@ const ProfileTab = () => {
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
             KYC Level
           </label>
-          <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">
-            {profileData.kycLevel}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">
+              {profileData.kycLevel}
+            </p>
+            {profileData.kycLevel !== 'unverified' && (
+              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+            )}
+          </div>
         </div>
       </motion.div>
 

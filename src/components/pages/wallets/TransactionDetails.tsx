@@ -1,26 +1,37 @@
-import { motion } from 'framer-motion'
-import { AlertCircle, Clock, CheckCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { AlertCircle, Clock, CheckCircle, X } from 'lucide-react'
 
 interface TransactionDetailsProps {
   selectedTransaction: string | null
+  onClose: () => void
 }
 
-const TransactionDetails = ({ selectedTransaction }: TransactionDetailsProps) => {
-  if (!selectedTransaction) {
-    return (
-      <div className="w-80 bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 p-4 flex items-center justify-center shadow-sm">
-        <p className="text-gray-500 dark:text-gray-400 text-xs">Select a transaction to view details</p>
-      </div>
-    )
-  }
-
+const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetailsProps) => {
   return (
+    <AnimatePresence>
+      {selectedTransaction && (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, x: 30, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 30, scale: 0.95 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+            mass: 0.8
+          }}
       className="w-80 bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 p-4 overflow-y-auto wallet-details-scrollbar shadow-sm"
     >
-      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">Buy Details</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">Buy Details</h3>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
+              aria-label="Close details"
+            >
+              <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            </button>
+          </div>
 
       {/* Transaction Info */}
       <div className="space-y-3 mb-4">
@@ -91,6 +102,8 @@ const TransactionDetails = ({ selectedTransaction }: TransactionDetailsProps) =>
         </div>
       </div>
     </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

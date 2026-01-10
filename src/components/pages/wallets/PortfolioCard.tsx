@@ -1,7 +1,34 @@
 import { motion } from 'framer-motion'
-import { Bitcoin } from 'lucide-react'
+import { useMemo } from 'react'
+import { useSupportedCurrencies } from '../../../hooks/useWallet'
+import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import type { SingleCurrencyBalance } from '../../../types/wallet'
 
-const PortfolioCard = () => {
+interface PortfolioCardProps {
+  selectedAsset: string
+  balanceData?: SingleCurrencyBalance
+}
+
+const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
+  const { data: supportedCurrencies } = useSupportedCurrencies()
+
+  // Get the selected currency data
+  const selectedCurrency = useMemo(() => {
+    return supportedCurrencies?.currencies.find(
+      c => c.code.toLowerCase() === selectedAsset.toLowerCase()
+    )
+  }, [supportedCurrencies, selectedAsset])
+
+  // Get icon config
+  const iconConfig = useMemo(() => {
+    return getCryptoIconConfig(selectedAsset.toUpperCase())
+  }, [selectedAsset])
+
+  const Icon = iconConfig.icon
+  const balance = balanceData?.balance || '0'
+  const currencyCode = selectedCurrency?.code || selectedAsset.toUpperCase()
+  const currencyName = selectedCurrency?.name || selectedAsset
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -12,12 +39,14 @@ const PortfolioCard = () => {
       {/* Portfolio Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-orange-500/10 dark:bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-            <Bitcoin className="w-6 h-6 text-orange-500" />
+          <div className={`w-11 h-11 ${iconConfig.iconBg} rounded-full flex items-center justify-center shrink-0`}>
+            <Icon className={`w-6 h-6 ${iconConfig.iconColor}`} />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">1.95232 BTC</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">$47,148.42</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {balance} {currencyCode}
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{currencyName}</p>
           </div>
         </div>
         
@@ -33,23 +62,24 @@ const PortfolioCard = () => {
       <div className="relative h-24 mb-4 -mx-1">
         <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 100">
           <defs>
-            <linearGradient id="chartGradientOrange" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgb(249, 115, 22)" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="rgb(249, 115, 22)" stopOpacity="0.05" />
+            <linearGradient id={`chartGradient${currencyCode}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor={iconConfig.iconColor.replace('text-', 'rgb-')} stopOpacity="0.4" />
+              <stop offset="100%" stopColor={iconConfig.iconColor.replace('text-', 'rgb-')} stopOpacity="0.05" />
             </linearGradient>
           </defs>
           {/* Chart line path */}
           <path
             d="M 0 80 L 40 75 L 80 85 L 120 60 L 160 65 L 200 55 L 240 45 L 280 35 L 320 40 L 360 30 L 400 35"
             fill="none"
-            stroke="rgb(249, 115, 22)"
+            stroke="currentColor"
             strokeWidth="2"
-            className="drop-shadow-lg"
+            className={`drop-shadow-lg ${iconConfig.iconColor}`}
           />
           {/* Filled area */}
           <path
             d="M 0 80 L 40 75 L 80 85 L 120 60 L 160 65 L 200 55 L 240 45 L 280 35 L 320 40 L 360 30 L 400 35 L 400 100 L 0 100 Z"
-            fill="url(#chartGradientOrange)"
+            fill="currentColor"
+            className={`${iconConfig.iconColor} opacity-10`}
           />
         </svg>
       </div>
@@ -59,7 +89,14 @@ const PortfolioCard = () => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 rounded-xl text-white text-base font-semibold transition-colors"
+          className={`flex-1 py-3 rounded-xl text-white text-base font-semibold transition-colors ${
+            selectedAsset === 'btc' ? 'bg-orange-500 hover:bg-orange-600' :
+            selectedAsset === 'eth' ? 'bg-gray-500 hover:bg-gray-600' :
+            selectedAsset === 'usdt' || selectedAsset === 'usdc' ? 'bg-green-600 hover:bg-green-700' :
+            selectedAsset === 'bnb' ? 'bg-yellow-600 hover:bg-yellow-700' :
+            selectedAsset === 'trx' ? 'bg-red-600 hover:bg-red-700' :
+            'bg-primary hover:bg-primary/90'
+          }`}
         >
           Send
         </motion.button>

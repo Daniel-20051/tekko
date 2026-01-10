@@ -50,27 +50,10 @@ function GoogleCallbackPage() {
       return
     }
 
-    // Check if this is a linking flow (user is already logged in)
-    const isLinkingFlow = sessionStorage.getItem('google_linking_flow') === 'true'
-    
-    if (isLinkingFlow) {
-      // This is a linking flow - user is already logged in
-      // Store the code and state, then redirect to Settings
-      sessionStorage.removeItem('google_oauth_state')
-      sessionStorage.removeItem('google_linking_flow')
-      sessionStorage.setItem('google_linking_data', JSON.stringify({
-        code,
-        state,
-      }))
-      // Redirect to Settings - user stays logged in
-      navigate({ to: '/settings', search: {} })
-      return
-    }
-
     // Remove state from storage (one-time use)
     sessionStorage.removeItem('google_oauth_state')
 
-    // Exchange code for tokens (normal login flow)
+    // Exchange code for tokens
     googleCallbackMutation.mutate(
       { code, state },
       {
@@ -129,6 +112,17 @@ function GoogleCallbackPage() {
     navigate({ to: '/' })
   }
 
+  const handleLinkGoogleAccount = () => {
+    if (!linkingData) return
+    // Store linking data and redirect to settings
+    sessionStorage.setItem('google_linking_data', JSON.stringify({
+      email: linkingData.email,
+      code: linkingData.code,
+      state: linkingData.state,
+    }))
+    navigate({ to: '/settings', search: {} })
+  }
+
   const handleSignInWithPassword = () => {
     if (!linkingData) return
     
@@ -162,8 +156,15 @@ function GoogleCallbackPage() {
 
           <div className="space-y-3">
             <button
-              onClick={handleSignInWithPassword}
+              onClick={handleLinkGoogleAccount}
               className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+            >
+              Link Google Account (Login Required)
+            </button>
+            
+            <button
+              onClick={handleSignInWithPassword}
+              className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
             >
               Sign in with Password
             </button>
