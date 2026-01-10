@@ -56,7 +56,7 @@ const ActivityCard = () => {
     if (!transactionsData?.transactions) return []
     
     return transactionsData.transactions.map((tx: Transaction) => {
-      const config = transactionConfig[tx.type]
+      const config = transactionConfig[tx.type] || transactionConfig['trade'] // Default to trade if type not found
       const currencyName = currencyNames[tx.currency] || tx.currency
       const formattedAmount = formatCurrency(tx.amount, tx.currency)
       
