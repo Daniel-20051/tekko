@@ -34,7 +34,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white dark:bg-dark-surface rounded-xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden"
+      className="bg-white dark:bg-dark-surface rounded-xl p-5 border border-gray-200 dark:border-gray-800 overflow-hidden"
     >
       {/* Portfolio Header */}
       <div className="flex items-center justify-between mb-4">
@@ -51,7 +51,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
         </div>
         
         {/* Settings Icon */}
-        <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+        <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700/50 rounded-lg transition-colors cursor-pointer">
           <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
           </svg>
@@ -73,7 +73,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            className={`drop-shadow-lg ${iconConfig.iconColor}`}
+            className={iconConfig.iconColor}
           />
           {/* Filled area */}
           <path
@@ -89,7 +89,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className={`flex-1 py-3 rounded-xl text-white text-base font-semibold transition-colors ${
+          className={`flex-1 py-3 rounded-xl text-white text-base font-semibold transition-colors cursor-pointer ${
             selectedAsset === 'btc' ? 'bg-orange-500 hover:bg-orange-600' :
             selectedAsset === 'eth' ? 'bg-gray-500 hover:bg-gray-600' :
             selectedAsset === 'usdt' || selectedAsset === 'usdc' ? 'bg-green-600 hover:bg-green-700' :
@@ -103,7 +103,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-xl text-white text-base font-semibold transition-colors"
+          className="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-xl text-white text-base font-semibold transition-colors cursor-pointer"
         >
           Receive
         </motion.button>

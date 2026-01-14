@@ -4,6 +4,7 @@ import { useLoadingStore } from '../store/loading.store'
 import { useLogout, useCurrentUser, usePinStatus } from '../hooks/useAuth'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/pages/dashboard/Sidebar'
+import MobileBottomNav from '../components/pages/dashboard/MobileBottomNav'
 import CreatePinModal from '../components/pages/settings/CreatePinModal'
 import KycVerificationModal from '../components/pages/kyc/KycVerificationModal'
 import { useState, useRef, useEffect, memo, Suspense } from 'react'
@@ -430,7 +431,7 @@ function DashboardLayout() {
         />
 
         {/* Main Content Area */}
-        <main className="p-3 md:p-4 lg:p-5 transition-opacity duration-150">
+        <main className="p-3 md:p-4 lg:p-5 transition-opacity duration-150 pb-20 lg:pb-5">
           <Suspense
             fallback={
               <motion.div
@@ -450,6 +451,9 @@ function DashboardLayout() {
           </Suspense>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
 
       {/* Create PIN Modal */}
       <CreatePinModal

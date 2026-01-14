@@ -74,16 +74,16 @@ const Alert = ({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ x: 400, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 400, opacity: 0 }}
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
           transition={{ 
             type: 'spring', 
             stiffness: 300, 
             damping: 30 
           }}
           className={`
-            fixed top-4 right-4 z-[9999]
+            fixed bottom-4 right-4 z-[9999]
             max-w-md w-[calc(100%-2rem)]
             sm:w-auto
             rounded-xl border-2

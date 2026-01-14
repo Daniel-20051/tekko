@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData } from '../types/wallet'
+import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetCryptoBalancesResponse, CryptoBalancesData } from '../types/wallet'
 import type { GetTransactionsResponse, TransactionsData, TransactionQueryParams } from '../types/transaction'
 
 // Get all wallet balances (Fiat + Crypto)
@@ -47,4 +47,13 @@ export const createWallet = async (data: CreateWalletRequest): Promise<CreateWal
     return response.data.data
   }
   throw new Error(response.data.message || 'Failed to create wallet')
+}
+
+// Get crypto balances
+export const getCryptoBalances = async (): Promise<CryptoBalancesData> => {
+  const response = await apiClient.get<GetCryptoBalancesResponse>('/api/v1/crypto/balances')
+  if (response.data.success) {
+    return response.data.data
+  }
+  throw new Error(response.data.message || 'Failed to fetch crypto balances')
 }

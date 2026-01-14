@@ -60,3 +60,15 @@ export const useTerminateSession = () => {
   })
 }
 
+// Hook to update profile
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: settingsApi.updateProfile,
+    onSuccess: () => {
+      // Invalidate and refetch profile data
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() })
+    },
+  })
+}

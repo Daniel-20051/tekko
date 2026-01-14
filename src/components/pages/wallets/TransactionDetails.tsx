@@ -20,7 +20,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
             damping: 30,
             mass: 0.8
           }}
-      className="w-80 bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 p-4 overflow-y-auto wallet-details-scrollbar shadow-sm"
+      className="w-80 bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 p-4 overflow-y-auto wallet-details-scrollbar"
     >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-gray-900 dark:text-white">Buy Details</h3>

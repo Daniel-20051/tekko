@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { SecurityStatusResponse, SecurityStatusData, ProfileResponse, User } from '../types/auth'
+import type { SecurityStatusResponse, SecurityStatusData, ProfileResponse, User, UpdateProfileRequest, UpdateProfileResponse } from '../types/auth'
 
 // Get security status API call
 export const getSecurityStatus = async (): Promise<SecurityStatusData> => {
@@ -19,3 +19,11 @@ export const getProfile = async (): Promise<User> => {
   throw new Error(response.data.error || 'Failed to fetch profile')
 }
 
+// Update profile API call
+export const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
+  const response = await apiClient.put<UpdateProfileResponse>('/settings/profile', data)
+  if (response.data.success) {
+    return response.data.data.user
+  }
+  throw new Error(response.data.error || 'Failed to update profile')
+}

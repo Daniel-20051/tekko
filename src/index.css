@@ -257,3 +257,15 @@ html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb {
 html.dark .wallet-details-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 100, 100, 0.6);
 }
+
+/* Hide scrollbar utility - for horizontal scrolling on mobile */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Webkit browsers */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

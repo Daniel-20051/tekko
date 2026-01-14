@@ -92,3 +92,24 @@ export interface GetSupportedCurrenciesResponse {
   message: string
   data: SupportedCurrenciesData
 }
+
+// Crypto Balances Types
+export interface CryptoBalance {
+  currency: string
+  balance: string
+  availableBalance: string
+  lockedBalance: string
+  pendingBalance: string
+  valueUSD: string
+}
+
+export interface CryptoBalancesData {
+  balances: CryptoBalance[]
+  totalValueUSD: string
+}
+
+export interface GetCryptoBalancesResponse {
+  success: boolean
+  message?: string
+  data: CryptoBalancesData
+}

@@ -151,30 +151,30 @@ const KycTiersTab = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="space-y-6"
+      className="space-y-4 md:space-y-6"
     >
       {/* Header Section */}
-      <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-primary" />
+      <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6">
+        <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Shield className="w-5 h-5 md:w-6 md:h-6 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
               Account Tiers
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
               Choose the verification level that suits your needs
             </p>
           </div>
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+        <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           Each tier offers different benefits and transaction limits. Complete the requirements to unlock higher tiers and enjoy enhanced features.
         </p>
       </div>
 
       {/* Tiers Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
         {kycTiers.map((tier, index) => {
           const Icon = tier.icon
           const isCurrentTier = currentTierLevel === tier.level
@@ -188,7 +188,7 @@ const KycTiersTab = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02, y: -4 }}
-              className={`relative bg-white dark:bg-dark-surface rounded-xl border-2 p-6 transition-all duration-200 ${
+              className={`relative bg-white dark:bg-dark-surface rounded-xl border-2 p-4 md:p-6 transition-all duration-200 ${
                 isCurrentTier
                   ? 'border-primary shadow-lg ring-2 ring-primary/20'
                   : tier.borderColor
@@ -199,7 +199,7 @@ const KycTiersTab = () => {
                 <motion.div
                   initial={{ scale: 0, rotate: -12 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  className="absolute -top-3 -right-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg"
+                  className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-primary text-white text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow-lg"
                 >
                   Current Tier
                 </motion.div>
@@ -207,22 +207,22 @@ const KycTiersTab = () => {
 
               {/* Completed Badge */}
               {isPastTier && (
-                <div className="absolute -top-3 -right-3 bg-green-500 text-white p-1.5 rounded-full shadow-lg">
-                  <CheckCircle2 className="w-4 h-4" />
+                <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-green-500 text-white p-1 md:p-1.5 rounded-full shadow-lg">
+                  <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </div>
               )}
 
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-xl ${tier.bgColor} flex items-center justify-center`}>
-                    <Icon className={`w-6 h-6 ${tier.color}`} />
+              <div className="flex items-start justify-between mb-3 md:mb-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${tier.bgColor} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 md:w-6 md:h-6 ${tier.color}`} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
                       {tier.title}
                     </h3>
-                    <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${tier.badgeColor} mt-1`}>
+                    <span className={`inline-block text-xs font-semibold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${tier.badgeColor} mt-0.5 md:mt-1`}>
                       Level {tier.level}
                     </span>
                   </div>
@@ -230,13 +230,13 @@ const KycTiersTab = () => {
               </div>
 
               {/* Limits */}
-              <div className="mb-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700">
-                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <div className="mb-3 md:mb-4 p-2.5 md:p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700">
+                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 md:mb-2 uppercase tracking-wide">
                   Transaction Limits
                 </h4>
-                <div className="space-y-1.5">
+                <div className="space-y-1 md:space-y-1.5">
                   {tier.limits.map((limit, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-sm">
+                    <div key={idx} className="flex justify-between items-center text-xs md:text-sm">
                       <span className="text-gray-600 dark:text-gray-400">{limit.label}:</span>
                       <span className="font-semibold text-gray-900 dark:text-white">{limit.value}</span>
                     </div>
@@ -245,14 +245,14 @@ const KycTiersTab = () => {
               </div>
 
               {/* Advantages */}
-              <div className="mb-4">
-                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <div className="mb-3 md:mb-4">
+                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 md:mb-2 uppercase tracking-wide">
                   Benefits
                 </h4>
-                <ul className="space-y-1.5">
+                <ul className="space-y-1 md:space-y-1.5">
                   {tier.advantages.map((advantage, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${tier.color}`} />
+                    <li key={idx} className="flex items-start gap-1.5 md:gap-2 text-xs md:text-sm">
+                      <CheckCircle2 className={`w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0 mt-0.5 ${tier.color}`} />
                       <span className="text-gray-700 dark:text-gray-300">{advantage}</span>
                     </li>
                   ))}
@@ -260,13 +260,13 @@ const KycTiersTab = () => {
               </div>
 
               {/* Requirements */}
-              <div className="mb-4">
-                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <div className="mb-3 md:mb-4">
+                <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 md:mb-2 uppercase tracking-wide">
                   Requirements
                 </h4>
-                <ul className="space-y-1.5">
+                <ul className="space-y-1 md:space-y-1.5">
                   {tier.requirements.map((requirement, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
+                    <li key={idx} className="flex items-start gap-1.5 md:gap-2 text-xs md:text-sm">
                       <div className={`w-1.5 h-1.5 rounded-full ${tier.bgColor} flex-shrink-0 mt-1.5`} />
                       <span className="text-gray-600 dark:text-gray-400">{requirement}</span>
                     </li>
@@ -326,15 +326,15 @@ const KycTiersTab = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-xl border border-blue-200 dark:border-blue-500/30 p-6"
+        className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-xl border border-blue-200 dark:border-blue-500/30 p-4 md:p-6"
       >
-        <div className="flex items-start gap-3">
-          <Wallet className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2 md:gap-3">
+          <Wallet className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+            <h4 className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white mb-0.5 md:mb-1">
               Need Help Choosing?
             </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               Start with basic verification to unlock withdrawals, then upgrade as your needs grow. Our support team is here to help you through the verification process.
             </p>
           </div>

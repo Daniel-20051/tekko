@@ -8,6 +8,7 @@ import type { CreateWalletRequest } from '../types/wallet'
 export const walletKeys = {
   all: ['wallet'] as const,
   balances: () => [...walletKeys.all, 'balances'] as const,
+  cryptoBalances: () => [...walletKeys.all, 'crypto-balances'] as const,
   singleBalance: (currency: string) => [...walletKeys.all, 'balance', currency] as const,
   supportedCurrencies: () => [...walletKeys.all, 'supported-currencies'] as const,
   transactions: (params?: TransactionQueryParams) => [...walletKeys.all, 'transactions', params] as const,
@@ -68,6 +69,20 @@ export const useTransactions = (params?: TransactionQueryParams) => {
   })
 }
 
+// Hook to get crypto balances
+export const useCryptoBalances = () => {
+  const accessToken = useTokenStore((state) => state.accessToken)
+  
+  return useQuery({
+    queryKey: walletKeys.cryptoBalances(),
+    queryFn: walletApi.getCryptoBalances,
+    enabled: !!accessToken, // Only fetch if token exists in memory
+    retry: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds (balances change frequently)
+    refetchInterval: 60000, // Auto-refetch every 60 seconds to keep balances up to date
+  })
+}
+
 // Hook to create a wallet
 export const useCreateWallet = () => {
   const queryClient = useQueryClient()
@@ -79,6 +94,7 @@ export const useCreateWallet = () => {
       queryClient.invalidateQueries({ queryKey: walletKeys.all })
       queryClient.invalidateQueries({ queryKey: walletKeys.singleBalance(data.currency) })
       queryClient.invalidateQueries({ queryKey: walletKeys.balances() })
+      queryClient.invalidateQueries({ queryKey: walletKeys.cryptoBalances() })
     },
   })
 }

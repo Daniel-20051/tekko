@@ -31,21 +31,21 @@ const SecurityTab = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.1 }}
-      className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4"
     >
       {/* Main Content */}
-      <div className="lg:col-span-2 space-y-4">
+      <div className="lg:col-span-2 space-y-3 md:space-y-4">
         {/* Transaction PIN Card */}
         <motion.div
           whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.1 } }}
-          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                 Transaction PIN
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 {securityStatus?.pinSet 
                   ? 'Update your transaction PIN for secure financial operations'
                   : 'Create a transaction PIN to enable secure financial operations'}
@@ -65,14 +65,14 @@ const SecurityTab = () => {
         {/* Link Google Account Card */}
         <motion.div
           whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.1 } }}
-          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                 Link Google Account
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 Connect your Google account for easier sign-in
               </p>
             </div>
@@ -97,14 +97,14 @@ const SecurityTab = () => {
         {/* Change Password Card */}
         <motion.div
           whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.1 } }}
-          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
+          className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                 Change Password
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 Update your password to keep your account secure
               </p>
             </div>
@@ -119,11 +119,11 @@ const SecurityTab = () => {
           </div>
 
           {/* Logout Actions */}
-          <div className="pt-6 border-t border-gray-200 dark:border-primary/30 space-y-3">
-            <div className="p-4 rounded-lg border border-gray-200 dark:border-primary/30 bg-gray-50 dark:bg-gray-800/30">
+          <div className="pt-4 md:pt-6 border-t border-gray-200 dark:border-primary/30 space-y-2 md:space-y-3">
+            <div className="p-3 md:p-4 rounded-lg border border-gray-200 dark:border-primary/30 bg-gray-50 dark:bg-gray-800/30">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                     Log out from this device
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -141,10 +141,10 @@ const SecurityTab = () => {
                 </Button>
               </div>
             </div>
-            <div className="p-4 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20">
+            <div className="p-3 md:p-4 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                     Log out from all devices
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -176,17 +176,17 @@ const SecurityTab = () => {
           whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.1 } }}
           className="lg:sticky lg:top-4"
         >
-          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-100 cursor-default">
+            <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
               Security Status Overview
             </h2>
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <div className="flex items-center justify-center py-6 md:py-8">
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-primary" />
               </div>
             ) : error ? (
-              <div className="text-center py-4">
-                <p className="text-sm text-red-600 dark:text-red-400 mb-3">
+              <div className="text-center py-3 md:py-4">
+                <p className="text-xs md:text-sm text-red-600 dark:text-red-400 mb-2 md:mb-3">
                   {error instanceof Error ? error.message : 'Failed to load security status'}
                 </p>
                 <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -194,20 +194,20 @@ const SecurityTab = () => {
                 </Button>
               </div>
             ) : securityStatus ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="flex items-center gap-3">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 md:gap-3">
                     {securityStatus.emailVerified ? (
-                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                        <MailCheck className="w-4 h-4 text-green-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                        <MailCheck className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500" />
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                        <Mail className="w-4 h-4 text-red-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                        <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
                         Email Verification
                       </p>
                       <p className={`text-xs ${
@@ -220,19 +220,19 @@ const SecurityTab = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 md:gap-3">
                     {securityStatus.phoneVerified ? (
-                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                        <PhoneCall className="w-4 h-4 text-green-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                        <PhoneCall className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500" />
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                        <Phone className="w-4 h-4 text-red-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                        <Phone className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
                         Phone Verification
                       </p>
                       <p className={`text-xs ${
@@ -245,19 +245,19 @@ const SecurityTab = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 md:gap-3">
                     {securityStatus.twoFactorEnabled ? (
-                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500" />
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0">
-                        <Shield className="w-4 h-4 text-yellow-500" />
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0">
+                        <Shield className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
                         Two-Factor Authentication
                       </p>
                       <p className={`text-xs ${
@@ -292,13 +292,13 @@ const SecurityTab = () => {
                     />
                   )}
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+                      <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-500 dark:text-gray-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
                         Last Login
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">

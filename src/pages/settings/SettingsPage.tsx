@@ -22,7 +22,7 @@ const SettingsPage = () => {
   useProfile()
 
   return (
-    <div className="max-w-[1600px] mx-auto">
+    <div className="max-w-[1600px] mx-auto w-full overflow-x-hidden">
       <SettingsHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* KYC Verification Alert - Shows on all tabs when unverified */}
@@ -31,9 +31,9 @@ const SettingsPage = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mt-4 mb-4"
+          className="mt-3 md:mt-4 mb-3 md:mb-4"
         >
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-500/30 p-5"
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-500/30 p-3 md:p-5"
           >
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5 dark:opacity-10">
@@ -42,18 +42,18 @@ const SettingsPage = () => {
             </div>
 
             {/* Content */}
-            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-2.5 md:gap-4">
               {/* Icon */}
-              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 dark:bg-amber-500/30 rounded-xl flex items-center justify-center">
-                <ShieldAlert className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              <div className="flex-shrink-0 w-9 h-9 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-500/30 rounded-xl flex items-center justify-center">
+                <ShieldAlert className="w-4 h-4 md:w-6 md:h-6 text-amber-600 dark:text-amber-400" />
               </div>
 
               {/* Text Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                <h3 className="text-xs md:text-base font-bold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                   KYC Verification Required
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
                   Complete your identity verification to unlock higher transaction limits and access all platform features.
                 </p>
               </div>
@@ -61,13 +61,13 @@ const SettingsPage = () => {
               {/* Action Button */}
               <Button
                 variant="primary"
-                size="md"
-                className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 whitespace-nowrap"
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 whitespace-nowrap w-full md:w-auto mt-1 md:mt-0"
                 onClick={() => navigate({ to: '/settings/kyc' })}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 md:gap-2">
                   <span>Verify Now</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </div>
               </Button>
             </div>

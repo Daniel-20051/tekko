@@ -195,6 +195,22 @@ export interface ProfileSuccessResponse {
 
 export type ProfileResponse = ProfileSuccessResponse | ErrorResponse
 
+// Update profile request
+export interface UpdateProfileRequest {
+  phoneNumber?: string
+}
+
+// Update profile response
+export interface UpdateProfileSuccessResponse {
+  success: true
+  message: string
+  data: {
+    user: User
+  }
+}
+
+export type UpdateProfileResponse = UpdateProfileSuccessResponse | ErrorResponse
+
 // 2FA Setup response
 export interface TwoFactorSetupSuccessResponse {
   success: true
