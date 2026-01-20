@@ -55,8 +55,8 @@ const AssetListItem = ({
     try {
       await queryClient.invalidateQueries({ queryKey: walletKeys.singleBalance(currencyCode) })
       await queryClient.refetchQueries({ queryKey: walletKeys.singleBalance(currencyCode) })
-      await queryClient.invalidateQueries({ queryKey: walletKeys.cryptoBalances() })
-      await queryClient.refetchQueries({ queryKey: walletKeys.cryptoBalances() })
+      await queryClient.invalidateQueries({ queryKey: walletKeys.balances() })
+      await queryClient.refetchQueries({ queryKey: walletKeys.balances() })
     } catch (error) {
       console.error('Failed to refresh balance:', error)
     } finally {

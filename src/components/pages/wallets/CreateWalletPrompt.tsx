@@ -149,9 +149,9 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
           icon={
             isPending ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : isSuccess ? (
+          ) : isSuccess ? (
               <CheckCircle className="w-4 h-4" />
-            ) : (
+          ) : (
               <Plus className="w-4 h-4" />
             )
           }

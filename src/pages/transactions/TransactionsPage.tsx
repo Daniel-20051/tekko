@@ -7,12 +7,15 @@ import type { TransactionType } from '../../types/transaction'
 import type { TransactionQueryParams } from '../../types/transaction'
 import TransactionFilterDropdown, { type TransactionFilters } from '../../components/pages/wallets/TransactionFilterModal'
 import Button from '../../components/ui/Button'
-import { useCryptoBalances } from '../../hooks/useWallet'
+import { useWalletBalances } from '../../hooks/useWallet'
 import TransactionDetails from '../../components/pages/wallets/TransactionDetails'
 import { ArrowUp, ArrowDown, Copy, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const TransactionsPage = () => {
-  const { data: cryptoBalances } = useCryptoBalances()
+  const { data: walletBalances } = useWalletBalances()
+  // List of fiat currencies to filter out
+  const fiatCurrencies = ['NGN', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'ZAR', 'MXN', 'SGD', 'HKD', 'NOK', 'SEK', 'DKK', 'PLN', 'RUB', 'TRY', 'KRW', 'THB', 'IDR', 'MYR', 'PHP', 'VND', 'CZK', 'HUF', 'ILS', 'CLP', 'ARS', 'COP', 'PEN', 'UAH', 'RON', 'BGN', 'HRK', 'ISK', 'NZD']
+  const cryptoWallets = walletBalances?.wallets?.filter(w => !fiatCurrencies.includes(w.currency.toUpperCase())) || []
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null)
@@ -371,7 +374,7 @@ const TransactionsPage = () => {
           setTransactionFilters(filters)
         }}
         initialFilters={transactionFilters}
-        availableCurrencies={cryptoBalances?.balances?.map(b => b.currency as any) || ['BTC', 'ETH', 'USDT']}
+        availableCurrencies={cryptoWallets.map(w => w.currency as any) || ['BTC', 'ETH', 'USDT']}
         buttonRef={filterButtonRef}
       />
     </div>

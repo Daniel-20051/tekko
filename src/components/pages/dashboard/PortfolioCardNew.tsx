@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { TrendingUp, PieChart, Download, Upload } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 interface PortfolioCardNewProps {
   totalValue: number
@@ -8,6 +9,7 @@ interface PortfolioCardNewProps {
 }
 
 const PortfolioCardNew = ({ totalValue, change24h, changeAmount }: PortfolioCardNewProps) => {
+  const navigate = useNavigate()
   const isPositive = change24h >= 0
 
   return (
@@ -66,6 +68,7 @@ const PortfolioCardNew = ({ totalValue, change24h, changeAmount }: PortfolioCard
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => navigate({ to: '/deposit' })}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition-colors shadow-lg shadow-primary/30"
           >
             <Download className="w-3.5 h-3.5" />
@@ -75,6 +78,7 @@ const PortfolioCardNew = ({ totalValue, change24h, changeAmount }: PortfolioCard
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => navigate({ to: '/withdraw' })}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold transition-colors border border-gray-300 dark:border-gray-700"
           >
             <Upload className="w-3.5 h-3.5" />

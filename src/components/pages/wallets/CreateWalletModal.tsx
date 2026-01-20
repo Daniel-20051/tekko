@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus, Camera, DollarSign, CheckCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useCreateWallet, useSupportedCurrencies, useCryptoBalances } from '../../../hooks/useWallet'
+import { useCreateWallet, useSupportedCurrencies, useWalletBalances } from '../../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import Alert from '../../ui/Alert'
 import Button from '../../ui/Button'
@@ -20,13 +20,13 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
   
   const { mutate: createWallet, isPending, isSuccess, isError, error } = useCreateWallet()
   const { data: supportedCurrencies, isLoading: isLoadingCurrencies } = useSupportedCurrencies()
-  const { data: cryptoBalances } = useCryptoBalances()
+  const { data: walletBalances } = useWalletBalances()
 
-  // Get currencies that already have wallets
+  // Get currencies that already have wallets (both fiat and crypto)
   const existingCurrencies = useMemo(() => {
-    if (!cryptoBalances?.balances) return new Set<string>()
-    return new Set(cryptoBalances.balances.map(b => b.currency.toUpperCase()))
-  }, [cryptoBalances])
+    if (!walletBalances?.wallets) return new Set<string>()
+    return new Set(walletBalances.wallets.map(w => w.currency.toUpperCase()))
+  }, [walletBalances])
 
   // Filter available currencies (exclude already created wallets)
   const availableCurrencies = useMemo(() => {

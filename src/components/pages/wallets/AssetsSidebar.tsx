@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { useCryptoBalances } from '../../../hooks/useWallet'
+import { useWalletBalances } from '../../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import CreateWalletModal from './CreateWalletModal'
 import WalletDropdown from './WalletDropdown'
@@ -34,7 +34,7 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [refreshingAsset, setRefreshingAsset] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { data: cryptoBalances, isLoading: isLoadingBalances } = useCryptoBalances()
+  const { data: walletBalances, isLoading: isLoadingBalances } = useWalletBalances()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,43 +53,58 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
     }
   }, [showWalletDropdown])
 
-  // Build assets list from crypto balances - show all wallets including zero balances
-  const assets: Asset[] = useMemo(() => {
-    if (!cryptoBalances?.balances) return []
+  // List of fiat currencies
+  const fiatCurrencies = ['NGN', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'ZAR', 'MXN', 'SGD', 'HKD', 'NOK', 'SEK', 'DKK', 'PLN', 'RUB', 'TRY', 'KRW', 'THB', 'IDR', 'MYR', 'PHP', 'VND', 'CZK', 'HUF', 'ILS', 'CLP', 'ARS', 'COP', 'PEN', 'UAH', 'RON', 'BGN', 'HRK', 'ISK', 'NZD']
 
-    return cryptoBalances.balances
-      .map((balance) => {
-        const iconConfig = getCryptoIconConfig(balance.currency)
+  // Build assets list from wallet balances - show all wallets including zero balances
+  const assets: Asset[] = useMemo(() => {
+    if (!walletBalances?.wallets) return []
+
+    return walletBalances.wallets
+      .map((wallet) => {
+        const iconConfig = getCryptoIconConfig(wallet.currency)
         
         // Get currency name from icon config or use currency code
-        const currencyName = iconConfig.name || balance.currency
+        const currencyName = iconConfig.name || wallet.currency
 
         return {
-          id: balance.currency.toLowerCase(),
+          id: wallet.currency.toLowerCase(),
           name: currencyName,
-          code: balance.currency,
-          balance: balance.balance || '0',
-          availableBalance: balance.availableBalance || '0',
-          lockedBalance: balance.lockedBalance || '0',
-          pendingBalance: balance.pendingBalance || '0',
+          code: wallet.currency,
+          balance: wallet.balance || '0',
+          availableBalance: wallet.availableBalance || '0',
+          lockedBalance: wallet.lockedBalance || '0',
+          pendingBalance: '0', // New API doesn't have pendingBalance in wallet object
           icon: iconConfig.icon,
           iconColor: iconConfig.iconColor,
           iconBg: iconConfig.iconBg
         }
       })
-  }, [cryptoBalances])
+  }, [walletBalances])
+
+  // Filter assets based on wallet filter (all, fiat, digital)
+  const filteredByType = useMemo(() => {
+    if (walletFilter === 'all') return assets
+    if (walletFilter === 'fiat') {
+      return assets.filter(asset => fiatCurrencies.includes(asset.code.toUpperCase()))
+    }
+    if (walletFilter === 'digital') {
+      return assets.filter(asset => !fiatCurrencies.includes(asset.code.toUpperCase()))
+    }
+    return assets
+  }, [assets, walletFilter])
 
   // Filter assets based on search query
   const filteredAssets = useMemo(() => {
-    if (!searchQuery.trim()) return assets
+    if (!searchQuery.trim()) return filteredByType
 
     const query = searchQuery.toLowerCase()
-    return assets.filter(
+    return filteredByType.filter(
       (asset) =>
         asset.name.toLowerCase().includes(query) ||
         asset.code.toLowerCase().includes(query)
     )
-  }, [assets, searchQuery])
+  }, [filteredByType, searchQuery])
 
   const isLoading = isLoadingBalances
 
@@ -119,7 +134,7 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
     return `${parseFloat(integerPart).toLocaleString('en-US')}.${paddedDecimal} ${code}`
   }
 
-  const hasNoWallets = !isLoadingBalances && (!cryptoBalances?.balances || cryptoBalances.balances.length === 0)
+  const hasNoWallets = !isLoadingBalances && assets.length === 0
 
   return (
     <div className="w-full lg:w-80 bg-white dark:bg-dark-surface lg:rounded-xl border-0 lg:border border-gray-200 dark:border-primary/50 overflow-hidden flex flex-col max-h-[calc(100vh-100px)] lg:max-h-[calc(100vh-120px)]">
@@ -131,8 +146,8 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
           onToggle={() => setShowWalletDropdown(!showWalletDropdown)}
           onSelectFilter={(filter) => {
             setWalletFilter(filter)
-            setShowWalletDropdown(false)
-          }}
+                    setShowWalletDropdown(false)
+                  }}
           dropdownRef={dropdownRef}
         />
         <Button
@@ -164,7 +179,7 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
         ) : (
           filteredAssets.map((asset, index) => (
             <AssetListItem
-              key={asset.id}
+                key={asset.id}
               asset={asset}
               index={index}
               isSelected={selectedAsset === asset.id}

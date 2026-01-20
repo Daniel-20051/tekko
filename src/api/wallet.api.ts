@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetCryptoBalancesResponse, CryptoBalancesData, GetDepositAddressResponse, DepositAddressData, WithdrawRequest, WithdrawResponse, WithdrawData } from '../types/wallet'
+import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetDepositAddressResponse, DepositAddressData, WithdrawRequest, WithdrawResponse, WithdrawData, DepositAccountRequest, DepositAccountResponse, DepositAccountData, DepositAccountErrorResponse, NGNWithdrawalFeesRequest, NGNWithdrawalFeesResponse, NGNWithdrawalFeesData, NGNWithdrawalRequest, NGNWithdrawalResponse, NGNWithdrawalData } from '../types/wallet'
 import type { GetTransactionsResponse, TransactionsData, TransactionQueryParams, GetSingleTransactionResponse, Transaction, TransactionType } from '../types/transaction'
 
 // Get all wallet balances (Fiat + Crypto)
@@ -126,15 +126,6 @@ export const createWallet = async (data: CreateWalletRequest): Promise<CreateWal
   throw new Error(response.data.message || 'Failed to create wallet')
 }
 
-// Get crypto balances
-export const getCryptoBalances = async (): Promise<CryptoBalancesData> => {
-  const response = await apiClient.get<GetCryptoBalancesResponse>('/api/v1/crypto/balances')
-  if (response.data.success) {
-    return response.data.data
-  }
-  throw new Error(response.data.message || 'Failed to fetch crypto balances')
-}
-
 // Get deposit address
 export const getDepositAddress = async (currency: string): Promise<DepositAddressData> => {
   const response = await apiClient.get<GetDepositAddressResponse>(`/api/v1/crypto/deposit-address/${currency.toUpperCase()}`)
@@ -160,4 +151,42 @@ export const withdrawCrypto = async (data: WithdrawRequest): Promise<WithdrawDat
     return response.data.data
   }
   throw new Error(response.data.message || 'Failed to initiate withdrawal')
+}
+
+// Calculate NGN withdrawal fees
+export const calculateNGNWithdrawalFees = async (data: NGNWithdrawalFeesRequest): Promise<NGNWithdrawalFeesData> => {
+  const response = await apiClient.post<NGNWithdrawalFeesResponse>('/api/v1/wallet/withdrawal/fees', data)
+  if (response.data.success) {
+    return response.data.data
+  }
+  throw new Error('Failed to calculate withdrawal fees')
+}
+
+// Process NGN withdrawal
+export const withdrawNGN = async (data: NGNWithdrawalRequest): Promise<NGNWithdrawalData> => {
+  const response = await apiClient.post<NGNWithdrawalResponse>('/api/v1/wallet/withdrawal', data)
+  if (response.data.success) {
+    return response.data.data
+  }
+  // Handle error response format
+  const errorResponse = response.data as any
+  const errorMessage = errorResponse.error || errorResponse.message || 'Failed to initiate withdrawal'
+  throw new Error(errorMessage)
+}
+
+// Get deposit account (for Fiat/NGN)
+export const getDepositAccount = async (data: DepositAccountRequest): Promise<DepositAccountData> => {
+  const response = await apiClient.post<DepositAccountResponse | DepositAccountErrorResponse>('/api/v1/wallet/deposit/account', data)
+  if (response.data.success) {
+    return (response.data as DepositAccountResponse).data
+  }
+  // Handle KYC required error
+  const errorResponse = response.data as DepositAccountErrorResponse
+  if (errorResponse.error === 'KYC_REQUIRED') {
+    const error = new Error(errorResponse.message || 'KYC information required')
+    ;(error as any).kycRequired = true
+    ;(error as any).required = errorResponse.required
+    throw error
+  }
+  throw new Error(errorResponse.message || 'Failed to get deposit account')
 }

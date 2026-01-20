@@ -67,18 +67,18 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
             onClick={onClose}
           />
           
-          <motion.div
-            initial={{ opacity: 0, x: 30, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 30, scale: 0.95 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-              mass: 0.8
-            }}
+    <motion.div
+          initial={{ opacity: 0, x: 30, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 30, scale: 0.95 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+            mass: 0.8
+          }}
             className="fixed top-[73px] left-0 right-0 bottom-0 lg:relative lg:top-auto lg:left-auto lg:right-auto lg:bottom-auto lg:inset-auto w-full lg:w-80 bg-white dark:bg-dark-surface lg:rounded-xl border-0 lg:border border-gray-200 dark:border-gray-800 p-4 overflow-y-auto wallet-details-scrollbar z-50 lg:z-auto"
-          >
+    >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-gray-900 dark:text-white">Transaction Details</h3>
             <Button
@@ -107,11 +107,11 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
             </div>
           ) : transaction ? (
             <>
-              {/* Transaction Info */}
+      {/* Transaction Info */}
               <div className="space-y-3 mb-4 p-4 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-800">
                 {/* Transaction Hash / Blockchain TX ID */}
                 {(transaction.blockchainTxId || transaction.txHash) && (
-                  <div>
+        <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Transaction Hash:</p>
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-primary break-all flex-1">
@@ -128,18 +128,18 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                         <span className="sr-only">Copy</span>
                       </Button>
                     </div>
-                  </div>
+        </div>
                 )}
 
                 {/* Status */}
-                <div>
+        <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Status:</p>
-                  <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
                     <span className={`text-sm font-semibold ${getStatusColor(transaction.status)}`}>
                       {getStatusLabel(transaction.status)}
                     </span>
-                  </div>
-                </div>
+          </div>
+        </div>
 
                 {/* Type */}
                 <div>
@@ -150,7 +150,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                 </div>
 
                 {/* Amount */}
-                <div>
+        <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Amount:</p>
                   <p className="text-sm text-gray-900 dark:text-white font-medium">
                     {parseFloat(transaction.amount).toLocaleString('en-US', { 
@@ -158,7 +158,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                       maximumFractionDigits: 8 
                     })} {transaction.currency}
                   </p>
-                </div>
+        </div>
 
                 {/* Fee */}
                 {parseFloat(transaction.fee) > 0 && (
@@ -174,7 +174,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                 )}
 
                 {/* Balance Before/After */}
-                <div>
+        <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Balance:</p>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -189,7 +189,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                         maximumFractionDigits: 8 
                       })} {transaction.currency}
                     </p>
-                  </div>
+        </div>
                 </div>
 
                 {/* Network */}
@@ -284,19 +284,19 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                     </p>
                   </div>
                 )}
-              </div>
+      </div>
 
-              {/* Status Timeline */}
-              <div className="space-y-3">
+      {/* Status Timeline */}
+      <div className="space-y-3">
                 {/* Transaction Created */}
-                <div className="flex gap-2.5">
-                  <div className="flex flex-col items-center">
+        <div className="flex gap-2.5">
+          <div className="flex flex-col items-center">
                     <div className="w-7 h-7 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
                       <CheckCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div className="w-0.5 h-10 bg-gray-200 dark:bg-gray-800 mt-1.5"></div>
-                  </div>
-                  <div className="flex-1 pt-0.5">
+            </div>
+            <div className="w-0.5 h-10 bg-gray-200 dark:bg-gray-800 mt-1.5"></div>
+          </div>
+          <div className="flex-1 pt-0.5">
                     <p className="text-sm font-medium text-gray-900 dark:text-white mb-0.5">Transaction created</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(transaction.createdAt).toLocaleString('en-US', {
@@ -306,19 +306,19 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                         minute: '2-digit'
                       })}
                     </p>
-                  </div>
-                </div>
+          </div>
+        </div>
 
                 {/* Processing/Pending */}
                 {(transaction.status === 'pending' || transaction.status === 'processing') && (
-                  <div className="flex gap-2.5">
-                    <div className="flex flex-col items-center">
-                      <div className="w-7 h-7 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
-                        <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                      </div>
-                      <div className="w-0.5 h-10 bg-gray-200 dark:bg-gray-800 mt-1.5"></div>
-                    </div>
-                    <div className="flex-1 pt-0.5">
+        <div className="flex gap-2.5">
+          <div className="flex flex-col items-center">
+            <div className="w-7 h-7 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center">
+              <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="w-0.5 h-10 bg-gray-200 dark:bg-gray-800 mt-1.5"></div>
+          </div>
+          <div className="flex-1 pt-0.5">
                       <p className="text-sm font-medium text-gray-900 dark:text-white mb-0.5">
                         {transaction.status === 'processing' ? 'Processing' : 'Pending'}
                       </p>
@@ -351,28 +351,28 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
                           })}
                         </p>
                       )}
-                    </div>
-                  </div>
+          </div>
+        </div>
                 )}
 
                 {(transaction.status === 'failed' || transaction.status === 'cancelled') && (
-                  <div className="flex gap-2.5">
-                    <div className="flex flex-col items-center">
+        <div className="flex gap-2.5">
+          <div className="flex flex-col items-center">
                       <div className="w-7 h-7 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center">
                         <AlertCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-                      </div>
-                    </div>
-                    <div className="flex-1 pt-0.5">
+            </div>
+          </div>
+          <div className="flex-1 pt-0.5">
                       <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-0.5">
                         Transaction {transaction.status === 'failed' ? 'failed' : 'cancelled'}
                       </p>
-                    </div>
-                  </div>
+          </div>
+        </div>
                 )}
-              </div>
+      </div>
             </>
           ) : null}
-          </motion.div>
+    </motion.div>
         </>
       )}
     </AnimatePresence>

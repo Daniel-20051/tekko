@@ -2,24 +2,22 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { Filter, ArrowUpDown, ArrowLeft, Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNavigate } from '@tanstack/react-router'
-import { useCryptoBalances, useSingleCurrencyBalance } from '../../hooks/useWallet'
+import { useWalletBalances, useSingleCurrencyBalance } from '../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../utils/crypto-icons'
 import AssetsSidebar from '../../components/pages/wallets/AssetsSidebar'
 import WalletContent from '../../components/pages/wallets/WalletContent'
 import TransactionDetails from '../../components/pages/wallets/TransactionDetails'
 import CreateWalletPrompt from '../../components/pages/wallets/CreateWalletPrompt'
 import CreateWalletModal from '../../components/pages/wallets/CreateWalletModal'
-import DepositAddressModal from '../../components/pages/wallets/DepositAddressModal'
 import TransactionFilterDropdown, { type TransactionFilters } from '../../components/pages/wallets/TransactionFilterModal'
 import Button from '../../components/ui/Button'
 
 const WalletsPage = () => {
   const navigate = useNavigate()
-  const { data: cryptoBalances, isLoading: isLoadingCryptoBalances } = useCryptoBalances()
+  const { data: walletBalances, isLoading: isLoadingCryptoBalances } = useWalletBalances()
   const [selectedAsset, setSelectedAsset] = useState<string>('')
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showDepositModal, setShowDepositModal] = useState(false)
   const [showFilterDropdown, setShowFilterDropdown] = useState(false)
   const [transactionFilters, setTransactionFilters] = useState<TransactionFilters>({})
   const filterButtonRef = useRef<HTMLButtonElement>(null)
@@ -30,10 +28,10 @@ const WalletsPage = () => {
 
   // Get selected wallet info for mobile card
   const selectedWalletInfo = useMemo(() => {
-    if (!selectedAsset || !cryptoBalances?.balances) return null
+    if (!selectedAsset || !walletBalances?.wallets) return null
     
-    const wallet = cryptoBalances.balances.find(
-      b => b.currency.toLowerCase() === selectedAsset.toLowerCase()
+    const wallet = walletBalances.wallets.find(
+      w => w.currency.toLowerCase() === selectedAsset.toLowerCase()
     )
     
     if (!wallet) return null
@@ -47,10 +45,11 @@ const WalletsPage = () => {
       iconColor: iconConfig.iconColor,
       iconBg: iconConfig.iconBg
     }
-  }, [selectedAsset, cryptoBalances])
+  }, [selectedAsset, walletBalances])
 
   // Check if user has no wallets at all
-  const hasNoWallets = !isLoadingCryptoBalances && (!cryptoBalances?.balances || cryptoBalances.balances.length === 0)
+  const allWallets = walletBalances?.wallets || []
+  const hasNoWallets = !isLoadingCryptoBalances && allWallets.length === 0
 
   // Set the first wallet as the default selected asset (only on desktop, and only once on initial load)
   // On mobile, user should explicitly select from the list
@@ -59,17 +58,17 @@ const WalletsPage = () => {
     if (typeof window !== 'undefined') {
       const isDesktop = window.innerWidth >= 1024 // lg breakpoint
       
-      if (isDesktop && !hasAutoSelectedRef.current && cryptoBalances?.balances && cryptoBalances.balances.length > 0 && !selectedAsset) {
+      if (isDesktop && !hasAutoSelectedRef.current && allWallets.length > 0 && !selectedAsset) {
         // Get the first wallet with balance > 0, or fallback to the first wallet if all are zero
-        const firstWalletWithBalance = cryptoBalances.balances.find(b => parseFloat(b.balance) > 0)
-        const walletToSelect = firstWalletWithBalance || cryptoBalances.balances[0]
+        const firstWalletWithBalance = allWallets.find(w => parseFloat(w.balance) > 0)
+        const walletToSelect = firstWalletWithBalance || allWallets[0]
         if (walletToSelect) {
           setSelectedAsset(walletToSelect.currency.toLowerCase())
           hasAutoSelectedRef.current = true
         }
       }
     }
-  }, [cryptoBalances, selectedAsset])
+  }, [walletBalances, selectedAsset, allWallets])
 
   // Show single full-page spinner during initial crypto balances load
   if (isLoadingCryptoBalances) {
@@ -200,9 +199,10 @@ const WalletsPage = () => {
                       variant="primary" 
                       size="sm"
                       onClick={() => {
-                        if (selectedAsset) {
-                          setShowDepositModal(true)
-                        }
+                        navigate({ 
+                          to: '/deposit',
+                          search: selectedAsset ? { currency: selectedAsset } : undefined
+                        })
                       }}
                       disabled={!selectedAsset}
                     >
@@ -268,13 +268,6 @@ const WalletsPage = () => {
         onClose={() => setShowCreateModal(false)}
       />
 
-      {/* Deposit Address Modal */}
-      <DepositAddressModal
-        isOpen={showDepositModal}
-        onClose={() => setShowDepositModal(false)}
-        currency={selectedAsset.toUpperCase()}
-      />
-
       {/* Transaction Filter Dropdown */}
       <TransactionFilterDropdown
         isOpen={showFilterDropdown}
@@ -283,7 +276,7 @@ const WalletsPage = () => {
           setTransactionFilters(filters)
         }}
         initialFilters={transactionFilters}
-        availableCurrencies={cryptoBalances?.balances?.map(b => b.currency as any) || ['BTC', 'ETH', 'USDT']}
+        availableCurrencies={allWallets.map(w => w.currency as any) || ['BTC', 'ETH', 'USDT', 'NGN']}
         buttonRef={filterButtonRef}
         selectedAsset={selectedAsset}
       />

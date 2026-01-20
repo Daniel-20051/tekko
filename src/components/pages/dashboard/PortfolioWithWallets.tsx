@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import { TrendingUp, ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
 import { useBalanceStore } from '../../../store/balance.store'
 import { useCurrencyStore } from '../../../store/currency.store'
@@ -48,7 +47,6 @@ const currencyConfig: Record<string, { name: string; icon: typeof Bitcoin; color
 }
 
 const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioWithWalletsProps) => {
-  const navigate = useNavigate()
   const [showWallets, setShowWallets] = useState(false)
   const { isBalanceHidden, toggleBalanceVisibility } = useBalanceStore()
   const { selectedCurrency } = useCurrencyStore()
@@ -215,28 +213,6 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
             )}
           </div>
         )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-1.5 mb-3">
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center justify-center gap-1.5 px-2 py-3 rounded-md bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-colors shadow-lg shadow-primary/30"
-          >
-            <Download className="w-4 h-4" />
-            Deposit
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate({ to: '/withdraw' })}
-            className="flex items-center justify-center gap-1.5 px-2 py-3 rounded-md bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold transition-colors border border-gray-300 dark:border-gray-700"
-          >
-            <Upload className="w-4 h-4" />
-            Withdraw
-          </motion.button>
-        </div>
 
         {/* Expandable Wallets Section */}
         <div className="border-t  border-gray-200 dark:border-primary/50 pt-3">

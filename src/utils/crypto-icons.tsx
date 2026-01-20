@@ -69,23 +69,11 @@ export const cryptoIconMap: Record<string, CryptoIconConfig> = {
     iconBg: 'bg-yellow-400/20',
     name: 'Dai'
   },
-  UNI: {
+  NGN: {
     icon: Circle,
-    iconColor: 'text-pink-500',
-    iconBg: 'bg-pink-500/20',
-    name: 'Uniswap'
-  },
-  FTM: {
-    icon: Circle,
-    iconColor: 'text-blue-500',
-    iconBg: 'bg-blue-500/20',
-    name: 'Fantom'
-  },
-  AVAX: {
-    icon: Circle,
-    iconColor: 'text-red-500',
-    iconBg: 'bg-red-500/20',
-    name: 'Avalanche'
+    iconColor: 'text-green-600',
+    iconBg: 'bg-green-600/20',
+    name: 'Nigerian Naira'
   }
 }
 

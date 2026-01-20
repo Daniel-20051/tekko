@@ -1,11 +1,24 @@
 // Wallet API Types
 
 export interface Wallet {
+  id: number
+  userId: number
   currency: string
   balance: string
+  formattedBalance: string
   availableBalance: string
   lockedBalance: string
-  pendingBalance: string
+  fiatValue: {
+    NGN: string
+    USD: string
+  }
+  pricePerUnit: {
+    NGN: string
+    USD: string
+  }
+  priceStale: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface PortfolioTotal {
@@ -170,4 +183,111 @@ export interface WithdrawResponse {
   success: boolean
   message?: string
   data: WithdrawData
+}
+
+// NGN Withdrawal Types
+export interface NGNWithdrawalFeesRequest {
+  currency: string
+  amount: string
+}
+
+export interface NGNWithdrawalFeesData {
+  amount: string
+  fees: {
+    total: string
+    userCharge: string
+    platformProfit: string
+  }
+  totalRequired: string
+  netAmount: string
+}
+
+export interface NGNWithdrawalFeesResponse {
+  success: boolean
+  data: NGNWithdrawalFeesData
+}
+
+export interface NGNWithdrawalRequest {
+  currency: string
+  amount: string
+  destinationAddress: string
+  transferPin: string
+  twoFactorToken?: string
+  bankDetails: {
+    accountNumber: string
+    accountName: string
+    bankName: string
+    bankCode: string
+  }
+}
+
+export interface NGNWithdrawalData {
+  transactionId: number
+  status: string
+  amount: string
+  fees: {
+    total: string
+    userCharge: string
+  }
+  netAmount: string
+  externalReference: string
+  estimatedCompletion: string
+  createdAt: string
+}
+
+export interface NGNWithdrawalResponse {
+  success: boolean
+  message?: string
+  error?: string
+  data: NGNWithdrawalData
+}
+
+// Deposit Account Types (for Fiat/NGN)
+export interface DepositAccountKycData {
+  firstName: string
+  lastName: string
+  middleName?: string
+  phoneNumber: string // Format: 234 + phone number
+  dateOfBirth: string // YYYY-MM-DD
+  address: {
+    line: string
+    city: string
+    state: string
+  }
+}
+
+export interface DepositAccountRequest {
+  currency: string
+  kycData?: DepositAccountKycData
+}
+
+export interface DepositAccountData {
+  currency: string
+  bank: string
+  accountNumber: string
+  accountName: string
+  instructions: string
+}
+
+export interface DepositAccountResponse {
+  success: boolean
+  message?: string
+  data: DepositAccountData
+}
+
+export interface DepositAccountErrorResponse {
+  success: false
+  error: 'KYC_REQUIRED'
+  message: string
+  required: {
+    firstName: string
+    lastName: string
+    phoneNumber: string
+    dateOfBirth: string
+    address: {
+      line: string
+      city: string
+      state: string
+    }
+  }
 }
