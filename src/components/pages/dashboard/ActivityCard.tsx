@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { TrendingUp, ArrowUpRight, ArrowDownLeft, ArrowUpFromLine, Repeat2, Wallet } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { useTransactions } from '../../../hooks/useWallet'
 import { formatRelativeTime, formatCurrency } from '../../../utils/time.utils'
 import type { Transaction, TransactionType } from '../../../types/transaction'
@@ -48,6 +49,7 @@ const transactionConfig: Record<TransactionType, {
 }
 
 const ActivityCard = () => {
+  const navigate = useNavigate()
   // Fetch recent transactions (limit to 4 for dashboard)
   const { data: transactionsData, isLoading } = useTransactions({ limit: 4 })
   
@@ -121,7 +123,10 @@ const ActivityCard = () => {
         <h2 className="text-sm font-bold text-gray-900 dark:text-white">
           Recent Activity
         </h2>
-        <button className="text-[10px] text-primary hover:text-primary/80 font-semibold flex items-center gap-0.5 transition-colors">
+        <button 
+          onClick={() => navigate({ to: '/transactions' })}
+          className="text-[10px] text-primary hover:text-primary/80 font-semibold flex items-center gap-0.5 transition-colors"
+        >
           View All
           <ArrowUpRight className="w-2.5 h-2.5" />
         </button>

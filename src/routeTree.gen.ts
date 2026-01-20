@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as AuthenticatedWalletsRouteImport } from './routes/_authenticated/wallets'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedTradeRouteImport } from './routes/_authenticated/trade'
@@ -40,6 +41,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRoute,
+} as any)
+const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedWalletsRoute = AuthenticatedWalletsRouteImport.update({
   id: '/wallets',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/trade': typeof AuthenticatedTradeRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
+  '/withdraw': typeof AuthenticatedWithdrawRoute
   '/': typeof AuthIndexRoute
   '/settings/kyc': typeof AuthenticatedSettingsKycRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/trade': typeof AuthenticatedTradeRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
+  '/withdraw': typeof AuthenticatedWithdrawRoute
   '/': typeof AuthIndexRoute
   '/settings/kyc': typeof AuthenticatedSettingsKycRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/trade': typeof AuthenticatedTradeRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallets': typeof AuthenticatedWalletsRoute
+  '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/_auth/': typeof AuthIndexRoute
   '/_authenticated/settings/kyc': typeof AuthenticatedSettingsKycRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/trade'
     | '/transactions'
     | '/wallets'
+    | '/withdraw'
     | '/'
     | '/settings/kyc'
     | '/api/auth/google/callback'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/trade'
     | '/transactions'
     | '/wallets'
+    | '/withdraw'
     | '/'
     | '/settings/kyc'
     | '/api/auth/google/callback'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trade'
     | '/_authenticated/transactions'
     | '/_authenticated/wallets'
+    | '/_authenticated/withdraw'
     | '/_auth/'
     | '/_authenticated/settings/kyc'
     | '/api/auth/google/callback'
@@ -263,6 +275,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/_authenticated/withdraw': {
+      id: '/_authenticated/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/wallets': {
       id: '/_authenticated/wallets'
@@ -414,6 +433,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTradeRoute: typeof AuthenticatedTradeRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedWalletsRoute: typeof AuthenticatedWalletsRoute
+  AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -425,6 +445,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTradeRoute: AuthenticatedTradeRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedWalletsRoute: AuthenticatedWalletsRoute,
+  AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

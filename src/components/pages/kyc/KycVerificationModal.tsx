@@ -107,7 +107,7 @@ const KycVerificationModal = ({ isOpen, onClose }: KycVerificationModalProps) =>
               {/* Benefits */}
               <div className="space-y-3 mb-6">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Higher Transaction Limits</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Increase your daily and monthly limits</p>
@@ -115,7 +115,7 @@ const KycVerificationModal = ({ isOpen, onClose }: KycVerificationModalProps) =>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Full Platform Access</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Access all features without restrictions</p>
@@ -123,7 +123,7 @@ const KycVerificationModal = ({ isOpen, onClose }: KycVerificationModalProps) =>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Enhanced Security</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Protect your account with identity verification</p>
@@ -135,13 +135,13 @@ const KycVerificationModal = ({ isOpen, onClose }: KycVerificationModalProps) =>
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleVerifyNow}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-150"
+                  className="w-full bg-primary cursor-pointer hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-150"
                 >
                   Verify Now
                 </button>
                 <button
                   onClick={onClose}
-                  className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-lg transition-colors duration-150"
+                  className="w-full bg-gray-100 cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-lg transition-colors duration-150"
                 >
                   Maybe Later
                 </button>

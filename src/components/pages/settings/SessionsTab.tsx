@@ -325,7 +325,7 @@ const SessionsTab = () => {
           whileHover={{ scale: 1.002, transition: { duration: 0.15 } }}
           className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-150"
         >
-          <div className="flex items-center justify-between mb-4 md:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 md:mb-6">
             <div>
               <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-0.5 md:mb-1">
                 Active Sessions
@@ -357,54 +357,83 @@ const SessionsTab = () => {
                   transition={{ duration: 0.2 }}
                   className="bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-sm transition-shadow"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    {/* Left: Device Icon */}
-                    <div className="shrink-0">
-                      <div className="w-12 h-12 rounded-lg bg-[#1E3A8A] dark:bg-[#1E3A8A] flex items-center justify-center">
-                        <DeviceIcon className="w-7 h-7 text-white" />
-                      </div>
-                    </div>
-
-                    {/* Left-Center: Device Name and Time */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-0.5">
-                        {session.deviceName}
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {session.lastActive}
-                      </p>
-                    </div>
-
-                    {/* Center: OS and Browser Icons */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="group relative">
-                        {getOSInfo(session.os).icon}
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
-                          {getOSInfo(session.os).name}
+                  {/* Mobile Layout: Stacked */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                    {/* Top Row: Icon, Device Name, and Action */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {/* Device Icon */}
+                      <div className="shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-[#1E3A8A] dark:bg-[#1E3A8A] flex items-center justify-center">
+                          <DeviceIcon className="w-7 h-7 text-white" />
                         </div>
                       </div>
-                      <div className="group relative">
-                        {getBrowserInfo(session.browser).icon}
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
-                          {getBrowserInfo(session.browser).name}
-                        </div>
+
+                      {/* Device Name and Time */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-0.5">
+                          {session.deviceName}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {session.lastActive}
+                        </p>
+                      </div>
+
+                      {/* Action Button/Badge - Mobile: Right aligned */}
+                      <div className="flex items-center shrink-0 sm:hidden">
+                        {session.isCurrent ? (
+                          <span className="px-2.5 py-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-full whitespace-nowrap">
+                            Current
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleTerminateSession(session.id)}
+                            disabled={terminatingSessionId === session.id}
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Terminate session"
+                          >
+                            {terminatingSessionId === session.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
 
-                    {/* Right-Center: Location with Info Icon */}
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {session.location}
-                      </span>
-                      <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    {/* Bottom Row: OS, Browser, Location - Mobile: Stacked */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 pl-[60px] sm:pl-0">
+                      {/* OS and Browser Icons */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="group relative">
+                          {getOSInfo(session.os).icon}
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
+                            {getOSInfo(session.os).name}
+                          </div>
+                        </div>
+                        <div className="group relative">
+                          {getBrowserInfo(session.browser).icon}
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
+                            {getBrowserInfo(session.browser).name}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Location with Info Icon */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                          {session.location}
+                        </span>
+                        <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500" />
+                      </div>
                     </div>
 
-                    {/* Far Right: Status Badge or Terminate Button */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    {/* Action Button/Badge - Desktop: Right aligned */}
+                    <div className="hidden sm:flex items-center gap-2 shrink-0">
                       {session.isCurrent ? (
-                        <span className="px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-full">
+                        <span className="px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-full whitespace-nowrap">
                           Current Session
                         </span>
                       ) : (

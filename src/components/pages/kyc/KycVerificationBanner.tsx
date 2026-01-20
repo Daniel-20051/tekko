@@ -19,7 +19,7 @@ const KycVerificationBanner = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-500/30 p-4"
+      className="relative overflow-hidden rounded-xl bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-500/30 p-4"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 dark:opacity-10">
@@ -30,7 +30,7 @@ const KycVerificationBanner = () => {
       {/* Content */}
       <div className="relative flex items-start gap-3">
         {/* Icon */}
-        <div className="flex-shrink-0 w-10 h-10 bg-amber-100 dark:bg-amber-500/30 rounded-lg flex items-center justify-center">
+        <div className="shrink-0 w-10 h-10 bg-amber-100 dark:bg-amber-500/30 rounded-lg flex items-center justify-center">
           <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400" />
         </div>
 
@@ -54,7 +54,7 @@ const KycVerificationBanner = () => {
         {/* Close Button */}
         <button
           onClick={() => setIsVisible(false)}
-          className="flex-shrink-0 p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="shrink-0 p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           aria-label="Dismiss banner"
         >
           <X className="w-4 h-4" />

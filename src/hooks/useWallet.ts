@@ -55,7 +55,7 @@ export const useSupportedCurrencies = () => {
   })
 }
 
-// Hook to get transaction history
+// Hook to get transaction history (old endpoint)
 export const useTransactions = (params?: TransactionQueryParams) => {
   const accessToken = useTokenStore((state) => state.accessToken)
   
@@ -66,6 +66,33 @@ export const useTransactions = (params?: TransactionQueryParams) => {
     retry: false,
     staleTime: 30000, // Consider data fresh for 30 seconds
     refetchInterval: 60000, // Auto-refetch every 60 seconds
+  })
+}
+
+// Hook to get transaction history (new endpoint for transactions page)
+export const useWalletTransactions = (params?: TransactionQueryParams) => {
+  const accessToken = useTokenStore((state) => state.accessToken)
+  
+  return useQuery({
+    queryKey: [...walletKeys.all, 'wallet-transactions', params] as const,
+    queryFn: () => walletApi.getWalletTransactions(params),
+    enabled: !!accessToken, // Only fetch if token exists in memory
+    retry: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchInterval: 60000, // Auto-refetch every 60 seconds
+  })
+}
+
+// Hook to get single transaction details
+export const useSingleTransaction = (transactionId: string | null) => {
+  const accessToken = useTokenStore((state) => state.accessToken)
+  
+  return useQuery({
+    queryKey: [...walletKeys.all, 'transaction', transactionId] as const,
+    queryFn: () => walletApi.getSingleTransaction(transactionId!),
+    enabled: !!accessToken && !!transactionId, // Only fetch if token exists and transactionId is provided
+    retry: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   })
 }
 

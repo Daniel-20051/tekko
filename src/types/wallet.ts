@@ -47,10 +47,20 @@ export interface SingleCurrencyBalance {
   wallet: WalletBalance
 }
 
+// New API response format
+export interface CryptoBalanceResponse {
+  currency: string
+  balance: string
+  availableBalance: string
+  lockedBalance: string
+  pendingBalance: string
+  valueUSD: string
+}
+
 export interface GetSingleCurrencyBalanceResponse {
   success: boolean
   message?: string
-  data: SingleCurrencyBalance
+  data: CryptoBalanceResponse
 }
 
 // Create Wallet Types
@@ -112,4 +122,52 @@ export interface GetCryptoBalancesResponse {
   success: boolean
   message?: string
   data: CryptoBalancesData
+}
+
+// Deposit Address Types
+export interface DepositAddressInfo {
+  address: string
+  network: string | null
+  createdAt: string
+}
+
+export interface DepositAddressData {
+  address: DepositAddressInfo
+  qrCode?: string
+  memo?: string | null
+  warnings?: string[]
+  currency?: string
+  network?: string
+}
+
+export interface GetDepositAddressResponse {
+  success: boolean
+  message?: string
+  data: DepositAddressData
+}
+
+// Withdrawal Types
+export interface WithdrawRequest {
+  currency: string
+  amount: string
+  toAddress: string
+  pin: string
+}
+
+export interface WithdrawData {
+  withdrawalId: number
+  currency: string
+  amount: string
+  fee: string
+  totalDeducted: string
+  toAddress: string
+  status: string
+  estimatedCompletion: string
+  createdAt: string
+}
+
+export interface WithdrawResponse {
+  success: boolean
+  message?: string
+  data: WithdrawData
 }

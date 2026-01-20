@@ -1,6 +1,6 @@
 import { apiClient } from '../lib/api-client'
-import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetCryptoBalancesResponse, CryptoBalancesData } from '../types/wallet'
-import type { GetTransactionsResponse, TransactionsData, TransactionQueryParams } from '../types/transaction'
+import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetCryptoBalancesResponse, CryptoBalancesData, GetDepositAddressResponse, DepositAddressData, WithdrawRequest, WithdrawResponse, WithdrawData } from '../types/wallet'
+import type { GetTransactionsResponse, TransactionsData, TransactionQueryParams, GetSingleTransactionResponse, Transaction, TransactionType } from '../types/transaction'
 
 // Get all wallet balances (Fiat + Crypto)
 export const getWalletBalances = async (): Promise<WalletBalancesData> => {
@@ -13,9 +13,29 @@ export const getWalletBalances = async (): Promise<WalletBalancesData> => {
 
 // Get single currency balance
 export const getSingleCurrencyBalance = async (currency: string): Promise<SingleCurrencyBalance> => {
-  const response = await apiClient.get<GetSingleCurrencyBalanceResponse>(`/wallet/${currency.toUpperCase()}/balance`)
+  const response = await apiClient.get<GetSingleCurrencyBalanceResponse>(`/api/v1/crypto/balance/${currency.toUpperCase()}`)
   if (response.data.success) {
-    return response.data.data
+    // Transform the new API response format to match the expected structure
+    const apiData = response.data.data
+    return {
+      wallet: {
+        id: null, // New API doesn't return id
+        currency: apiData.currency,
+        balance: apiData.balance,
+        availableBalance: apiData.availableBalance,
+        lockedBalance: apiData.lockedBalance,
+        formattedBalance: parseFloat(apiData.balance).toFixed(8),
+        fiatValue: {
+          NGN: '0.00', // New API doesn't return NGN, only USD
+          USD: apiData.valueUSD || '0.00'
+        },
+        pricePerUnit: {
+          NGN: '0.00',
+          USD: '0.00' // Would need to calculate from balance and valueUSD if needed
+        },
+        priceStale: false
+      }
+    }
   }
   throw new Error('Failed to fetch currency balance')
 }
@@ -29,8 +49,19 @@ export const getSupportedCurrencies = async (): Promise<SupportedCurrenciesData>
   throw new Error(response.data.message || 'Failed to fetch supported currencies')
 }
 
-// Get transaction history
+// Get transaction history (old endpoint)
 export const getTransactions = async (params?: TransactionQueryParams): Promise<TransactionsData> => {
+  const response = await apiClient.get<GetTransactionsResponse>('/api/v1/crypto/transactions', {
+    params
+  })
+  if (response.data.success) {
+    return response.data.data
+  }
+  throw new Error(response.data.message || 'Failed to fetch transactions')
+}
+
+// Get transaction history (new endpoint)
+export const getWalletTransactions = async (params?: TransactionQueryParams): Promise<TransactionsData> => {
   const response = await apiClient.get<GetTransactionsResponse>('/wallet/transactions', {
     params
   })
@@ -38,6 +69,52 @@ export const getTransactions = async (params?: TransactionQueryParams): Promise<
     return response.data.data
   }
   throw new Error(response.data.message || 'Failed to fetch transactions')
+}
+
+// Get single transaction details
+export const getSingleTransaction = async (transactionId: string): Promise<Transaction> => {
+  const response = await apiClient.get<GetSingleTransactionResponse>(`/wallet/transactions/${transactionId}`)
+  if (response.data.success) {
+    const apiTransaction = response.data.data.transaction
+    
+    // Parse metadata if it's a string
+    let parsedMetadata: Transaction['metadata'] = undefined
+    if (apiTransaction.metadata) {
+      if (typeof apiTransaction.metadata === 'string') {
+        try {
+          parsedMetadata = JSON.parse(apiTransaction.metadata)
+        } catch {
+          parsedMetadata = {}
+        }
+      } else {
+        parsedMetadata = apiTransaction.metadata
+      }
+    }
+    
+    // Map API response to Transaction type
+    return {
+      id: apiTransaction.id,
+      type: apiTransaction.type as TransactionType,
+      currency: apiTransaction.currency,
+      amount: apiTransaction.amount,
+      fee: apiTransaction.fee,
+      status: apiTransaction.status,
+      txHash: apiTransaction.txHash || undefined,
+      blockchainTxId: apiTransaction.txHash || null,
+      balanceBefore: apiTransaction.balanceBefore,
+      balanceAfter: apiTransaction.balanceAfter,
+      metadata: parsedMetadata,
+      network: parsedMetadata?.network,
+      address: apiTransaction.externalAddress || undefined,
+      createdAt: apiTransaction.createdAt,
+      updatedAt: apiTransaction.updatedAt,
+      completedAt: apiTransaction.completedAt,
+      blockchainConfirmations: undefined,
+      confirmations: undefined,
+      requiredConfirmations: undefined
+    }
+  }
+  throw new Error(response.data.message || 'Failed to fetch transaction details')
 }
 
 // Create crypto wallet
@@ -56,4 +133,31 @@ export const getCryptoBalances = async (): Promise<CryptoBalancesData> => {
     return response.data.data
   }
   throw new Error(response.data.message || 'Failed to fetch crypto balances')
+}
+
+// Get deposit address
+export const getDepositAddress = async (currency: string): Promise<DepositAddressData> => {
+  const response = await apiClient.get<GetDepositAddressResponse>(`/api/v1/crypto/deposit-address/${currency.toUpperCase()}`)
+  if (response.data.success) {
+    return response.data.data
+  }
+  // Handle error response format - check for 'error' field first
+  const errorResponse = response.data as any
+  const errorMessage = errorResponse.error || errorResponse.message || 'Failed to fetch deposit address'
+  // Remove "Redbiller" from error messages and clean up
+  let cleanErrorMessage = errorMessage.replace(/redbiller/gi, '').trim()
+  // If message contains "service temporarily unavailable", standardize it
+  if (cleanErrorMessage.toLowerCase().includes('service temporarily unavailable')) {
+    cleanErrorMessage = 'Service temporarily unavailable. Please try again later.'
+  }
+  throw new Error(cleanErrorMessage || 'Service temporarily unavailable. Please try again later.')
+}
+
+// Withdraw crypto
+export const withdrawCrypto = async (data: WithdrawRequest): Promise<WithdrawData> => {
+  const response = await apiClient.post<WithdrawResponse>('/api/v1/crypto/withdraw', data)
+  if (response.data.success) {
+    return response.data.data
+  }
+  throw new Error(response.data.message || 'Failed to initiate withdrawal')
 }

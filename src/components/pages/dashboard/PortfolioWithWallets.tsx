@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, PieChart, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import { TrendingUp, Download, Upload, ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { useState, useMemo } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
 import { useBalanceStore } from '../../../store/balance.store'
+import { useCurrencyStore } from '../../../store/currency.store'
 import type { Wallet, PortfolioTotal } from '../../../types/wallet'
 
 interface PortfolioWithWalletsProps {
@@ -46,13 +48,26 @@ const currencyConfig: Record<string, { name: string; icon: typeof Bitcoin; color
 }
 
 const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioWithWalletsProps) => {
+  const navigate = useNavigate()
   const [showWallets, setShowWallets] = useState(false)
-  const { hideBalance, toggleHideBalance } = useBalanceStore()
+  const { isBalanceHidden, toggleBalanceVisibility } = useBalanceStore()
+  const { selectedCurrency } = useCurrencyStore()
   
-  // Get total portfolio value in NGN
-  const totalValueNGN = useMemo(() => {
-    return parseFloat(portfolioTotal.NGN || '0')
-  }, [portfolioTotal])
+  // Use 'portfolio' as the key for portfolio total balance visibility
+  const portfolioKey = 'portfolio'
+  const hideBalance = isBalanceHidden(portfolioKey)
+  const toggleHideBalance = () => toggleBalanceVisibility(portfolioKey)
+  
+  // Get total portfolio value based on selected currency
+  const totalValue = useMemo(() => {
+    // Remove commas and other formatting characters before parsing
+    const value = portfolioTotal[selectedCurrency] || '0'
+    const cleanValue = value.replace(/,/g, '')
+    return parseFloat(cleanValue) || 0
+  }, [portfolioTotal, selectedCurrency])
+  
+  // Get currency symbol
+  const currencySymbol = selectedCurrency === 'NGN' ? '₦' : '$'
   
   // Map API wallets to display format
   const displayWallets = useMemo(() => {
@@ -64,21 +79,23 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
         bgColor: 'bg-gray-500/10 dark:bg-gray-500/20'
       }
       
-      // For crypto currencies, we might need to calculate NGN value
-      // For now, we'll use the balance as is
-      const balance = parseFloat(wallet.availableBalance)
+      // Get fiat value if available (from extended wallet type)
+      const walletWithFiat = wallet as Wallet & { fiatValue?: { NGN: string; USD: string } }
+      const fiatValue = walletWithFiat.fiatValue?.[selectedCurrency] || '0.00'
+      const cleanFiatValue = fiatValue.replace(/,/g, '')
+      const fiatValueNum = parseFloat(cleanFiatValue) || 0
       
       return {
         name: config.name,
         symbol: wallet.currency,
         balance: wallet.availableBalance,
-        value: balance, // This will be formatted based on currency
+        fiatValue: fiatValueNum,
         icon: config.icon,
         color: config.color,
         bgColor: config.bgColor
       }
-    }).filter(wallet => parseFloat(wallet.balance) > 0) // Only show wallets with balance
-  }, [wallets])
+    })
+  }, [wallets, selectedCurrency])
   
   // For now, we'll show static change data (you can enhance this with historical data)
   const change24h: number = 0
@@ -110,17 +127,48 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl" />
       
       <div className="relative z-10 p-4">
-        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-medium mb-1">
-          Total Portfolio Value
-        </p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-gray-500 dark:text-gray-400 text-[10px] font-medium">
+            Total Portfolio Value
+          </p>
+          
+          {/* Currency Selector Pill */}
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-dark-bg rounded-full p-0.5">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => useCurrencyStore.getState().setCurrency('NGN')}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+                selectedCurrency === 'NGN'
+                  ? 'bg-white dark:bg-primary/50 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              NGN
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => useCurrencyStore.getState().setCurrency('USD')}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+                selectedCurrency === 'USD'
+                  ? 'bg-white dark:bg-primary/50 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              USD
+            </motion.button>
+          </div>
+        </div>
         
         <div className="flex items-center gap-3 mb-2">
           <motion.h2 
             className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white transition-all duration-300"
             animate={{ scale: hideBalance ? 1 : [1, 1.02, 1] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            key={selectedCurrency}
           >
-            {hideBalance ? '*****' : `₦${totalValueNGN.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            {hideBalance ? '*****' : `${currencySymbol}${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           </motion.h2>
           
           {/* Hide/Show Balance Button */}
@@ -161,7 +209,7 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
                   </span>
                 </motion.div>
                 <span className="text-gray-500 dark:text-gray-400 text-xs">
-                  (₦{changeAmount.toLocaleString('en-NG')}) Last 24h
+                  ({currencySymbol}{changeAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}) Last 24h
                 </span>
               </>
             )}
@@ -169,31 +217,23 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex gap-1.5 mb-3">
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold transition-colors border border-gray-300 dark:border-gray-700"
+            className="flex items-center justify-center gap-1.5 px-2 py-3 rounded-md bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-colors shadow-lg shadow-primary/30"
           >
-            <PieChart className="w-3.5 h-3.5" />
-            View Analytics
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition-colors shadow-lg shadow-primary/30"
-          >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-4 h-4" />
             Deposit
           </motion.button>
           
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold transition-colors border border-gray-300 dark:border-gray-700"
+            onClick={() => navigate({ to: '/withdraw' })}
+            className="flex items-center justify-center gap-1.5 px-2 py-3 rounded-md bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold transition-colors border border-gray-300 dark:border-gray-700"
           >
-            <Upload className="w-3.5 h-3.5" />
+            <Upload className="w-4 h-4" />
             Withdraw
           </motion.button>
         </div>
@@ -264,7 +304,7 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
                               {hideBalance ? '*****' : `${wallet.balance} ${wallet.symbol}`}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {hideBalance ? '*****' : `≈ ₦${wallet.value.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                              {hideBalance ? '*****' : `≈ ${currencySymbol}${wallet.fiatValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                             </p>
                           </div>
                         </motion.div>

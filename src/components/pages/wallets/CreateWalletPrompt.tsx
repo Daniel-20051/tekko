@@ -4,6 +4,7 @@ import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import { useMemo, useState, useEffect } from 'react'
 import { useCreateWallet, useSupportedCurrencies } from '../../../hooks/useWallet'
 import Alert from '../../ui/Alert'
+import Button from '../../ui/Button'
 
 interface CreateWalletPromptProps {
   currency: string
@@ -89,13 +90,15 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
                 const isSelected = selectedCurrency === curr.code
                 
                 return (
-                  <button
+                  <Button
                     key={curr.code}
+                    variant={isSelected ? 'outline' : 'ghost'}
+                    size="sm"
                     onClick={() => setSelectedCurrency(curr.code)}
-                    className={`p-2.5 rounded-lg border-2 transition-all cursor-pointer ${
+                    className={`p-2.5 flex flex-col items-center border-2 ${
                       isSelected
                         ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50'
+                        : 'border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     <div className={`w-7 h-7 ${currIconConfig.iconBg} rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
@@ -103,7 +106,7 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
                     </div>
                     <p className="text-xs font-semibold text-gray-900 dark:text-white">{curr.code}</p>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{curr.name}</p>
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -138,38 +141,24 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
         </div>
 
         {/* Create Button */}
-        <motion.button
+        <Button
+          variant={isSuccess ? 'primary' : 'primary'}
+          size="md"
           onClick={handleCreateWallet}
           disabled={isPending || isSuccess || !selectedCurrency}
-          whileHover={{ scale: isPending || isSuccess || !selectedCurrency ? 1 : 1.02 }}
-          whileTap={{ scale: isPending || isSuccess || !selectedCurrency ? 1 : 0.98 }}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-colors ${
-            isSuccess 
-              ? 'bg-green-600 cursor-default' 
-              : isPending 
-              ? 'bg-primary/70 cursor-wait' 
-              : !selectedCurrency
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-primary hover:bg-primary/90 cursor-pointer'
-          }`}
-        >
-          {isPending ? (
-            <>
+          icon={
+            isPending ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Creating Wallet...
-            </>
-          ) : isSuccess ? (
-            <>
+            ) : isSuccess ? (
               <CheckCircle className="w-4 h-4" />
-              Wallet Created!
-            </>
-          ) : (
-            <>
+            ) : (
               <Plus className="w-4 h-4" />
-              Create {selectedCurrency || 'Wallet'}
-            </>
-          )}
-        </motion.button>
+            )
+          }
+          className={isSuccess ? 'bg-green-600 hover:bg-green-600' : ''}
+        >
+          {isPending ? 'Creating Wallet...' : isSuccess ? 'Wallet Created!' : `Create ${selectedCurrency || 'Wallet'}`}
+        </Button>
 
         {/* Status Messages */}
         <AnimatePresence mode="wait">

@@ -51,7 +51,7 @@ apiClient.interceptors.response.use(
     return response
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean; _refreshed?: boolean }
 
     // Don't attempt refresh for auth endpoints (login, register, refresh, logout, password reset, password change, verify-device)
     // These endpoints should handle their own errors
@@ -72,8 +72,8 @@ apiClient.interceptors.response.use(
                            originalRequest?.url?.includes('/auth/google')
 
     // Handle 401 Unauthorized - attempt token refresh
-    // Skip refresh for auth endpoints and if already retried
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
+    // Skip refresh for auth endpoints, if already retried, or if already refreshed
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest._refreshed && !isAuthEndpoint) {
       if (isRefreshing) {
         // If refresh is already in progress, queue this request
         return new Promise((resolve, reject) => {
@@ -123,7 +123,7 @@ apiClient.interceptors.response.use(
           throw new Error('No access token received from refresh endpoint')
         }
 
-        // Update token in Zustand store
+        // Update token in Zustand store FIRST (before any other operations)
         useTokenStore.getState().setAccessToken(accessToken)
 
         // Update the original request with new token
@@ -131,10 +131,15 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`
         }
 
-        // Process queued requests
+        // Process queued requests with the new token
         processQueue(null, accessToken)
 
-        // Retry the original request
+        // Mark request as refreshed to prevent infinite refresh loops
+        originalRequest._refreshed = true
+        originalRequest._retry = false
+
+        // Retry the original request with the new token
+        // The request interceptor will pick up the token from the store
         return apiClient(originalRequest)
       } catch (refreshError) {
         // Refresh failed - clear token and process queue with error
@@ -166,12 +171,21 @@ apiClient.interceptors.response.use(
     }
 
     // Handle other errors
-    const errorMessage =
+    let errorMessage =
       (error.response?.data as { error?: string; message?: string })?.error ||
       (error.response?.data as { error?: string; message?: string })?.message ||
       error.message ||
       'An error occurred'
 
-    return Promise.reject(new Error(errorMessage))
+    // Remove "Redbiller" from error messages (case insensitive)
+    errorMessage = errorMessage.replace(/redbiller/gi, '').trim()
+    
+    // Standardize service unavailable messages
+    if (errorMessage.toLowerCase().includes('service temporarily unavailable') || 
+        errorMessage.toLowerCase().includes('temporarily unavailable')) {
+      errorMessage = 'Service temporarily unavailable. Please try again later.'
+    }
+
+    return Promise.reject(new Error(errorMessage || 'Service temporarily unavailable. Please try again later.'))
   }
 )

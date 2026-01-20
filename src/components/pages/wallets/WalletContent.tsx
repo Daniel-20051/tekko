@@ -1,21 +1,66 @@
 import { motion } from 'framer-motion'
-import { ArrowUp, ArrowDown, Copy, Info } from 'lucide-react'
-import { useMemo } from 'react'
+import { ArrowUp, ArrowDown, Copy, Info, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTransactions } from '../../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import type { TransactionType } from '../../../types/transaction'
+import type { TransactionQueryParams } from '../../../types/transaction'
+import type { TransactionFilters } from './TransactionFilterModal'
+import Button from '../../ui/Button'
 
 interface WalletContentProps {
   selectedAsset: string
   selectedTransaction: string | null
   onSelectTransaction: (txId: string) => void
+  filters?: TransactionFilters
 }
 
-const WalletContent = ({ selectedAsset, selectedTransaction, onSelectTransaction }: WalletContentProps) => {
-  // Fetch transactions with currency filter
-  const { data: transactionsData, isLoading } = useTransactions({ 
-    currency: selectedAsset.toUpperCase() as any
-  })
+const WalletContent = ({ selectedAsset, selectedTransaction, onSelectTransaction, filters = {} }: WalletContentProps) => {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(20)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filters.currency, filters.type, filters.status, selectedAsset])
+
+  // Merge filters: use currency from filters if provided, otherwise use selectedAsset
+  const queryParams: TransactionQueryParams = useMemo(() => {
+    const params: TransactionQueryParams = {
+      currency: (filters.currency || (selectedAsset ? selectedAsset.toUpperCase() : undefined)) as any,
+      type: filters.type,
+      status: filters.status,
+      page,
+      limit
+    }
+    
+    return params
+  }, [selectedAsset, filters, page, limit])
+
+  // Fetch transactions with merged filters
+  const { data: transactionsData, isLoading } = useTransactions(queryParams)
+
+  // Sync page state with API response if it's out of bounds
+  useEffect(() => {
+    if (transactionsData?.pagination) {
+      const { page: currentPage, pages } = transactionsData.pagination
+      if (currentPage !== page && currentPage > 0) {
+        setPage(currentPage)
+      }
+      // If current page exceeds total pages, reset to last page
+      if (pages > 0 && page > pages) {
+        setPage(pages)
+      }
+    }
+  }, [transactionsData?.pagination, page])
+
+  // Get pagination info with fallbacks
+  const pagination = transactionsData?.pagination || {
+    page: page,
+    limit: limit,
+    total: 0,
+    pages: 0
+  }
 
   // Filter pending and completed transactions
   const { pendingTransactions, completedTransactions } = useMemo(() => {
@@ -80,24 +125,34 @@ const WalletContent = ({ selectedAsset, selectedTransaction, onSelectTransaction
           <p className="text-xs text-gray-600 dark:text-gray-400">Loading transactions...</p>
         </div>
       ) : transactionsWithBalance.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 flex-1">
-          <p className="text-gray-500 dark:text-gray-400 text-sm">No transactions found for {selectedAsset.toUpperCase()}</p>
+        <div className=" text-center">
+          <img 
+            src="/assets/emptystateTransactions.png" 
+            alt="No transactions" 
+            className="w-80 md:w-150 h-50 md:h-60  object-contain mx-auto"
+          />
+          <p className="text-gray-500 mb-3 dark:text-gray-400 text-sm">
+            {filters.type || filters.status
+              ? 'No transactions found matching your filters'
+              : `No transactions found for ${(filters.currency || selectedAsset.toUpperCase())}`}
+          </p>
         </div>
       ) : (
-        <div className="overflow-x-auto overflow-y-auto wallet-transactions-scrollbar">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Wallet</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Service</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Balance</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-20">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-              {transactionsWithBalance.map((tx) => {
+        <>
+          <div className="overflow-x-auto overflow-y-auto wallet-transactions-scrollbar flex-1">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Wallet</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Service</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Balance</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-20">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                {transactionsWithBalance.map((tx) => {
                 const iconConfig = getCryptoIconConfig(tx.currency)
                 const CurrencyIcon = iconConfig.icon
                 const isDeposit = tx.type === 'deposit'
@@ -185,28 +240,92 @@ const WalletContent = ({ selectedAsset, selectedTransaction, onSelectTransaction
                     {/* Actions Column */}
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
                           onClick={(e) => handleCopy(tx.id.toString(), e)}
-                          className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
                           title="Copy transaction ID"
+                          className="p-1.5"
+                          aria-label="Copy transaction ID"
                         >
-                          <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        </button>
-                        <button
+                          <span className="sr-only">Copy</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<Info className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
                           onClick={() => onSelectTransaction(tx.id.toString())}
-                          className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
                           title="View details"
+                          className="p-1.5"
+                          aria-label="View details"
                         >
-                          <Info className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        </button>
+                          <span className="sr-only">View details</span>
+                        </Button>
                       </div>
                     </td>
                   </motion.tr>
                 )
-              })}
-            </tbody>
-          </table>
-        </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {!isLoading && (
+            <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between bg-gray-50 dark:bg-dark-bg flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Items per page:</span>
+                <select
+                  value={limit}
+                  onChange={(e) => {
+                    setLimit(Number(e.target.value))
+                    setPage(1)
+                  }}
+                  className="px-2 py-1 text-sm bg-white dark:bg-dark-surface border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  (Total: {pagination.total})
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Page {pagination.page} of {pagination.pages || 1}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={<ChevronLeft className="w-4 h-4" />}
+                    onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                    disabled={page === 1 || pagination.pages === 0}
+                    className="p-1.5 border-gray-300 dark:border-gray-700 bg-white dark:bg-dark-surface"
+                    aria-label="Previous page"
+                  >
+                    <span className="sr-only">Previous</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={<ChevronRight className="w-4 h-4" />}
+                    onClick={() => setPage(prev => Math.min(pagination.pages || 1, prev + 1))}
+                    disabled={page >= (pagination.pages || 1) || pagination.pages === 0}
+                    className="p-1.5 border-gray-300 dark:border-gray-700 bg-white dark:bg-dark-surface"
+                    aria-label="Next page"
+                  >
+                    <span className="sr-only">Next</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
