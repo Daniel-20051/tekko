@@ -12,10 +12,8 @@ import PinInput from '../../ui/PinInput'
 import { AlertTriangle } from 'lucide-react'
 import Spinner from '../../ui/Spinner'
 import { formatNumber } from '../../../utils/time.utils'
-import type { Wallet } from '../../../types/wallet'
 
 const QUOTE_VALIDITY_SECONDS = 15
-const PRICE_UPDATE_INTERVAL_MS = 3000
 
 const SwapPage = () => {
   const queryClient = useQueryClient()
@@ -168,7 +166,6 @@ const SwapPage = () => {
   const exchangeRate = quoteData?.price || '0'
   const fee = quoteData?.tradingFee || '0'
   const feePercent = quoteData?.tradingFeePercent || 0
-  const baseAmount = quoteData?.baseAmount || '0'
   const spread = quoteData?.spread || '0'
 
   // Reset quote expiration when quote data changes or query is disabled
@@ -271,7 +268,6 @@ const SwapPage = () => {
 
   const handleSwapCurrencies = () => {
     const tempCurrency = fromCurrency
-    const tempAmount = fromAmount
     setFromCurrency(toCurrency)
     setToCurrency(tempCurrency)
     setFromAmount('')
