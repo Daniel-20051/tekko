@@ -9,7 +9,7 @@ const MobileBottomNav = memo(() => {
     { icon: Home, label: 'Home', path: '/dashboard' },
     { icon: Wallet, label: 'Wallets', path: '/wallets' },
     { icon: ArrowUp, label: 'Send Money', path: '/send' },
-    { icon: ArrowLeftRight, label: 'Exchange', path: '/exchange' },
+    { icon: ArrowLeftRight, label: 'Swap', path: '/swap' },
     { icon: History, label: 'Transactions', path: '/transactions' },
   ]
 

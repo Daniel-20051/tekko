@@ -27,6 +27,19 @@ export const getCurrentUser = async (): Promise<User> => {
 export const refreshToken = async (): Promise<{ accessToken: string }> => {
   const response = await apiClient.post<RefreshTokenResponse>('/auth/refresh', {})
   
+  // Log refresh token response
+  console.log('🔐 Refresh Token Response (auth.api.ts):', {
+    status: response.status,
+    statusText: response.statusText,
+    data: response.data,
+    headers: response.headers,
+    config: {
+      url: response.config.url,
+      method: response.config.method,
+      withCredentials: response.config.withCredentials,
+    }
+  })
+  
   // Extract accessToken from nested response structure
   if (response.data.success && response.data.data?.accessToken) {
     return { accessToken: response.data.data.accessToken }

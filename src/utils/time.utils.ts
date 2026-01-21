@@ -51,6 +51,34 @@ export const formatRelativeTime = (isoString: string): string => {
 }
 
 /**
+ * Format a number with commas for thousands, millions, etc.
+ * Preserves decimal places up to the specified maximum
+ */
+export const formatNumber = (value: string | number, maxDecimals: number = 8): string => {
+  if (!value && value !== 0) return '0'
+  
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  
+  if (isNaN(num)) return '0'
+  
+  // Split into integer and decimal parts
+  const parts = num.toString().split('.')
+  const integerPart = parts[0]
+  const decimalPart = parts[1] || ''
+  
+  // Format integer part with commas
+  const formattedInteger = parseFloat(integerPart).toLocaleString('en-US')
+  
+  // Preserve decimal part up to maxDecimals
+  if (decimalPart) {
+    const trimmedDecimal = decimalPart.substring(0, maxDecimals)
+    return `${formattedInteger}.${trimmedDecimal}`
+  }
+  
+  return formattedInteger
+}
+
+/**
  * Format a number as currency with proper decimals
  */
 export const formatCurrency = (amount: string, currency: string): string => {

@@ -37,7 +37,7 @@ const actions = [
     icon: ArrowLeftRight,
     label: 'Swap',
     description: 'Swap currencies',
-    onClick: () => ({ to: '/exchange' })
+    onClick: () => ({ to: '/swap' })
   }
 ]
 

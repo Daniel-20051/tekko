@@ -24,8 +24,8 @@ const Sidebar = memo(({ isOpen, onToggle }: SidebarProps) => {
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'text-gray-500 dark:text-white' },
     { icon: Wallet, label: 'Wallets', path: '/wallets', color: 'text-gray-500 dark:text-white' },
+    { icon: ArrowLeftRight, label: 'Swap', path: '/swap', color: 'text-gray-500 dark:text-white' },
     { icon: TrendingUp, label: 'Markets', path: '/markets', color: 'text-gray-500 dark:text-white' },
-    { icon: ArrowLeftRight, label: 'Trade', path: '/trade', color: 'text-gray-500 dark:text-white' },
     { icon: History, label: 'Transactions', path: '/transactions', color: 'text-gray-500dark:text-white' },
     { icon: PieChart, label: 'Analytics', path: '/analytics', color: 'text-gray-500 dark:text-white' },
   ]

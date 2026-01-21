@@ -119,6 +119,19 @@ apiClient.interceptors.response.use(
           }
         )
 
+        // Log refresh token response
+        console.log('🔐 Refresh Token Response (api-client.ts):', {
+          status: response.status,
+          statusText: response.statusText,
+          data: response.data,
+          headers: response.headers,
+          config: {
+            url: response.config.url,
+            method: response.config.method,
+            withCredentials: response.config.withCredentials,
+          }
+        })
+
         // Extract accessToken from nested response structure
         if (!response.data.success) {
           throw new Error('Refresh token failed')

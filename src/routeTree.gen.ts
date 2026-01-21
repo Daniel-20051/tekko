@@ -15,7 +15,7 @@ import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as AuthenticatedWalletsRouteImport } from './routes/_authenticated/wallets'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
-import { Route as AuthenticatedTradeRouteImport } from './routes/_authenticated/trade'
+import { Route as AuthenticatedSwapRouteImport } from './routes/_authenticated/swap'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedHelpRouteImport } from './routes/_authenticated/help'
@@ -59,9 +59,9 @@ const AuthenticatedTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTradeRoute = AuthenticatedTradeRouteImport.update({
-  id: '/trade',
-  path: '/trade',
+const AuthenticatedSwapRoute = AuthenticatedSwapRouteImport.update({
+  id: '/swap',
+  path: '/swap',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
@@ -143,7 +143,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof AuthenticatedHelpRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/settings': typeof AuthenticatedSettingsRouteWithChildren
-  '/trade': typeof AuthenticatedTradeRoute
+  '/swap': typeof AuthenticatedSwapRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
@@ -163,7 +163,7 @@ export interface FileRoutesByTo {
   '/help': typeof AuthenticatedHelpRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/settings': typeof AuthenticatedSettingsRouteWithChildren
-  '/trade': typeof AuthenticatedTradeRoute
+  '/swap': typeof AuthenticatedSwapRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
@@ -186,7 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/help': typeof AuthenticatedHelpRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteWithChildren
-  '/_authenticated/trade': typeof AuthenticatedTradeRoute
+  '/_authenticated/swap': typeof AuthenticatedSwapRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallets': typeof AuthenticatedWalletsRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
@@ -208,7 +208,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/markets'
     | '/settings'
-    | '/trade'
+    | '/swap'
     | '/transactions'
     | '/wallets'
     | '/withdraw'
@@ -228,7 +228,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/markets'
     | '/settings'
-    | '/trade'
+    | '/swap'
     | '/transactions'
     | '/wallets'
     | '/withdraw'
@@ -250,7 +250,7 @@ export interface FileRouteTypes {
     | '/_authenticated/help'
     | '/_authenticated/markets'
     | '/_authenticated/settings'
-    | '/_authenticated/trade'
+    | '/_authenticated/swap'
     | '/_authenticated/transactions'
     | '/_authenticated/wallets'
     | '/_authenticated/withdraw'
@@ -309,11 +309,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/trade': {
-      id: '/_authenticated/trade'
-      path: '/trade'
-      fullPath: '/trade'
-      preLoaderRoute: typeof AuthenticatedTradeRouteImport
+    '/_authenticated/swap': {
+      id: '/_authenticated/swap'
+      path: '/swap'
+      fullPath: '/swap'
+      preLoaderRoute: typeof AuthenticatedSwapRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings': {
@@ -450,7 +450,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHelpRoute: typeof AuthenticatedHelpRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRouteWithChildren
-  AuthenticatedTradeRoute: typeof AuthenticatedTradeRoute
+  AuthenticatedSwapRoute: typeof AuthenticatedSwapRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedWalletsRoute: typeof AuthenticatedWalletsRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
@@ -463,7 +463,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHelpRoute: AuthenticatedHelpRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRouteWithChildren,
-  AuthenticatedTradeRoute: AuthenticatedTradeRoute,
+  AuthenticatedSwapRoute: AuthenticatedSwapRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedWalletsRoute: AuthenticatedWalletsRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
