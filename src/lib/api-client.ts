@@ -71,9 +71,16 @@ apiClient.interceptors.response.use(
                            originalRequest?.url?.includes('/auth/2fa/disable') ||
                            originalRequest?.url?.includes('/auth/google')
 
+    // Don't attempt refresh for withdrawal endpoints - these return business logic errors (invalid PIN, insufficient balance, etc.)
+    // that should not trigger token refresh or logout
+    const isWithdrawalEndpoint = originalRequest?.url?.includes('/crypto/withdraw') ||
+                                  originalRequest?.url?.includes('/wallet/withdrawal')
+
     // Handle 401 Unauthorized - attempt token refresh
-    // Skip refresh for auth endpoints, if already retried, or if already refreshed
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest._refreshed && !isAuthEndpoint) {
+    // Skip refresh for auth endpoints and withdrawal endpoints, if already retried, or if already refreshed
+    // Withdrawal endpoints may return 401 for business logic errors (invalid PIN, insufficient balance) 
+    // which should not trigger token refresh or logout
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest._refreshed && !isAuthEndpoint && !isWithdrawalEndpoint) {
       if (isRefreshing) {
         // If refresh is already in progress, queue this request
         return new Promise((resolve, reject) => {

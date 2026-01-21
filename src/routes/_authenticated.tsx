@@ -2,11 +2,13 @@ import { createFileRoute, Outlet, redirect, useLocation, Link } from '@tanstack/
 import { useTokenStore } from '../store/token.store'
 import { useLoadingStore } from '../store/loading.store'
 import { useLogout, useCurrentUser, usePinStatus } from '../hooks/useAuth'
+import { useWebSocket, useDepositStatusListener } from '../hooks/useWebSocket'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import Sidebar from '../components/pages/dashboard/Sidebar'
 import MobileBottomNav from '../components/pages/dashboard/MobileBottomNav'
 import CreatePinModal from '../components/pages/settings/CreatePinModal'
 import KycVerificationModal from '../components/pages/kyc/KycVerificationModal'
+import Alert from '../components/ui/Alert'
 import { useState, useRef, useEffect, memo, Suspense } from 'react'
 import { Bell, User, Settings, LogOut, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -43,6 +45,19 @@ export const Route = createFileRoute('/_authenticated')({
             },
           }
         )
+
+        // Log refresh token response
+        console.log('🔐 Refresh Token Response (_authenticated.tsx):', {
+          status: response.status,
+          statusText: response.statusText,
+          data: response.data,
+          headers: response.headers,
+          config: {
+            url: response.config.url,
+            method: response.config.method,
+            withCredentials: response.config.withCredentials,
+          }
+        })
 
         // Extract accessToken from nested response structure
         if (!response.data.success) {
@@ -310,9 +325,35 @@ function DashboardLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [showPinModal, setShowPinModal] = useState(false)
   const [showKycModal, setShowKycModal] = useState(false)
+  const [depositNotification, setDepositNotification] = useState<{ message: string; visible: boolean }>({
+    message: '',
+    visible: false,
+  })
   const userMenuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
   const accessToken = useTokenStore((state) => state.accessToken)
+  
+  // Initialize WebSocket connection for real-time updates
+  useWebSocket()
+  
+  // Listen for deposit status updates
+  useDepositStatusListener((event) => {
+    if (event.status === 'completed') {
+      const formattedAmount = parseFloat(event.amount).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+      setDepositNotification({
+        message: `Deposit completed! ${formattedAmount} ${event.currency} has been credited to your account.`,
+        visible: true,
+      })
+    } else if (event.status === 'failed') {
+      setDepositNotification({
+        message: `Deposit failed. Please try again or contact support.`,
+        visible: true,
+      })
+    }
+  })
   
   // Check PIN status 5 seconds after app load
   const { data: pinStatus } = usePinStatus()
@@ -471,6 +512,15 @@ function DashboardLayout() {
         onClose={() => {
           setShowKycModal(false)
         }}
+      />
+
+      {/* Deposit Status Notification */}
+      <Alert
+        message={depositNotification.message}
+        type={depositNotification.message.includes('failed') ? 'error' : 'success'}
+        isVisible={depositNotification.visible}
+        onClose={() => setDepositNotification({ message: '', visible: false })}
+        duration={5000}
       />
     </div>
   )

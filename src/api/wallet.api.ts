@@ -1,6 +1,7 @@
 import { apiClient } from '../lib/api-client'
 import type { GetWalletBalancesResponse, WalletBalancesData, GetSupportedCurrenciesResponse, SupportedCurrenciesData, GetSingleCurrencyBalanceResponse, SingleCurrencyBalance, CreateWalletRequest, CreateWalletResponse, CreateWalletData, GetDepositAddressResponse, DepositAddressData, WithdrawRequest, WithdrawResponse, WithdrawData, DepositAccountRequest, DepositAccountResponse, DepositAccountData, DepositAccountErrorResponse, NGNWithdrawalFeesRequest, NGNWithdrawalFeesResponse, NGNWithdrawalFeesData, NGNWithdrawalRequest, NGNWithdrawalResponse, NGNWithdrawalData } from '../types/wallet'
 import type { GetTransactionsResponse, TransactionsData, TransactionQueryParams, GetSingleTransactionResponse, Transaction, TransactionType } from '../types/transaction'
+import type { Bank, BanksResponse, VerifyAccountRequest, VerifyAccountData, VerifyAccountResponse } from '../types/bank'
 
 // Get all wallet balances (Fiat + Crypto)
 export const getWalletBalances = async (): Promise<WalletBalancesData> => {
@@ -189,4 +190,34 @@ export const getDepositAccount = async (data: DepositAccountRequest): Promise<De
     throw error
   }
   throw new Error(errorResponse.message || 'Failed to get deposit account')
+}
+
+// Get list of banks
+export const getBanks = async (): Promise<Bank[]> => {
+  console.log('🏦 Fetching banks from /api/v1/banks')
+  try {
+    const response = await apiClient.get<BanksResponse>('/api/v1/banks')
+    console.log('🏦 Banks API Response:', response.data)
+    
+    if (!response.data.success || !response.data.data?.banks) {
+      throw new Error(response.data.message || 'Failed to fetch banks')
+    }
+    
+    // Filter only active banks
+    const activeBanks = response.data.data.banks.filter(bank => bank.active !== false)
+    console.log('🏦 Banks fetched successfully:', activeBanks.length, 'active banks out of', response.data.data.count, 'total')
+    return activeBanks
+  } catch (error) {
+    console.error('🏦 Error fetching banks:', error)
+    throw error
+  }
+}
+
+// Verify bank account
+export const verifyBankAccount = async (data: VerifyAccountRequest): Promise<VerifyAccountData> => {
+  const response = await apiClient.post<VerifyAccountResponse>('/api/v1/banks/verify-account', data)
+  if (response.data.success) {
+    return response.data.data
+  }
+  throw new Error(response.data.message || 'Failed to verify account')
 }

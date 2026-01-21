@@ -24,6 +24,7 @@ const NGNWithdrawFlow = ({ availableBalance, currency }: NGNWithdrawFlowProps) =
     accountName: string
     bankName: string
     bankCode: string
+    institutionId: string
   } | null>(null)
   const [withdrawalData, setWithdrawalData] = useState<NGNWithdrawalData | null>(null)
 
@@ -38,6 +39,7 @@ const NGNWithdrawFlow = ({ availableBalance, currency }: NGNWithdrawFlowProps) =
     accountName: string
     bankName: string
     bankCode: string
+    institutionId: string
   }) => {
     setBankDetails(details)
     setCurrentStep('summary')
@@ -68,6 +70,9 @@ const NGNWithdrawFlow = ({ availableBalance, currency }: NGNWithdrawFlowProps) =
         {currentStep === 'bank' && feesData && (
           <NGNWithdrawBankDetailsStep
             key="bank"
+            amount={amount}
+            feesData={feesData}
+            currency={currency}
             onNext={handleBankNext}
             onBack={() => setCurrentStep('amount')}
           />
@@ -80,6 +85,7 @@ const NGNWithdrawFlow = ({ availableBalance, currency }: NGNWithdrawFlowProps) =
             feesData={feesData}
             bankDetails={bankDetails}
             currency={currency}
+            availableBalance={availableBalance}
             onBack={() => setCurrentStep('bank')}
             onSuccess={handleWithdrawSuccess}
           />

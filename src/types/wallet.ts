@@ -215,9 +215,8 @@ export interface NGNWithdrawalRequest {
   twoFactorToken?: string
   bankDetails: {
     accountNumber: string
-    accountName: string
-    bankName: string
-    bankCode: string
+    institutionId?: string // Preferred - from verification step
+    bankCode?: string // Fallback
   }
 }
 
@@ -229,8 +228,14 @@ export interface NGNWithdrawalData {
     total: string
     userCharge: string
   }
+  totalDeducted: string
   netAmount: string
+  newBalance: string
+  reference?: string // Legacy field
   externalReference: string
+  verifiedAccountName: string
+  estimatedProcessingTime?: string
+  message?: string
   estimatedCompletion: string
   createdAt: string
 }
