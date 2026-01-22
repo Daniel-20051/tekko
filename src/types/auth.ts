@@ -129,6 +129,33 @@ export interface ChangePasswordSuccessResponse {
   }
 }
 
+// Set password request (for Google users)
+export interface SetPasswordCredentials {
+  newPassword: string
+  otp: string
+}
+
+// Set password success response structure
+export interface SetPasswordSuccessResponse {
+  success: true
+  message: string
+  data: {
+    success: true
+    message: string
+  }
+}
+
+export type SetPasswordResponse = SetPasswordSuccessResponse | ErrorResponse
+
+// Request password OTP success response structure
+export interface RequestPasswordOtpSuccessResponse {
+  success: true
+  message: string
+  data: {}
+}
+
+export type RequestPasswordOtpResponse = RequestPasswordOtpSuccessResponse | ErrorResponse
+
 // Refresh token success response structure
 export interface RefreshTokenSuccessResponse {
   success: true

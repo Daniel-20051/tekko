@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import * as authApi from '../api/auth.api'
-import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, ChangePinCredentials, VerifyDeviceCredentials, TwoFactorEnableCredentials, TwoFactorDisableCredentials, GoogleOAuthCallbackCredentials, LinkGoogleAccountCredentials } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, VerifyEmailCredentials, ResendVerificationCredentials, ForgotPasswordCredentials, ResetPasswordCredentials, ChangePasswordCredentials, CreatePinCredentials, ChangePinCredentials, VerifyDeviceCredentials, TwoFactorEnableCredentials, TwoFactorDisableCredentials, GoogleOAuthCallbackCredentials, LinkGoogleAccountCredentials, SetPasswordCredentials } from '../types/auth'
 import { useTokenStore } from '../store/token.store'
 
 // Query key factory for auth-related queries
@@ -239,6 +239,45 @@ export const useChangePassword = () => {
   return useMutation({
     mutationFn: (credentials: ChangePasswordCredentials) => {
       return authApi.changePassword(credentials)
+    },
+    onSuccess: () => {
+      // Invalidate and refetch user data
+      queryClient.invalidateQueries({ queryKey: authKeys.currentUser() })
+    },
+  })
+}
+
+// Hook for request password OTP mutation (for Google users)
+export const useRequestPasswordOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.requestPasswordOtp()
+    },
+    onError: (error) => {
+      console.error('Request password OTP failed:', error)
+    },
+  })
+}
+
+// Hook for resend password OTP mutation
+export const useResendPasswordOtp = () => {
+  return useMutation({
+    mutationFn: () => {
+      return authApi.resendPasswordOtp()
+    },
+    onError: (error) => {
+      console.error('Resend password OTP failed:', error)
+    },
+  })
+}
+
+// Hook for set password mutation (for Google users)
+export const useSetPassword = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials: SetPasswordCredentials) => {
+      return authApi.setPassword(credentials)
     },
     onSuccess: () => {
       // Invalidate and refetch user data

@@ -1,5 +1,5 @@
 import { apiClient } from '../lib/api-client'
-import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, ChangePinCredentials, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse, TwoFactorSetupResponse, TwoFactorEnableCredentials, TwoFactorEnableResponse, TwoFactorDisableCredentials, TwoFactorDisableResponse, GoogleOAuthUrlResponse, GoogleOAuthCallbackCredentials, GoogleOAuthCallbackResponse, LinkGoogleAccountCredentials, LinkGoogleAccountResponse } from '../types/auth'
+import type { LoginCredentials, RegisterCredentials, RegisterResponse, LoginResponse, User, VerifyEmailCredentials, VerifyEmailResponse, ResendVerificationCredentials, ResendVerificationResponse, ForgotPasswordCredentials, ForgotPasswordResponse, ResetPasswordCredentials, ResetPasswordResponse, ChangePasswordCredentials, ChangePasswordResponse, RefreshTokenResponse, GetCurrentUserResponse, GetSessionsResponse, SessionData, PinStatusResponse, PinStatusData, CreatePinCredentials, CreatePinResponse, ChangePinCredentials, RequestPinOtpResponse, VerifyDeviceCredentials, VerifyDeviceResponse, TwoFactorSetupResponse, TwoFactorEnableCredentials, TwoFactorEnableResponse, TwoFactorDisableCredentials, TwoFactorDisableResponse, GoogleOAuthUrlResponse, GoogleOAuthCallbackCredentials, GoogleOAuthCallbackResponse, LinkGoogleAccountCredentials, LinkGoogleAccountResponse, SetPasswordCredentials, SetPasswordResponse, RequestPasswordOtpResponse } from '../types/auth'
 
 // Login API call
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -190,3 +190,20 @@ export const linkGoogleAccount = async (credentials: LinkGoogleAccountCredential
   return response.data
 }
 
+// Request password OTP API call (for Google users setting password)
+export const requestPasswordOtp = async (): Promise<RequestPasswordOtpResponse> => {
+  const response = await apiClient.post<RequestPasswordOtpResponse>('/settings/password/request-otp', {})
+  return response.data
+}
+
+// Resend password OTP API call
+export const resendPasswordOtp = async (): Promise<RequestPasswordOtpResponse> => {
+  const response = await apiClient.post<RequestPasswordOtpResponse>('/settings/password/resend-otp', {})
+  return response.data
+}
+
+// Set password API call (for Google users)
+export const setPassword = async (credentials: SetPasswordCredentials): Promise<SetPasswordResponse> => {
+  const response = await apiClient.put<SetPasswordResponse>('/settings/password', credentials)
+  return response.data
+}

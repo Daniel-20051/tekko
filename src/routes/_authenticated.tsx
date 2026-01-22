@@ -108,6 +108,7 @@ export const Route = createFileRoute('/_authenticated')({
 interface HeaderProps {
   displayName: string
   userRole: string
+  profileImage: string | null
   isLoadingUser: boolean
   isLoggingOut: boolean
   showUserMenu: boolean
@@ -120,6 +121,7 @@ interface HeaderProps {
 const Header = memo(({
   displayName,
   userRole,
+  profileImage,
   isLoadingUser,
   isLoggingOut,
   showUserMenu,
@@ -195,9 +197,17 @@ const Header = memo(({
                         </>
                       )}
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold">
-                      <User className="w-5 h-5" />
-                    </div>
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt={displayName}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold">
+                        <User className="w-5 h-5" />
+                      </div>
+                    )}
                   </motion.button>
 
                   {/* User Dropdown */}
@@ -249,6 +259,7 @@ const Header = memo(({
   return (
     prevProps.displayName === nextProps.displayName &&
     prevProps.userRole === nextProps.userRole &&
+    prevProps.profileImage === nextProps.profileImage &&
     prevProps.isLoadingUser === nextProps.isLoadingUser &&
     prevProps.isLoggingOut === nextProps.isLoggingOut &&
     prevProps.showUserMenu === nextProps.showUserMenu
@@ -416,6 +427,7 @@ function DashboardLayout() {
     ? currentUser.email.split('@')[0].charAt(0).toUpperCase() + currentUser.email.split('@')[0].slice(1)
     : 'User'
   const userRole = currentUser?.role || 'User'
+  const profileImage = currentUser?.profileImage || null
 
   const handleLogout = () => {
     logout()
@@ -462,6 +474,7 @@ function DashboardLayout() {
         <Header
           displayName={displayName}
           userRole={userRole}
+          profileImage={profileImage}
           isLoadingUser={isLoadingUser}
           isLoggingOut={isLoggingOut}
           showUserMenu={showUserMenu}
