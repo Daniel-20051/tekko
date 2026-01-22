@@ -54,10 +54,18 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
   const isHidden = isBalanceHidden(selectedAsset.toLowerCase())
 
   // Format numbers with proper decimal places
+  // BTC and ETH get 5 decimals, all others get 2
   const formatBalance = (value: string) => {
     const num = parseFloat(value)
-    if (isNaN(num)) return '0.00000000'
-    return num.toFixed(8)
+    if (isNaN(num)) {
+      const decimals = (currencyCode === 'BTC' || currencyCode === 'ETH') ? 5 : 2
+      return `0.${'0'.repeat(decimals)}`
+    }
+    const decimals = (currencyCode === 'BTC' || currencyCode === 'ETH') ? 5 : 2
+    return num.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    })
   }
 
   const formatFiat = (value: string) => {

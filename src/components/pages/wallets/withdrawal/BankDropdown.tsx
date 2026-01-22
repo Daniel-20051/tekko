@@ -7,12 +7,12 @@ import type { Bank } from '../../../../types/bank'
 
 interface BankDropdownProps {
   banks: Bank[] | undefined
-  selectedBankCode: string
-  onSelectBank: (bankCode: string) => void
+  selectedInstitutionId: string
+  onSelectBank: (institutionId: string) => void
   isLoading?: boolean
 }
 
-const BankDropdown = ({ banks, selectedBankCode, onSelectBank, isLoading = false }: BankDropdownProps) => {
+const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = false }: BankDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [position, setPosition] = useState({ top: 0, left: 0, width: 0, opensUpward: false, maxHeight: 240 })
@@ -20,9 +20,9 @@ const BankDropdown = ({ banks, selectedBankCode, onSelectBank, isLoading = false
   const buttonRef = useRef<HTMLButtonElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // Ensure banks is always an array
-  const banksArray = Array.isArray(banks) ? banks : []
-  const selectedBank = banksArray.find(b => b.code === selectedBankCode)
+  // Ensure banks is always an array and filter only banks with institutionId
+  const banksArray = Array.isArray(banks) ? banks.filter(b => b.institutionId) : []
+  const selectedBank = banksArray.find(b => b.institutionId === selectedInstitutionId)
 
   // Filter banks based on search query
   const filteredBanks = useMemo(() => {
@@ -126,8 +126,8 @@ const BankDropdown = ({ banks, selectedBankCode, onSelectBank, isLoading = false
     }
   }, [isOpen])
 
-  const handleSelect = (bankCode: string) => {
-    onSelectBank(bankCode)
+  const handleSelect = (institutionId: string) => {
+    onSelectBank(institutionId)
     setIsOpen(false)
   }
 
@@ -190,15 +190,16 @@ const BankDropdown = ({ banks, selectedBankCode, onSelectBank, isLoading = false
                 </div>
               ) : (
                 filteredBanks.map((bank, index) => {
-                  const isSelected = selectedBankCode === bank.code
-                  // Create unique key using code, name, and index to handle duplicate codes
-                  const uniqueKey = bank.slug || `${bank.code}-${bank.name}-${index}`
+                  const isSelected = selectedInstitutionId === bank.institutionId
+                  // Create unique key using institutionId, name, and index
+                  const uniqueKey = bank.institutionId || `${bank.code}-${bank.name}-${index}`
 
                   return (
                     <button
                       key={uniqueKey}
-                      onClick={() => handleSelect(bank.code)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors cursor-pointer"
+                      onClick={() => bank.institutionId && handleSelect(bank.institutionId)}
+                      disabled={!bank.institutionId}
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className={`text-sm font-medium ${isSelected ? 'text-primary dark:text-primary' : 'text-gray-900 dark:text-white'}`}>
                         {bank.name}

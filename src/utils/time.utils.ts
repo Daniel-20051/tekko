@@ -52,13 +52,44 @@ export const formatRelativeTime = (isoString: string): string => {
 
 /**
  * Format a number with commas for thousands, millions, etc.
- * Preserves decimal places up to the specified maximum
+ * Preserves decimal places up to the specified maximum, but removes trailing zeros
  */
 export const formatNumber = (value: string | number, maxDecimals: number = 8): string => {
   if (!value && value !== 0) return '0'
   
-  const num = typeof value === 'string' ? parseFloat(value) : value
+  // If it's a string, try to preserve the original format if it's a valid number
+  if (typeof value === 'string') {
+    // Remove commas if present
+    const cleanValue = value.replace(/,/g, '')
+    const num = parseFloat(cleanValue)
+    
+    if (isNaN(num)) return '0'
+    
+    // If the original string had a decimal point, preserve it (up to maxDecimals)
+    // Otherwise, format as integer
+    if (cleanValue.includes('.')) {
+      const parts = cleanValue.split('.')
+      const integerPart = parts[0]
+      const decimalPart = parts[1] || ''
+      
+      // Format integer part with commas
+      const formattedInteger = parseFloat(integerPart).toLocaleString('en-US')
+      
+      // Preserve decimal part up to maxDecimals, but remove trailing zeros
+      if (decimalPart) {
+        const trimmedDecimal = decimalPart.substring(0, maxDecimals).replace(/0+$/, '')
+        return trimmedDecimal ? `${formattedInteger}.${trimmedDecimal}` : formattedInteger
+      }
+      
+      return formattedInteger
+    } else {
+      // No decimal point in original - format as integer
+      return num.toLocaleString('en-US')
+    }
+  }
   
+  // For numbers, format normally but remove trailing zeros
+  const num = value
   if (isNaN(num)) return '0'
   
   // Split into integer and decimal parts
@@ -69,10 +100,10 @@ export const formatNumber = (value: string | number, maxDecimals: number = 8): s
   // Format integer part with commas
   const formattedInteger = parseFloat(integerPart).toLocaleString('en-US')
   
-  // Preserve decimal part up to maxDecimals
+  // Preserve decimal part up to maxDecimals, but remove trailing zeros
   if (decimalPart) {
-    const trimmedDecimal = decimalPart.substring(0, maxDecimals)
-    return `${formattedInteger}.${trimmedDecimal}`
+    const trimmedDecimal = decimalPart.substring(0, maxDecimals).replace(/0+$/, '')
+    return trimmedDecimal ? `${formattedInteger}.${trimmedDecimal}` : formattedInteger
   }
   
   return formattedInteger

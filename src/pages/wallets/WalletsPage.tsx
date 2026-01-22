@@ -177,10 +177,15 @@ const WalletsPage = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {parseFloat(selectedWalletInfo.balance).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 8
-                        })}
+                        {(() => {
+                          const balance = parseFloat(selectedWalletInfo.balance) || 0
+                          const currency = selectedWalletInfo.currency.toUpperCase()
+                          const decimals = (currency === 'BTC' || currency === 'ETH') ? 5 : 2
+                          return balance.toLocaleString('en-US', {
+                            minimumFractionDigits: decimals,
+                            maximumFractionDigits: decimals
+                          })
+                        })()}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {selectedWalletInfo.currency}

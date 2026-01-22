@@ -29,7 +29,6 @@ const SwapAmountInput = ({
   readOnly = false
 }: SwapAmountInputProps) => {
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
-  const [isInputFocused, setIsInputFocused] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const iconConfig = getCryptoIconConfig(currency)
   const Icon = iconConfig.icon
@@ -51,6 +50,28 @@ const SwapAmountInput = ({
     }
   }, [isCurrencyDropdownOpen])
 
+  // Normalize amount by removing trailing zeros after decimal point
+  const normalizeAmount = (value: string): string => {
+    if (!value || value === '') return ''
+    // Remove commas
+    let cleanValue = value.replace(/,/g, '')
+    // Remove trailing zeros after decimal point (e.g., "1500.00" -> "1500", "1500.50" -> "1500.5")
+    if (cleanValue.includes('.')) {
+      // Remove trailing zeros, but keep at least one digit if there are non-zero digits
+      // This handles: "1500.50" -> "1500.5", "1500.00" -> "1500"
+      const parts = cleanValue.split('.')
+      if (parts.length === 2) {
+        const integerPart = parts[0]
+        let decimalPart = parts[1]
+        // Remove trailing zeros from decimal part
+        decimalPart = decimalPart.replace(/0+$/, '')
+        // If decimal part is empty or all zeros, don't include the decimal point
+        cleanValue = decimalPart ? `${integerPart}.${decimalPart}` : integerPart
+      }
+    }
+    return cleanValue
+  }
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value
     // Remove commas for processing
@@ -62,23 +83,23 @@ const SwapAmountInput = ({
   }
   
   // Format amount for display (with commas)
-  // For editable inputs, show raw value when focused, formatted when not focused
+  // Always show formatted value with commas, even when focused
   // For read-only inputs, always show formatted
-  const displayAmount = readOnly 
-    ? (amount ? formatNumber(amount) : '')
-    : (isInputFocused ? amount : (amount ? formatNumber(amount) : ''))
+  const displayAmount = amount ? formatNumber(amount) : ''
 
   const handleHalf = () => {
     // Strip commas from balance before parsing
     const cleanBalance = balance.replace(/,/g, '')
     const halfAmount = (parseFloat(cleanBalance) / 2).toFixed(8)
-    onAmountChange(halfAmount)
+    // Normalize to remove trailing zeros
+    onAmountChange(normalizeAmount(halfAmount))
   }
 
   const handleMax = () => {
     // Strip commas from balance before using
     const cleanBalance = balance.replace(/,/g, '')
-    onAmountChange(cleanBalance)
+    // Normalize to remove trailing zeros if present
+    onAmountChange(normalizeAmount(cleanBalance))
   }
 
   const handleCurrencySelect = (selectedCurrency: string) => {
@@ -101,13 +122,13 @@ const SwapAmountInput = ({
           type="text"
           value={displayAmount}
           onChange={handleAmountChange}
-          onFocus={() => setIsInputFocused(true)}
           onBlur={(e) => {
-            setIsInputFocused(false)
             // Ensure state has the raw value (strip any commas that might have been displayed)
             const rawValue = e.target.value.replace(/,/g, '')
-            if (rawValue !== amount && (rawValue === '' || /^\d*\.?\d*$/.test(rawValue))) {
-              onAmountChange(rawValue)
+            // Normalize the value to remove trailing zeros
+            const normalizedValue = normalizeAmount(rawValue)
+            if (normalizedValue !== amount && (normalizedValue === '' || /^\d*\.?\d*$/.test(normalizedValue))) {
+              onAmountChange(normalizedValue)
             }
           }}
           placeholder="0.00"

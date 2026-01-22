@@ -277,7 +277,14 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
                           
                           <div className="space-y-0.5 transition-all duration-300">
                             <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">
-                              {hideBalance ? '*****' : `${wallet.balance} ${wallet.symbol}`}
+                              {hideBalance ? '*****' : (() => {
+                                const balance = parseFloat(wallet.balance) || 0
+                                const decimals = (wallet.symbol === 'BTC' || wallet.symbol === 'ETH') ? 5 : 2
+                                return `${balance.toLocaleString('en-US', {
+                                  minimumFractionDigits: decimals,
+                                  maximumFractionDigits: decimals
+                                })} ${wallet.symbol}`
+                              })()}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                               {hideBalance ? '*****' : `≈ ${currencySymbol}${wallet.fiatValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}

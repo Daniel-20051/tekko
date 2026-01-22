@@ -5,6 +5,7 @@ import { calculateNGNWithdrawalFees } from '../../../../api/wallet.api'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
 import Spinner from '../../../ui/Spinner'
+import { formatNumber } from '../../../../utils/time.utils'
 import type { NGNWithdrawalFeesData } from '../../../../types/wallet'
 
 interface NGNWithdrawAmountStepProps {
@@ -17,32 +18,55 @@ interface NGNWithdrawAmountStepProps {
 const NGNWithdrawAmountStep = ({ availableBalance, currency, onNext, onBack: _onBack }: NGNWithdrawAmountStepProps) => {
   const [amount, setAmount] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isInputFocused, setIsInputFocused] = useState(false)
 
   const feesMutation = useMutation({
-    mutationFn: (amount: string) => calculateNGNWithdrawalFees({ currency, amount }),
+    mutationFn: (amount: string) => {
+      // Strip commas before sending to API
+      const cleanAmount = amount.replace(/,/g, '')
+      return calculateNGNWithdrawalFees({ currency, amount: cleanAmount })
+    },
     onSuccess: (feesData) => {
-      if (parseFloat(amount) > parseFloat(availableBalance)) {
+      const cleanAmount = amount.replace(/,/g, '')
+      const cleanBalance = availableBalance.replace(/,/g, '')
+      if (parseFloat(cleanAmount) > parseFloat(cleanBalance)) {
         setError('Amount exceeds available balance')
         return
       }
-      if (parseFloat(feesData.totalRequired) > parseFloat(availableBalance)) {
-        setError(`Insufficient balance. Required: ${feesData.totalRequired} ${currency} (Amount: ${feesData.amount} + Fees: ${feesData.fees.total}), Available: ${availableBalance} ${currency}`)
+      if (parseFloat(feesData.totalRequired) > parseFloat(cleanBalance)) {
+        setError(`Insufficient balance. Required: ${feesData.totalRequired} ${currency} (Amount: ${feesData.amount} + Fees: ${feesData.fees.total}), Available: ${cleanBalance} ${currency}`)
         return
       }
-      onNext(amount, feesData)
+      onNext(cleanAmount, feesData)
     },
     onError: (error: Error) => {
       setError(error.message || 'Failed to calculate fees')
     },
   })
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value
+    // Remove commas for processing
+    value = value.replace(/,/g, '')
+    // Allow numbers and decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value)
+      setError(null)
+    }
+  }
+
+  // Format amount for display (with commas)
+  // Show raw value when focused, formatted when not focused
+  const displayAmount = isInputFocused ? amount : (amount ? formatNumber(amount, 2) : '')
+
   const handleNext = () => {
     setError(null)
-    if (!amount || parseFloat(amount) <= 0) {
+    const cleanAmount = amount.replace(/,/g, '')
+    if (!cleanAmount || parseFloat(cleanAmount) <= 0) {
       setError('Please enter a valid amount')
       return
     }
-    feesMutation.mutate(amount)
+    feesMutation.mutate(cleanAmount)
   }
 
   const formatBalance = (balance: string) => {
@@ -79,12 +103,17 @@ const NGNWithdrawAmountStep = ({ availableBalance, currency, onNext, onBack: _on
           Amount
         </label>
         <Input
-          type="number"
-          step="0.01"
-          value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value)
-            setError(null)
+          type="text"
+          value={displayAmount}
+          onChange={handleAmountChange}
+          onFocus={() => setIsInputFocused(true)}
+          onBlur={(e) => {
+            setIsInputFocused(false)
+            // Ensure state has the raw value (strip any commas that might have been displayed)
+            const rawValue = e.target.value.replace(/,/g, '')
+            if (rawValue !== amount && (rawValue === '' || /^\d*\.?\d*$/.test(rawValue))) {
+              setAmount(rawValue)
+            }
           }}
           placeholder="0.00"
         />
@@ -93,7 +122,11 @@ const NGNWithdrawAmountStep = ({ availableBalance, currency, onNext, onBack: _on
             Available: {formatBalance(availableBalance)} {currency}
           </span>
           <button
-            onClick={() => setAmount(availableBalance)}
+            onClick={() => {
+              // Strip commas from availableBalance before setting
+              const cleanBalance = availableBalance.replace(/,/g, '')
+              setAmount(cleanBalance)
+            }}
             className="text-primary hover:text-primary/80 font-medium"
           >
             Use Max
@@ -115,7 +148,7 @@ const NGNWithdrawAmountStep = ({ availableBalance, currency, onNext, onBack: _on
         variant="primary"
         fullWidth
         onClick={handleNext}
-        disabled={feesMutation.isPending || !amount || parseFloat(amount) <= 0}
+        disabled={feesMutation.isPending || !amount || parseFloat(amount.replace(/,/g, '')) <= 0}
         icon={feesMutation.isPending ? <Spinner size="sm" variant="white" /> : undefined}
       >
         {feesMutation.isPending ? '' : 'Continue'}

@@ -57,6 +57,7 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
   const fiatCurrencies = ['NGN', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'ZAR', 'MXN', 'SGD', 'HKD', 'NOK', 'SEK', 'DKK', 'PLN', 'RUB', 'TRY', 'KRW', 'THB', 'IDR', 'MYR', 'PHP', 'VND', 'CZK', 'HUF', 'ILS', 'CLP', 'ARS', 'COP', 'PEN', 'UAH', 'RON', 'BGN', 'HRK', 'ISK', 'NZD']
 
   // Build assets list from wallet balances - show all wallets including zero balances
+  // Sort to always show NGN at the top
   const assets: Asset[] = useMemo(() => {
     if (!walletBalances?.wallets) return []
 
@@ -79,6 +80,13 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
           iconColor: iconConfig.iconColor,
           iconBg: iconConfig.iconBg
         }
+      })
+      .sort((a, b) => {
+        // Always put NGN at the top
+        if (a.code.toUpperCase() === 'NGN') return -1
+        if (b.code.toUpperCase() === 'NGN') return 1
+        // Keep other currencies in their original order
+        return 0
       })
   }, [walletBalances])
 
@@ -114,24 +122,28 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
     
     // Handle undefined, null, or empty balance
     if (!balance || balance === '' || balance === 'undefined' || balance === 'null') {
-      return `0.00000000 ${code}`
+      const decimals = (code === 'BTC' || code === 'ETH') ? 5 : 2
+      return `0.${'0'.repeat(decimals)} ${code}`
     }
     
     // Ensure balance is a string
     const balanceStr = String(balance)
     const numBalance = parseFloat(balanceStr)
     
-    // For crypto, show up to 8 decimal places, preserving trailing zeros
+    // Determine decimal places: BTC and ETH get 5, all others get 2
+    const decimals = (code === 'BTC' || code === 'ETH') ? 5 : 2
+    
     if (isNaN(numBalance) || numBalance === 0) {
-      return `0.00000000 ${code}`
+      return `0.${'0'.repeat(decimals)} ${code}`
     }
     
-    // Preserve the original decimal places from the string, up to 8
-    const hasDecimal = balanceStr.includes('.')
-    const finalBalanceStr = hasDecimal ? balanceStr : `${balanceStr}.00000000`
-    const [integerPart, decimalPart = ''] = finalBalanceStr.split('.')
-    const paddedDecimal = decimalPart.padEnd(8, '0').substring(0, 8)
-    return `${parseFloat(integerPart).toLocaleString('en-US')}.${paddedDecimal} ${code}`
+    // Format with appropriate decimal places
+    const formatted = numBalance.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    })
+    
+    return `${formatted} ${code}`
   }
 
   const hasNoWallets = !isLoadingBalances && assets.length === 0

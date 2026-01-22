@@ -105,7 +105,16 @@ const DepositPage = () => {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  const availableAssets = walletBalances?.wallets || []
+  // Sort wallets to always show NGN at the top
+  const availableAssets = walletBalances?.wallets 
+    ? [...walletBalances.wallets].sort((a, b) => {
+        const aIsNGN = a.currency.toUpperCase() === 'NGN'
+        const bIsNGN = b.currency.toUpperCase() === 'NGN'
+        if (aIsNGN && !bIsNGN) return -1
+        if (!aIsNGN && bIsNGN) return 1
+        return 0
+      })
+    : []
 
   return (
     <div className="min-h-[calc(100vh-100px)] flex items-start justify-center pt-8 px-4">

@@ -25,7 +25,7 @@ interface NGNWithdrawBankDetailsStepProps {
 
 const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onNext, onBack }: NGNWithdrawBankDetailsStepProps) => {
   const [accountNumber, setAccountNumber] = useState('')
-  const [selectedBankCode, setSelectedBankCode] = useState('')
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [verifiedAccountName, setVerifiedAccountName] = useState<string | null>(null)
   const [verifiedInstitutionId, setVerifiedInstitutionId] = useState<string | null>(null)
@@ -55,7 +55,7 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
       setVerifiedInstitutionId(null)
       setError(null)
     }
-  }, [accountNumber, selectedBankCode])
+  }, [accountNumber, selectedInstitutionId])
 
   // Auto-verify when account number has 10 digits and bank is selected
   useEffect(() => {
@@ -65,31 +65,26 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
       verifiedAccountName ||
       verifiedInstitutionId ||
       accountNumber.length !== 10 ||
-      !selectedBankCode ||
+      !selectedInstitutionId ||
       banks.length === 0
     ) {
       return
     }
 
-    const bank = banks.find(b => b.code === selectedBankCode)
-    if (!bank) {
+    const bank = banks.find(b => b.institutionId === selectedInstitutionId)
+    if (!bank || !bank.institutionId) {
       return
     }
 
-    // Use institutionId if available, otherwise fallback to bankCode
-    const verifyPayload: any = {
+    // Use institutionId directly (required)
+    const verifyPayload = {
       accountNumber: accountNumber.trim(),
-    }
-
-    if (bank.institutionId) {
-      verifyPayload.institutionId = bank.institutionId
-    } else {
-      verifyPayload.bankCode = bank.code
+      institutionId: bank.institutionId,
     }
 
     verifyMutation.mutate(verifyPayload)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountNumber, selectedBankCode, banks])
+  }, [accountNumber, selectedInstitutionId, banks])
 
   // Verify account mutation
   const verifyMutation = useMutation({
@@ -112,8 +107,8 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
       return
     }
 
-    const bank = banks.find(b => b.code === selectedBankCode)
-    if (!bank) {
+    const bank = banks.find(b => b.institutionId === selectedInstitutionId)
+    if (!bank || !bank.institutionId) {
       setError('Invalid bank selected')
       return
     }
@@ -122,7 +117,7 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
       accountNumber: accountNumber.trim(),
       accountName: verifiedAccountName,
       bankName: bank.name,
-      bankCode: bank.code,
+      bankCode: bank.code, // Keep for backward compatibility if needed
       institutionId: verifiedInstitutionId,
     })
   }
@@ -199,9 +194,9 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
         ) : (
           <BankDropdown
             banks={banks}
-            selectedBankCode={selectedBankCode}
-            onSelectBank={(code) => {
-              setSelectedBankCode(code)
+            selectedInstitutionId={selectedInstitutionId}
+            onSelectBank={(institutionId) => {
+              setSelectedInstitutionId(institutionId)
               setError(null)
             }}
             isLoading={isLoadingBanks}

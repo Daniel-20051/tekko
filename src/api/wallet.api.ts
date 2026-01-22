@@ -192,19 +192,28 @@ export const getDepositAccount = async (data: DepositAccountRequest): Promise<De
   throw new Error(errorResponse.message || 'Failed to get deposit account')
 }
 
-// Get list of banks
+// Get list of banks from external API
 export const getBanks = async (): Promise<Bank[]> => {
-  console.log('🏦 Fetching banks from /api/v1/banks')
+
   try {
-    const response = await apiClient.get<BanksResponse>('/api/v1/banks')
-    console.log('🏦 Banks API Response:', response.data)
+    // Use external API directly
+    const response = await apiClient.get<BanksResponse>('/api/v1/banks/institutions ', {
+     
+    })
     
     if (!response.data.success || !response.data.data?.banks) {
       throw new Error(response.data.message || 'Failed to fetch banks')
     }
     
-    // Filter only active banks
-    const activeBanks = response.data.data.banks.filter(bank => bank.active !== false)
+    // Filter only active banks and ensure institutionId is present
+    const activeBanks = response.data.data.banks
+      .filter(bank => bank.active !== false)
+      .map(bank => ({
+        ...bank,
+        // Ensure institutionId is available (it should be from the new API)
+        institutionId: bank.institutionId || bank.code, // Fallback to code if institutionId missing
+      }))
+    
     console.log('🏦 Banks fetched successfully:', activeBanks.length, 'active banks out of', response.data.data.count, 'total')
     return activeBanks
   } catch (error) {

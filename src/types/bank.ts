@@ -12,8 +12,8 @@ export interface Bank {
 // Verify Account Types
 export interface VerifyAccountRequest {
   accountNumber: string
-  institutionId?: string // Preferred
-  bankCode?: string // Fallback
+  institutionId: string // Required - use institutionId directly
+  bankCode?: string // Optional fallback for API compatibility
 }
 
 export interface Institution {

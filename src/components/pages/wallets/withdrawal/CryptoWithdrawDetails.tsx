@@ -6,6 +6,7 @@ import { withdrawCrypto } from '../../../../api/wallet.api'
 import { walletKeys } from '../../../../hooks/useWallet'
 import { useNavigate } from '@tanstack/react-router'
 import { getCryptoIconConfig } from '../../../../utils/crypto-icons'
+import { formatNumber } from '../../../../utils/time.utils'
 import Button from '../../../ui/Button'
 import Input from '../../../ui/Input'
 
@@ -25,6 +26,7 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
   const [toAddress, setToAddress] = useState('')
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isInputFocused, setIsInputFocused] = useState(false)
 
   const withdrawMutation = useMutation({
     mutationFn: withdrawCrypto,
@@ -38,13 +40,30 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
     },
   })
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value
+    // Remove commas for processing
+    value = value.replace(/,/g, '')
+    // Allow numbers and decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value)
+      setError(null)
+    }
+  }
+
+  // Format amount for display (with commas)
+  // Show raw value when focused, formatted when not focused
+  const displayAmount = isInputFocused ? amount : (amount ? formatNumber(amount, 8) : '')
+
   const handleNextToPin = () => {
     setError(null)
-    if (!amount || parseFloat(amount) <= 0) {
+    const cleanAmount = amount.replace(/,/g, '')
+    const cleanBalance = availableBalance.replace(/,/g, '')
+    if (!cleanAmount || parseFloat(cleanAmount) <= 0) {
       setError('Please enter a valid amount')
       return
     }
-    if (parseFloat(amount) > parseFloat(availableBalance)) {
+    if (parseFloat(cleanAmount) > parseFloat(cleanBalance)) {
       setError('Amount exceeds available balance')
       return
     }
@@ -62,9 +81,10 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
       return
     }
 
+    const cleanAmount = amount.replace(/,/g, '')
     withdrawMutation.mutate({
       currency,
-      amount,
+      amount: cleanAmount,
       toAddress,
       pin,
     })
@@ -117,12 +137,17 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
                 Amount
               </label>
               <Input
-                type="number"
-                step="any"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value)
-                  setError(null)
+                type="text"
+                value={displayAmount}
+                onChange={handleAmountChange}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={(e) => {
+                  setIsInputFocused(false)
+                  // Ensure state has the raw value (strip any commas that might have been displayed)
+                  const rawValue = e.target.value.replace(/,/g, '')
+                  if (rawValue !== amount && (rawValue === '' || /^\d*\.?\d*$/.test(rawValue))) {
+                    setAmount(rawValue)
+                  }
                 }}
                 placeholder="0.00000000"
               />
@@ -131,7 +156,11 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
                   Available: {formatBalance(availableBalance)} {currency}
                 </span>
                 <button
-                  onClick={() => setAmount(availableBalance)}
+                  onClick={() => {
+                    // Strip commas from availableBalance before setting
+                    const cleanBalance = availableBalance.replace(/,/g, '')
+                    setAmount(cleanBalance)
+                  }}
                   className="text-primary hover:text-primary/80 font-medium"
                 >
                   Use Max
@@ -174,7 +203,7 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
               variant="primary"
               fullWidth
               onClick={handleNextToPin}
-              disabled={!amount || !toAddress}
+              disabled={!amount || !toAddress || parseFloat(amount.replace(/,/g, '')) <= 0}
             >
               Continue
             </Button>
