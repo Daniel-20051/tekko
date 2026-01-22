@@ -6,6 +6,7 @@ import QuickActionsModern from "../../components/pages/dashboard/QuickActionsMod
 import ActivityCard from "../../components/pages/dashboard/ActivityCard"
 import MarketOverviewCompact from "../../components/pages/dashboard/MarketOverviewCompact"
 import KycVerificationBanner from "../../components/pages/kyc/KycVerificationBanner"
+import Tier2UpgradeBanner from "../../components/pages/kyc/Tier2UpgradeBanner"
 
 
 const DashboardPage = () => {
@@ -77,6 +78,11 @@ const DashboardPage = () => {
       {/* KYC Verification Banner - Show if user is unverified */}
       {currentUser?.kycLevel === 'unverified' && (
         <KycVerificationBanner />
+      )}
+
+      {/* Tier 2 Upgrade Banner - Show if user is at level 1 */}
+      {currentUser?.kycLevel === '1' && (
+        <Tier2UpgradeBanner />
       )}
 
       {/* Main Layout - Portfolio and Quick Actions Side by Side */}
