@@ -27,7 +27,9 @@ import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-pass
 import { Route as AuthGoogleCallbackRouteImport } from './routes/_auth/google-callback'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthCreateAccountRouteImport } from './routes/_auth/create-account'
+import { Route as AuthenticatedMarketsIndexRouteImport } from './routes/_authenticated/markets.index'
 import { Route as AuthenticatedSettingsKycRouteImport } from './routes/_authenticated/settings.kyc'
+import { Route as AuthenticatedMarketsCoinRouteImport } from './routes/_authenticated/markets.$coin'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth/google/callback'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -119,11 +121,23 @@ const AuthCreateAccountRoute = AuthCreateAccountRouteImport.update({
   path: '/create-account',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthenticatedMarketsIndexRoute =
+  AuthenticatedMarketsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMarketsRoute,
+  } as any)
 const AuthenticatedSettingsKycRoute =
   AuthenticatedSettingsKycRouteImport.update({
     id: '/kyc',
     path: '/kyc',
     getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any)
+const AuthenticatedMarketsCoinRoute =
+  AuthenticatedMarketsCoinRouteImport.update({
+    id: '/$coin',
+    path: '/$coin',
+    getParentRoute: () => AuthenticatedMarketsRoute,
   } as any)
 const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
   id: '/api/auth/google/callback',
@@ -141,14 +155,16 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deposit': typeof AuthenticatedDepositRoute
   '/help': typeof AuthenticatedHelpRoute
-  '/markets': typeof AuthenticatedMarketsRoute
+  '/markets': typeof AuthenticatedMarketsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/swap': typeof AuthenticatedSwapRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/': typeof AuthIndexRoute
+  '/markets/$coin': typeof AuthenticatedMarketsCoinRoute
   '/settings/kyc': typeof AuthenticatedSettingsKycRoute
+  '/markets/': typeof AuthenticatedMarketsIndexRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -161,14 +177,15 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deposit': typeof AuthenticatedDepositRoute
   '/help': typeof AuthenticatedHelpRoute
-  '/markets': typeof AuthenticatedMarketsRoute
   '/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/swap': typeof AuthenticatedSwapRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallets': typeof AuthenticatedWalletsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/': typeof AuthIndexRoute
+  '/markets/$coin': typeof AuthenticatedMarketsCoinRoute
   '/settings/kyc': typeof AuthenticatedSettingsKycRoute
+  '/markets': typeof AuthenticatedMarketsIndexRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesById {
@@ -184,14 +201,16 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deposit': typeof AuthenticatedDepositRoute
   '/_authenticated/help': typeof AuthenticatedHelpRoute
-  '/_authenticated/markets': typeof AuthenticatedMarketsRoute
+  '/_authenticated/markets': typeof AuthenticatedMarketsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/_authenticated/swap': typeof AuthenticatedSwapRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallets': typeof AuthenticatedWalletsRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_authenticated/markets/$coin': typeof AuthenticatedMarketsCoinRoute
   '/_authenticated/settings/kyc': typeof AuthenticatedSettingsKycRoute
+  '/_authenticated/markets/': typeof AuthenticatedMarketsIndexRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRouteTypes {
@@ -213,7 +232,9 @@ export interface FileRouteTypes {
     | '/wallets'
     | '/withdraw'
     | '/'
+    | '/markets/$coin'
     | '/settings/kyc'
+    | '/markets/'
     | '/api/auth/google/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -226,14 +247,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deposit'
     | '/help'
-    | '/markets'
     | '/settings'
     | '/swap'
     | '/transactions'
     | '/wallets'
     | '/withdraw'
     | '/'
+    | '/markets/$coin'
     | '/settings/kyc'
+    | '/markets'
     | '/api/auth/google/callback'
   id:
     | '__root__'
@@ -255,7 +277,9 @@ export interface FileRouteTypes {
     | '/_authenticated/wallets'
     | '/_authenticated/withdraw'
     | '/_auth/'
+    | '/_authenticated/markets/$coin'
     | '/_authenticated/settings/kyc'
+    | '/_authenticated/markets/'
     | '/api/auth/google/callback'
   fileRoutesById: FileRoutesById
 }
@@ -393,12 +417,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCreateAccountRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_authenticated/markets/': {
+      id: '/_authenticated/markets/'
+      path: '/'
+      fullPath: '/markets/'
+      preLoaderRoute: typeof AuthenticatedMarketsIndexRouteImport
+      parentRoute: typeof AuthenticatedMarketsRoute
+    }
     '/_authenticated/settings/kyc': {
       id: '/_authenticated/settings/kyc'
       path: '/kyc'
       fullPath: '/settings/kyc'
       preLoaderRoute: typeof AuthenticatedSettingsKycRouteImport
       parentRoute: typeof AuthenticatedSettingsRoute
+    }
+    '/_authenticated/markets/$coin': {
+      id: '/_authenticated/markets/$coin'
+      path: '/$coin'
+      fullPath: '/markets/$coin'
+      preLoaderRoute: typeof AuthenticatedMarketsCoinRouteImport
+      parentRoute: typeof AuthenticatedMarketsRoute
     }
     '/api/auth/google/callback': {
       id: '/api/auth/google/callback'
@@ -430,6 +468,19 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface AuthenticatedMarketsRouteChildren {
+  AuthenticatedMarketsCoinRoute: typeof AuthenticatedMarketsCoinRoute
+  AuthenticatedMarketsIndexRoute: typeof AuthenticatedMarketsIndexRoute
+}
+
+const AuthenticatedMarketsRouteChildren: AuthenticatedMarketsRouteChildren = {
+  AuthenticatedMarketsCoinRoute: AuthenticatedMarketsCoinRoute,
+  AuthenticatedMarketsIndexRoute: AuthenticatedMarketsIndexRoute,
+}
+
+const AuthenticatedMarketsRouteWithChildren =
+  AuthenticatedMarketsRoute._addFileChildren(AuthenticatedMarketsRouteChildren)
+
 interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsKycRoute: typeof AuthenticatedSettingsKycRoute
 }
@@ -448,7 +499,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDepositRoute: typeof AuthenticatedDepositRoute
   AuthenticatedHelpRoute: typeof AuthenticatedHelpRoute
-  AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
+  AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRouteWithChildren
   AuthenticatedSwapRoute: typeof AuthenticatedSwapRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
@@ -461,7 +512,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDepositRoute: AuthenticatedDepositRoute,
   AuthenticatedHelpRoute: AuthenticatedHelpRoute,
-  AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
+  AuthenticatedMarketsRoute: AuthenticatedMarketsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRouteWithChildren,
   AuthenticatedSwapRoute: AuthenticatedSwapRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,

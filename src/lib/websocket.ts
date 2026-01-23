@@ -12,7 +12,22 @@ export interface DepositEvent {
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
 }
 
-type WebSocketEvent = DepositEvent
+export interface PriceUpdateEvent {
+  type: 'price_update'
+  payload: {
+    coin: string
+    price: number
+    change24h?: number
+    volume24h?: number
+    high24h?: number
+    low24h?: number
+    open24h?: number
+    trades24h?: number
+    [key: string]: any
+  }
+}
+
+type WebSocketEvent = DepositEvent | PriceUpdateEvent
 
 class WebSocketService {
   private ws: WebSocket | null = null
@@ -49,13 +64,11 @@ class WebSocketService {
     const url = `${wsUrl}/ws?token=${accessToken}`
     
     this.isConnecting = true
-    console.log('🔌 WebSocket: Connecting...', url.replace(/token=[^&]+/, 'token=***'))
 
     try {
       this.ws = new WebSocket(url)
 
       this.ws.onopen = () => {
-        console.log('🔌 WebSocket: Connected')
         this.isConnecting = false
         this.reconnectAttempts = 0
       }
@@ -75,7 +88,6 @@ class WebSocketService {
       }
 
       this.ws.onclose = () => {
-        console.log('🔌 WebSocket: Disconnected')
         this.isConnecting = false
         this.ws = null
         this.attemptReconnect()
@@ -88,10 +100,10 @@ class WebSocketService {
   }
 
   private handleMessage(data: WebSocketEvent) {
-    console.log('🔌 WebSocket: Received event', data)
-
     if (data.type === 'deposit') {
       this.handleDepositEvent(data)
+    } else if (data.type === 'price_update') {
+      this.handlePriceUpdateEvent(data)
     }
   }
 
@@ -100,8 +112,6 @@ class WebSocketService {
     if (this.userId && event.userId !== this.userId) {
       return
     }
-
-    console.log('💰 Deposit event received:', event)
 
     // Invalidate relevant queries to refresh data
     if (this.queryClient) {
@@ -131,6 +141,13 @@ class WebSocketService {
     }))
   }
 
+  private handlePriceUpdateEvent(event: PriceUpdateEvent) {
+    // Dispatch custom event for components to listen to
+    window.dispatchEvent(new CustomEvent('price-update', {
+      detail: event.payload
+    }))
+  }
+
   private attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.warn('🔌 WebSocket: Max reconnect attempts reached')
@@ -139,8 +156,6 @@ class WebSocketService {
 
     this.reconnectAttempts++
     const delay = this.reconnectDelay * this.reconnectAttempts
-
-    console.log(`🔌 WebSocket: Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
 
     this.reconnectTimer = setTimeout(() => {
       this.connect()
@@ -160,7 +175,6 @@ class WebSocketService {
 
     this.reconnectAttempts = 0
     this.isConnecting = false
-    console.log('🔌 WebSocket: Disconnected')
   }
 
   isConnected(): boolean {

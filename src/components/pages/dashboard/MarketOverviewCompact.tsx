@@ -1,39 +1,67 @@
 import { motion, useAnimationControls } from 'framer-motion'
-import { Bitcoin, Waves, DollarSign, TrendingUp, ArrowUpRight } from 'lucide-react'
-import { useEffect } from 'react'
-
-const marketData = [
-  {
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    price: '₦95.5M',
-    change: 2.4,
-    icon: Bitcoin,
-    color: 'text-orange-500 dark:text-orange-400',
-    bgColor: 'bg-orange-500/10 dark:bg-orange-500/20'
-  },
-  {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    price: '₦3.2M',
-    change: -1.2,
-    icon: Waves,
-    color: 'text-blue-500 dark:text-blue-400',
-    bgColor: 'bg-blue-500/10 dark:bg-blue-500/20'
-  },
-  {
-    name: 'Tether',
-    symbol: 'USDT',
-    price: '₦1,650',
-    change: 0.1,
-    icon: DollarSign,
-    color: 'text-green-500 dark:text-green-400',
-    bgColor: 'bg-green-500/10 dark:bg-green-500/20'
-  }
-]
+import { TrendingUp, ArrowUpRight, Loader2 } from 'lucide-react'
+import { useEffect, useState, useMemo } from 'react'
+import { usePrices, useMarketOverview, useMarketWebSocket } from '../../../hooks/useMarket'
+import { useMarketData } from '../../../hooks/useMarketData'
+import type { RealtimePriceData } from '../../../types/market'
+import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { formatPrice } from '../../../utils/market-utils'
 
 const MarketOverviewCompact = () => {
   const controls = useAnimationControls()
+  const [livePrices, setLivePrices] = useState<Record<string, RealtimePriceData>>({})
+
+  // Fetch prices and market overview
+  const { data: pricesData, isLoading: isLoadingPrices } = usePrices()
+  const { data: marketOverview, isLoading: isLoadingOverview } = useMarketOverview()
+
+  // WebSocket for live real-time updates
+  useMarketWebSocket((priceData) => {
+    setLivePrices(prev => ({
+      ...prev,
+      [priceData.coin]: priceData
+    }))
+  }, true)
+
+  // Coin metadata for display
+  const coinMetadata: Record<string, { name: string; symbol: string; image: string }> = {
+    BTC: {
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png'
+    },
+    ETH: {
+      name: 'Ethereum',
+      symbol: 'ETH',
+      image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png'
+    },
+    SOL: {
+      name: 'Solana',
+      symbol: 'SOL',
+      image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png'
+    }
+  }
+
+  // Use custom hook to merge and process market data
+  const allMarketData = useMarketData({
+    pricesData,
+    marketOverview,
+    livePrices,
+    coinMetadata
+  })
+
+  // Filter to only show BTC, ETH, SOL (top 3)
+  const topThreeCoins = useMemo(() => {
+    const coinOrder = ['BTC', 'ETH', 'SOL']
+    return allMarketData
+      .filter(coin => coinOrder.includes(coin.coin))
+      .sort((a, b) => {
+        const aIndex = coinOrder.indexOf(a.coin)
+        const bIndex = coinOrder.indexOf(b.coin)
+        return aIndex - bIndex
+      })
+  }, [allMarketData])
+
 
   useEffect(() => {
     controls.start(i => ({
@@ -61,42 +89,51 @@ const MarketOverviewCompact = () => {
       </div>
 
       <div className="space-y-2">
-        {marketData.map((crypto, index) => {
-          const Icon = crypto.icon
-          const isPositive = crypto.change >= 0
-          
-          return (
-            <motion.div
-              key={crypto.symbol}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 + index * 0.1 }}
-              whileHover={{ scale: 1.02, x: 4 }}
-              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all group cursor-pointer"
-            >
-              <div className="flex items-center gap-3 flex-1">
-                <motion.div 
-                  className={`p-2 rounded-md ${crypto.bgColor}`}
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Icon className={`w-4 h-4 ${crypto.color}`} />
-                </motion.div>
-                
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {crypto.name}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {crypto.symbol}
-                  </p>
+        {isLoadingPrices || isLoadingOverview ? (
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : topThreeCoins.length === 0 ? (
+          <div className="text-center p-8 text-gray-500 dark:text-gray-400 text-sm">
+            No market data available
+          </div>
+        ) : (
+          topThreeCoins.map((crypto, index) => {
+            const iconConfig = getCryptoIconConfig(crypto.coin)
+            const Icon = iconConfig.icon
+            const isPositive = crypto.priceChangePercent >= 0
+            
+            return (
+              <motion.div
+                key={crypto.coin}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+                whileHover={{ scale: 1.02, x: 4 }}
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-primary/5 hover:border-primary dark:hover:border-primary hover:bg-gray-100 dark:hover:bg-primary/10 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <motion.div 
+                    className={`p-2 rounded-md ${iconConfig.iconBg}`}
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Icon className={`w-4 h-4 ${iconConfig.iconColor}`} />
+                  </motion.div>
+                  
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+                      {crypto.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {crypto.coin}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
+                
                 <div className="text-right">
                   <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">
-                    {crypto.price}
+                    {formatPrice(crypto.livePrice)}
                   </p>
                   <div className={`flex items-center justify-end gap-0.5 text-xs font-semibold ${
                     isPositive 
@@ -104,21 +141,13 @@ const MarketOverviewCompact = () => {
                       : 'text-red-600 dark:text-red-400'
                   }`}>
                     <TrendingUp className={`w-3 h-3 ${isPositive ? '' : 'rotate-180'}`} />
-                    {isPositive ? '+' : ''}{crypto.change.toFixed(1)}%
+                    {isPositive ? '+' : ''}{crypto.priceChangePercent.toFixed(2)}%
                   </div>
                 </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-3 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition-colors"
-                >
-                  Trade
-                </motion.button>
-              </div>
-            </motion.div>
-          )
-        })}
+              </motion.div>
+            )
+          })
+        )}
       </div>
     </motion.div>
   )
