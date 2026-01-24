@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ShieldAlert, ArrowRight, TrendingUp, CheckCircle2 } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
 import SettingsHeader from '../../components/pages/settings/SettingsHeader'
 import { useSecurityStatus, useSessions, useProfile } from '../../hooks/useSettings'
 import { useCurrentUser } from '../../hooks/useAuth'
@@ -18,7 +17,6 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'sessions' | 'tiers'>('profile')
   const [showBvnModal, setShowBvnModal] = useState(false)
   const [showCustomerDialog, setShowCustomerDialog] = useState(false)
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: currentUser } = useCurrentUser()
   

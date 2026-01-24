@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { withdrawCrypto } from '../../../../api/wallet.api'
 import { walletKeys } from '../../../../hooks/useWallet'
 import { useNavigate } from '@tanstack/react-router'
-import { getCryptoIconConfig } from '../../../../utils/crypto-icons'
 import { useCoinImage } from '../../../../hooks/useCoinImage'
 import CryptoImage from '../../../ui/CryptoImage'
 import { formatNumber } from '../../../../utils/time.utils'
@@ -100,8 +99,6 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
     const paddedDecimal = decimalPart.padEnd(8, '0').substring(0, 8)
     return `${parseFloat(integerPart).toLocaleString('en-US')}.${paddedDecimal}`
   }
-
-  const iconConfig = getCryptoIconConfig(currency)
 
   return (
     <div className="flex-1 overflow-y-auto p-4">

@@ -3,7 +3,6 @@ import { X, Plus, Camera, DollarSign, CheckCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useCreateWallet, useSupportedCurrencies, useWalletBalances } from '../../../hooks/useWallet'
-import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import { useCoinImages } from '../../../hooks/useCoinImage'
 import CryptoImage from '../../ui/CryptoImage'
 import Spinner from '../../ui/Spinner'
@@ -209,7 +208,6 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
               ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                   {filteredCurrencies.map((currency) => {
-                    const iconConfig = getCryptoIconConfig(currency.code)
                     const imageUrl = coinImages[currency.code.toUpperCase()]
                     const isCreating = creatingCurrency === currency.code
                     const isSuccessState = isSuccess && successCurrency === currency.code

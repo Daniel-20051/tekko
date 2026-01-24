@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getCryptoIconConfig } from '../../utils/crypto-icons'
 
 interface CryptoImageProps {
   symbol: string
-  imageUrl?: string
+  imageUrl?: string | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   showFallback?: boolean
   className?: string
