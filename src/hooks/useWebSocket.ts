@@ -26,11 +26,9 @@ export const useWebSocket = () => {
   useEffect(() => {
     // Connect when user is authenticated
     if (currentUser?.id) {
-      console.log('🔌 WebSocket: Initializing connection for user', currentUser.id)
       websocketService.connect()
     } else {
       // Disconnect when user is not authenticated
-      console.log('🔌 WebSocket: User not authenticated, disconnecting')
       websocketService.disconnect()
     }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMarketOverview } from './useMarket'
 
 // Map to cache coin images
@@ -60,12 +60,27 @@ export const useCoinImage = (symbol: string | null | undefined) => {
 export const useCoinImages = (symbols: (string | null | undefined)[]) => {
   const [images, setImages] = useState<Record<string, string | null>>({})
   const { data: marketOverview } = useMarketOverview()
+  const symbolsRef = useRef(symbols)
+
+  // Update ref when symbols change
+  useEffect(() => {
+    symbolsRef.current = symbols
+  }, [symbols])
+
+  // Create a stable string representation of symbols for comparison
+  const symbolsKey = useMemo(() => {
+    return symbols
+      .filter(Boolean)
+      .map(s => s?.toUpperCase())
+      .sort()
+      .join(',')
+  }, [symbols])
 
   useEffect(() => {
     const newImages: Record<string, string | null> = {}
-    let hasChanges = false
+    const currentSymbols = symbolsRef.current
 
-    symbols.forEach(symbol => {
+    currentSymbols.forEach(symbol => {
       if (!symbol) return
 
       const upperSymbol = symbol.toUpperCase()
@@ -84,7 +99,6 @@ export const useCoinImages = (symbols: (string | null | undefined)[]) => {
         if (coinData?.image) {
           coinImageCache[upperSymbol] = coinData.image
           newImages[upperSymbol] = coinData.image
-          hasChanges = true
           return
         }
       }
@@ -92,10 +106,8 @@ export const useCoinImages = (symbols: (string | null | undefined)[]) => {
       newImages[upperSymbol] = null
     })
 
-    if (hasChanges || Object.keys(newImages).length > 0) {
-      setImages(newImages)
-    }
-  }, [symbols, marketOverview])
+    setImages(newImages)
+  }, [symbolsKey, marketOverview])
 
   return images
 }

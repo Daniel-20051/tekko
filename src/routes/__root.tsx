@@ -3,12 +3,19 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Suspense } from 'react'
 import RefreshTokenLoader from '../components/ui/RefreshTokenLoader'
 import Spinner from '../components/ui/Spinner'
+import NetworkStatusModal from '../components/ui/NetworkStatusModal'
+import { useNetwork } from '../hooks/useNetwork'
 
 function RootComponent() {
+  const isOnline = useNetwork()
+
   return (
     <div>
       {/* Refresh token loader - shows during token refresh */}
       <RefreshTokenLoader />
+
+      {/* Network status modal - shows when offline */}
+      <NetworkStatusModal isOnline={isOnline} />
 
       {/* Suspense boundary for lazy-loaded routes */}
       <Suspense
