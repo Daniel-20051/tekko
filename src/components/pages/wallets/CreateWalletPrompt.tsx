@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Wallet, Plus, CheckCircle, Sparkles } from 'lucide-react'
-import { getCryptoIconConfig } from '../../../utils/crypto-icons'
-import { useMemo, useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useCreateWallet, useSupportedCurrencies } from '../../../hooks/useWallet'
+import { useCoinImage, useCoinImages } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import Alert from '../../ui/Alert'
 import Spinner from '../../ui/Spinner'
 import Button from '../../ui/Button'
@@ -34,11 +35,16 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
     }
   }, [currency, supportedCurrencies])
 
-  const iconConfig = useMemo(() => {
-    return getCryptoIconConfig(selectedCurrency || 'BTC')
-  }, [selectedCurrency])
-
-  const Icon = iconConfig.icon
+  // Get coin images for all currencies in the selection grid
+  const currencyCodes = useMemo(() => {
+    if (!supportedCurrencies?.currencies) return []
+    return supportedCurrencies.currencies.slice(0, 6).map(c => c.code)
+  }, [supportedCurrencies])
+  
+  const coinImages = useCoinImages(currencyCodes)
+  
+  // Get coin image for selected currency
+  const selectedImageUrl = useCoinImage(selectedCurrency || 'BTC')
   const isNoWallets = !currency
 
   const handleCreateWallet = () => {
@@ -57,11 +63,18 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
     >
       <div className="flex flex-col items-center text-center p-6">
         {/* Icon */}
-        <div className={`w-16 h-16 ${isNoWallets ? 'bg-primary/10 dark:bg-primary/20' : iconConfig.iconBg} rounded-full flex items-center justify-center mb-3`}>
+        <div className="w-16 h-16 mb-3">
           {isNoWallets ? (
-            <Wallet className="w-8 h-8 text-primary" />
+            <div className="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+              <Wallet className="w-8 h-8 text-primary" />
+            </div>
           ) : (
-            <Icon className={`w-8 h-8 ${iconConfig.iconColor}`} />
+            <CryptoImage
+              symbol={selectedCurrency || 'BTC'}
+              imageUrl={selectedImageUrl}
+              size="xl"
+              className="rounded-full"
+            />
           )}
         </div>
 
@@ -86,9 +99,8 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {supportedCurrencies.currencies.slice(0, 6).map((curr) => {
-                const currIconConfig = getCryptoIconConfig(curr.code)
-                const CurrIcon = currIconConfig.icon
                 const isSelected = selectedCurrency === curr.code
+                const currencyImageUrl = coinImages[curr.code.toUpperCase()]
                 
                 return (
                   <Button
@@ -102,8 +114,13 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
                         : 'border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    <div className={`w-7 h-7 ${currIconConfig.iconBg} rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
-                      <CurrIcon className={`w-3.5 h-3.5 ${currIconConfig.iconColor}`} />
+                    <div className="w-7 h-7 mx-auto mb-1.5">
+                      <CryptoImage
+                        symbol={curr.code}
+                        imageUrl={currencyImageUrl}
+                        size="sm"
+                        className="rounded-lg"
+                      />
                     </div>
                     <p className="text-xs font-semibold text-gray-900 dark:text-white">{curr.code}</p>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{curr.name}</p>
