@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Wallet } from 'lucide-react'
 import Input from '../../ui/Input'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { useCoinImages } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import { formatNumber } from '../../../utils/time.utils'
 import type { Wallet as WalletType } from '../../../types/wallet'
 
@@ -30,8 +32,8 @@ const SwapAmountInput = ({
 }: SwapAmountInputProps) => {
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const iconConfig = getCryptoIconConfig(currency)
-  const Icon = iconConfig.icon
+  const coinImages = useCoinImages([currency, ...availableWallets.map(w => w.currency)])
+  const currentImageUrl = coinImages[currency.toUpperCase()]
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -163,14 +165,19 @@ const SwapAmountInput = ({
           type="button"
           onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
           disabled={disabled}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
         >
-          <div className={`w-7 h-7 rounded-full ${iconConfig.iconBg} flex items-center justify-center`}>
-            <Icon className={`w-4 h-4 ${iconConfig.iconColor}`} />
+          <div className="w-8 h-8 shrink-0">
+            <CryptoImage 
+              symbol={currency}
+              imageUrl={currentImageUrl}
+              size="md"
+              className="rounded-full"
+            />
           </div>
-          <span className="text-xs font-medium text-gray-900 dark:text-white">{currency}</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">{currency}</span>
           <svg
-            className={`w-4 h-4 text-gray-400 transition-transform ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-gray-400 transition-transform shrink-0 ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -180,10 +187,10 @@ const SwapAmountInput = ({
         </button>
 
         {isCurrencyDropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-64" style={{ maxHeight: '192px' }}>
+          <div className="absolute top-full left-0 mt-2 bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-72" style={{ maxHeight: '192px' }}>
             {availableWallets.map((wallet) => {
               const walletIconConfig = getCryptoIconConfig(wallet.currency)
-              const WalletIcon = walletIconConfig.icon
+              const walletImageUrl = coinImages[wallet.currency.toUpperCase()]
               const isSelected = wallet.currency.toUpperCase() === currency.toUpperCase()
 
               return (
@@ -191,19 +198,24 @@ const SwapAmountInput = ({
                   key={wallet.currency}
                   type="button"
                   onClick={() => handleCurrencySelect(wallet.currency)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors cursor-pointer ${
-                    isSelected ? 'bg-primary/10 dark:bg-primary/20' : ''
+                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 dark:hover:bg-primary/30 transition-colors cursor-pointer ${
+                    isSelected ? 'bg-primary/10 dark:bg-dark-bg text-primary dark:text-gray-300' : ''
                   }`}
                 >
-                  <div className={`w-6 h-6 rounded-full ${walletIconConfig.iconBg} flex items-center justify-center`}>
-                    <WalletIcon className={`w-4 h-4 ${walletIconConfig.iconColor}`} />
+                  <div className="w-8 h-8 shrink-0">
+                    <CryptoImage 
+                      symbol={wallet.currency}
+                      imageUrl={walletImageUrl}
+                      size="md"
+                      className="rounded-full"
+                    />
                   </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">{wallet.currency}</div>
-                    <div className="text-[10px] text-gray-500 dark:text-gray-400">{walletIconConfig.name}</div>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className={`text-sm font-medium ${isSelected ? 'text-primary dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>{wallet.currency}</div>
+                    <div className={`text-xs truncate ${isSelected ? 'text-primary/70 dark:text-gray-400' : 'text-gray-500 dark:text-gray-400'}`}>{walletIconConfig.name}</div>
                   </div>
                   {isSelected && (
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}

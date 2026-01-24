@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import Input from '../../../ui/Input'
 import Button from '../../../ui/Button'
+import Spinner from '../../../ui/Spinner'
 import BankDropdown from './BankDropdown'
 import { getBanks, verifyBankAccount } from '../../../../api/wallet.api'
 import type { Bank } from '../../../../types/bank'
@@ -208,7 +209,7 @@ const NGNWithdrawBankDetailsStep = ({ amount, feesData: _feesData, currency, onN
       {verifyMutation.isPending && (
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg">
           <div className="flex items-center gap-2">
-            <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
+            <Spinner size="md" variant="primary" className="shrink-0" />
             <p className="text-sm text-blue-800 dark:text-blue-300">Verifying account...</p>
           </div>
         </div>

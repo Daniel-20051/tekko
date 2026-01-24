@@ -1,8 +1,8 @@
 import { useLoadingStore } from '../../store/loading.store'
 import { useThemeStore } from '../../store/theme.store'
-import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { removeRefreshLoader } from '../../utils/loader-utils'
+import Spinner from './Spinner'
 
 /**
  * RefreshTokenLoader Component
@@ -38,7 +38,7 @@ export default function RefreshTokenLoader() {
       } transition-colors`}
     >
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Spinner size="xl" variant="primary" />
         <p
           className={`text-sm font-medium ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'

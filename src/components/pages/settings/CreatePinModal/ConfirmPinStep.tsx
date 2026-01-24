@@ -1,5 +1,6 @@
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Button from '../../../ui/Button'
+import Spinner from '../../../ui/Spinner'
 import PinInput from '../../../ui/PinInput'
 
 interface ConfirmPinStepProps {
@@ -51,7 +52,7 @@ const ConfirmPinStep = ({
           variant="primary"
           onClick={onNext}
           disabled={!confirmPin.every(digit => digit !== '') || confirmPin.length !== pinLength || disabled}
-          icon={isRequestingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}
+          icon={isRequestingOtp ? <Spinner size="sm" variant="white" /> : undefined}
           fullWidth
         >
           {isRequestingOtp ? 'Requesting OTP...' : 'Next'}

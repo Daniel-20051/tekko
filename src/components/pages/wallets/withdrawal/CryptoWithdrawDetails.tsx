@@ -6,6 +6,8 @@ import { withdrawCrypto } from '../../../../api/wallet.api'
 import { walletKeys } from '../../../../hooks/useWallet'
 import { useNavigate } from '@tanstack/react-router'
 import { getCryptoIconConfig } from '../../../../utils/crypto-icons'
+import { useCoinImage } from '../../../../hooks/useCoinImage'
+import CryptoImage from '../../../ui/CryptoImage'
 import { formatNumber } from '../../../../utils/time.utils'
 import Button from '../../../ui/Button'
 import Input from '../../../ui/Input'
@@ -27,6 +29,8 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isInputFocused, setIsInputFocused] = useState(false)
+
+  const imageUrl = useCoinImage(currency)
 
   const withdrawMutation = useMutation({
     mutationFn: withdrawCrypto,
@@ -98,7 +102,6 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
   }
 
   const iconConfig = getCryptoIconConfig(currency)
-  const Icon = iconConfig.icon
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -115,8 +118,13 @@ const CryptoWithdrawDetails = ({ currency, availableBalance, onBack: _onBack }: 
             <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 ${iconConfig.iconBg} rounded-lg flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${iconConfig.iconColor}`} />
+                  <div className="w-10 h-10">
+                    <CryptoImage 
+                      symbol={currency}
+                      imageUrl={imageUrl}
+                      size="md"
+                      className="rounded-lg"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">{currency}</p>

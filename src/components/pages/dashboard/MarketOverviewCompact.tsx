@@ -1,11 +1,12 @@
 import { motion, useAnimationControls } from 'framer-motion'
-import { TrendingUp, ArrowUpRight, Loader2 } from 'lucide-react'
+import { TrendingUp, ArrowUpRight } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
 import { usePrices, useMarketOverview, useMarketWebSocket } from '../../../hooks/useMarket'
 import { useMarketData } from '../../../hooks/useMarketData'
 import type { RealtimePriceData } from '../../../types/market'
-import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import { formatPrice } from '../../../utils/market-utils'
+import CryptoImage from '../../ui/CryptoImage'
+import Spinner from '../../ui/Spinner'
 
 const MarketOverviewCompact = () => {
   const controls = useAnimationControls()
@@ -91,7 +92,7 @@ const MarketOverviewCompact = () => {
       <div className="space-y-2">
         {isLoadingPrices || isLoadingOverview ? (
           <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <Spinner size="lg" variant="primary" />
           </div>
         ) : topThreeCoins.length === 0 ? (
           <div className="text-center p-8 text-gray-500 dark:text-gray-400 text-sm">
@@ -99,8 +100,7 @@ const MarketOverviewCompact = () => {
           </div>
         ) : (
           topThreeCoins.map((crypto, index) => {
-            const iconConfig = getCryptoIconConfig(crypto.coin)
-            const Icon = iconConfig.icon
+            const imageUrl = coinMetadata[crypto.coin]?.image
             const isPositive = crypto.priceChangePercent >= 0
             
             return (
@@ -114,11 +114,15 @@ const MarketOverviewCompact = () => {
               >
                 <div className="flex items-center gap-3 flex-1">
                   <motion.div 
-                    className={`p-2 rounded-md ${iconConfig.iconBg}`}
+                    className="p-2 rounded-md"
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <Icon className={`w-4 h-4 ${iconConfig.iconColor}`} />
+                    <CryptoImage 
+                      symbol={crypto.coin}
+                      imageUrl={imageUrl}
+                      size="md"
+                    />
                   </motion.div>
                   
                   <div className="flex-1">

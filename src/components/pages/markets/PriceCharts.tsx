@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react'
+import Spinner from '../../ui/Spinner'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
 interface LiveChartData {
@@ -100,7 +100,7 @@ const PriceCharts = ({
         </div>
         {isLoadingHistory ? (
           <div className="flex items-center justify-center h-32">
-            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <Spinner size="sm" variant="primary" />
           </div>
         ) : historicalChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>

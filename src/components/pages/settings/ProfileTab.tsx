@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { Edit2, Loader2, Shield, User, Clock, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Edit2, Shield, User, Clock, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import Input from '../../ui/Input'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Alert from '../../ui/Alert'
 import { useProfile, useUpdateProfile } from '../../../hooks/useSettings'
 
@@ -57,7 +58,7 @@ const ProfileTab = () => {
       >
         <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6">
           <div className="flex items-center justify-center py-8 md:py-12">
-            <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin text-primary" />
+            <Spinner size="lg" variant="primary" />
           </div>
         </div>
       </motion.div>

@@ -4,6 +4,7 @@ import { getCryptoIconConfig } from '../../../utils/crypto-icons'
 import { useMemo, useState, useEffect } from 'react'
 import { useCreateWallet, useSupportedCurrencies } from '../../../hooks/useWallet'
 import Alert from '../../ui/Alert'
+import Spinner from '../../ui/Spinner'
 import Button from '../../ui/Button'
 
 interface CreateWalletPromptProps {
@@ -148,7 +149,7 @@ const CreateWalletPrompt = ({ currency, currencyName }: CreateWalletPromptProps)
           disabled={isPending || isSuccess || !selectedCurrency}
           icon={
             isPending ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <Spinner size="sm" variant="white" />
           ) : isSuccess ? (
               <CheckCircle className="w-4 h-4" />
           ) : (

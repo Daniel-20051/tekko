@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Button from '../../../ui/Button'
+import Spinner from '../../../ui/Spinner'
 import CodeInput from '../../../ui/CodeInput'
 
 interface OtpStepProps {
@@ -88,7 +89,7 @@ const OtpStep = ({
           >
             {isResendingOtp ? (
               <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" variant="primary" />
                 Resending...
               </span>
             ) : (
@@ -125,7 +126,7 @@ const OtpStep = ({
       </div>
       {isSubmitting && (
         <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Spinner size="sm" variant="primary" />
           <span>Creating PIN...</span>
         </div>
       )}

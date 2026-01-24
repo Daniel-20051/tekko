@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Monitor, Smartphone, Trash2, Loader2, AlertCircle } from 'lucide-react'
+import { Monitor, Smartphone, Trash2, AlertCircle } from 'lucide-react'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Alert from '../../ui/Alert'
 import { useSessions, useTerminateSession } from '../../../hooks/useSettings'
 import { useLogoutAll } from '../../../hooks/useAuth'
@@ -217,7 +218,7 @@ const SessionsTab = () => {
         transition={{ delay: 0.2 }}
         className="flex items-center justify-center min-h-[200px] bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-primary/50 p-4 md:p-6"
       >
-        <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin text-primary" />
+        <Spinner size="lg" variant="primary" />
         <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 ml-2">Loading sessions...</p>
       </motion.div>
     )
@@ -332,7 +333,7 @@ const SessionsTab = () => {
                             title="Terminate session"
                           >
                             {terminatingSessionId === session.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Spinner size="sm" variant="primary" />
                             ) : (
                               <Trash2 className="w-4 h-4" />
                             )}
@@ -383,7 +384,7 @@ const SessionsTab = () => {
                           title="Terminate session"
                         >
                           {terminatingSessionId === session.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Spinner size="sm" variant="primary" />
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
@@ -425,7 +426,7 @@ const SessionsTab = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    icon={isLoggingOutAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    icon={isLoggingOutAll ? <Spinner size="sm" variant="primary" /> : <Trash2 className="w-4 h-4" />}
                     className="border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
                     fullWidth
                     onClick={() => {

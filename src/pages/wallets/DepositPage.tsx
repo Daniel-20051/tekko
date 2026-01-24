@@ -5,6 +5,7 @@ import { useWalletBalances } from '../../hooks/useWallet'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDepositAddress, getDepositAccount } from '../../api/wallet.api'
 import { walletKeys } from '../../hooks/useWallet'
+import Spinner from '../../components/ui/Spinner'
 import WalletList from '../../components/pages/deposits/WalletList'
 import CurrencyDropdown from '../../components/pages/deposits/CurrencyDropdown'
 import DepositBalanceHeader from '../../components/pages/deposits/DepositBalanceHeader'
@@ -189,7 +190,7 @@ const DepositPage = () => {
 
                   {depositMethod === 'fiat' && depositAccountMutation.isPending && (
                     <div className="flex flex-col items-center justify-center py-8">
-                      <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-3" />
+                      <Spinner size="lg" variant="primary" className="mb-3" />
                       <p className="text-xs text-gray-600 dark:text-gray-400">Loading deposit account...</p>
                     </div>
                   )}

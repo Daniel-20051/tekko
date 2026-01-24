@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { Info } from 'lucide-react'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { useCoinImages } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import type { Wallet } from '../../../types/wallet'
 
 interface WalletListProps {
@@ -10,6 +12,8 @@ interface WalletListProps {
 }
 
 const WalletList = ({ wallets, selectedCurrency, onSelectCurrency }: WalletListProps) => {
+  const coinImages = useCoinImages(wallets.map(w => w.currency))
+
   return (
     <div className="bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-primary/50 overflow-hidden flex flex-col max-h-[600px]">
       <div className="p-3 border-b border-gray-200 dark:border-gray-800">
@@ -28,7 +32,7 @@ const WalletList = ({ wallets, selectedCurrency, onSelectCurrency }: WalletListP
           <div className="p-2">
             {wallets.map((wallet) => {
               const iconConfig = getCryptoIconConfig(wallet.currency)
-              const Icon = iconConfig.icon
+              const imageUrl = coinImages[wallet.currency.toUpperCase()]
               const isSelected = selectedCurrency === wallet.currency.toUpperCase()
               
               return (
@@ -39,13 +43,17 @@ const WalletList = ({ wallets, selectedCurrency, onSelectCurrency }: WalletListP
                   onClick={() => onSelectCurrency(wallet.currency)}
                   className={`w-full p-3 rounded-lg transition-all text-left ${
                     isSelected
-                      ? 'bg-primary/10 dark:bg-primary/20 border-2 border-primary'
-                      : 'bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 border-2 border-transparent'
+                      ? 'bg-primary/10 dark:bg-dark-bg text-primary dark:text-gray-300 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-primary/30 border-2 border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 ${iconConfig.iconBg} rounded-lg flex items-center justify-center shrink-0`}>
-                      <Icon className={`w-4 h-4 ${iconConfig.iconColor}`} />
+                    <div className="w-8 h-8 shrink-0">
+                      <CryptoImage 
+                        symbol={wallet.currency}
+                        imageUrl={imageUrl}
+                        size="md"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-gray-900 dark:text-white">

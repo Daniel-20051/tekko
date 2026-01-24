@@ -10,7 +10,8 @@ import CreatePinModal from '../components/pages/settings/CreatePinModal'
 import KycVerificationModal from '../components/pages/kyc/KycVerificationModal'
 import Alert from '../components/ui/Alert'
 import { useState, useRef, useEffect, memo, Suspense } from 'react'
-import { Bell, User, Settings, LogOut, Loader2 } from 'lucide-react'
+import { Bell, User, Settings, LogOut } from 'lucide-react'
+import Spinner from '../components/ui/Spinner'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import type { RefreshTokenResponse } from '../types/auth'
@@ -189,7 +190,7 @@ const Header = memo(({
                   >
                     <div className="text-right hidden sm:block">
                       {isLoadingUser ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                        <Spinner size="sm" variant="gray" />
                       ) : (
                         <>
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{displayName}</p>
@@ -235,7 +236,7 @@ const Header = memo(({
                         >
                           {isLoggingOut ? (
                             <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Spinner size="sm" variant="primary" />
                               <span>Logging out...</span>
                             </>
                           ) : (
@@ -495,7 +496,7 @@ function DashboardLayout() {
                 className="flex items-center justify-center min-h-[60vh]"
               >
                 <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <Spinner size="xl" variant="primary" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">Loading...</p>
                 </div>
               </motion.div>

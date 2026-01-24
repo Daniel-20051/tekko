@@ -3,6 +3,7 @@ import { Filter } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useWalletTransactions } from '../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../utils/crypto-icons'
+import Spinner from '../../components/ui/Spinner'
 import type { TransactionType } from '../../types/transaction'
 import type { TransactionQueryParams } from '../../types/transaction'
 import TransactionFilterDropdown, { type TransactionFilters } from '../../components/pages/wallets/TransactionFilterModal'
@@ -149,7 +150,7 @@ const TransactionsPage = () => {
         <div className="flex-1 bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 flex-1">
-              <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-2" />
+              <Spinner size="lg" variant="primary" className="mb-2" />
               <p className="text-xs text-gray-600 dark:text-gray-400">Loading transactions...</p>
             </div>
           ) : transactionsWithBalance.length === 0 ? (

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Copy, Check, Loader2, Download, AlertCircle } from 'lucide-react'
+import { Copy, Check, Download, AlertCircle } from 'lucide-react'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import CodeInput from '../../ui/CodeInput'
 import { useSetupTwoFactor, useEnableTwoFactor } from '../../../hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
@@ -151,7 +152,7 @@ const TwoFactorSetupModal = ({ isOpen, onClose }: TwoFactorSetupModalProps) => {
           <>
             {isSettingUp ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Spinner size="xl" variant="primary" />
               </div>
             ) : error ? (
               <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50">
@@ -271,7 +272,7 @@ const TwoFactorSetupModal = ({ isOpen, onClose }: TwoFactorSetupModalProps) => {
 
             {isEnabling && (
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" variant="primary" />
                 <span>Enabling 2FA...</span>
               </div>
             )}

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Loader2, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import Spinner from '../../components/ui/Spinner'
 import { useGoogleOAuthCallback } from '../../hooks/useAuth'
 import DeviceVerificationForm from '../../components/pages/authentication/login/DeviceVerificationForm'
 import { useVerifyDevice } from '../../hooks/useAuth'
@@ -220,7 +221,7 @@ function GoogleCallbackPage() {
   return (
     <div className="w-full max-w-md mx-auto p-6 backdrop-blur-xl bg-white/80 dark:bg-dark-surface/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Spinner size="xl" variant="primary" />
         <p className="text-sm text-gray-600 dark:text-gray-400">Completing sign in...</p>
       </div>
     </div>

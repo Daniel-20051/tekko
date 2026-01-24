@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import { useNavigate } from '@tanstack/react-router'
 import { useWalletBalances, useSingleCurrencyBalance } from '../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../utils/crypto-icons'
+import { useCoinImage } from '../../hooks/useCoinImage'
+import CryptoImage from '../../components/ui/CryptoImage'
+import Spinner from '../../components/ui/Spinner'
 import AssetsSidebar from '../../components/pages/wallets/AssetsSidebar'
 import WalletContent from '../../components/pages/wallets/WalletContent'
 import TransactionDetails from '../../components/pages/wallets/TransactionDetails'
@@ -26,6 +29,9 @@ const WalletsPage = () => {
   // Fetch balance for selected wallet (for loading state)
   const { isLoading: isLoadingBalance } = useSingleCurrencyBalance(selectedAsset.toUpperCase())
 
+  // Get coin image for selected asset
+  const selectedImageUrl = useCoinImage(selectedAsset)
+
   // Get selected wallet info for mobile card
   const selectedWalletInfo = useMemo(() => {
     if (!selectedAsset || !walletBalances?.wallets) return null
@@ -43,9 +49,10 @@ const WalletsPage = () => {
       name: iconConfig.name,
       icon: iconConfig.icon,
       iconColor: iconConfig.iconColor,
-      iconBg: iconConfig.iconBg
+      iconBg: iconConfig.iconBg,
+      imageUrl: selectedImageUrl
     }
-  }, [selectedAsset, walletBalances])
+  }, [selectedAsset, walletBalances, selectedImageUrl])
 
   // Check if user has no wallets at all
   const allWallets = walletBalances?.wallets || []
@@ -76,7 +83,7 @@ const WalletsPage = () => {
       <div className="flex items-center justify-center h-[calc(100vh-100px)]">
         <div className="bg-white dark:bg-dark-surface rounded-xl p-8 border border-gray-200 dark:border-gray-800">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+            <Spinner size="xl" variant="primary" />
             <p className="text-sm text-gray-600 dark:text-gray-400">Loading wallets...</p>
           </div>
         </div>
@@ -153,7 +160,7 @@ const WalletsPage = () => {
             <div className="flex-1 flex items-center justify-center">
               <div className="bg-white dark:bg-dark-surface rounded-xl p-8 border border-gray-200 dark:border-gray-800">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <Spinner size="xl" variant="primary" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">Loading wallet...</p>
                 </div>
               </div>
@@ -164,8 +171,13 @@ const WalletsPage = () => {
               {selectedWalletInfo && (
                 <div className="lg:hidden bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-lg ${selectedWalletInfo.iconBg} flex items-center justify-center shrink-0`}>
-                      <selectedWalletInfo.icon className={`w-6 h-6 ${selectedWalletInfo.iconColor}`} />
+                    <div className="w-12 h-12 shrink-0">
+                      <CryptoImage 
+                        symbol={selectedWalletInfo.currency}
+                        imageUrl={selectedWalletInfo.imageUrl}
+                        size="md"
+                        className="rounded-lg"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

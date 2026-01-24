@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, Copy } from 'lucide-react'
+import Spinner from '../../../components/ui/Spinner'
 import Button from '../../../components/ui/Button'
 import type { DepositAddressData } from '../../../types/wallet'
 
@@ -15,7 +16,7 @@ const CryptoDepositDetails = ({ data, currency, isLoading, error, copied, onCopy
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-8">
-        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-3" />
+        <Spinner size="lg" variant="primary" className="mb-3" />
         <p className="text-xs text-gray-600 dark:text-gray-400">Loading deposit address...</p>
       </div>
     )

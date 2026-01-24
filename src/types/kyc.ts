@@ -56,3 +56,28 @@ export interface SubmitBvnErrorResponse {
 
 // Union type for BVN submission response
 export type SubmitBvnResponse = SubmitBvnVerifiedSuccessResponse | SubmitBvnPendingSuccessResponse | SubmitBvnErrorResponse
+
+// Customer Creation Request
+export interface CreateCustomerRequest {
+  firstName: string
+  lastName: string
+  middleName?: string
+  phoneNumber: string
+  dateOfBirth: string // Format: "YYYY-MM-DD"
+  country?: string // ISO country code (e.g., "NGA"), defaults to "NGA" if Nigeria
+  address: {
+    line: string
+    city: string
+    state: string
+  }
+}
+
+// Customer Creation Response
+export interface CreateCustomerResponse {
+  success: true
+  message: string
+  data: {
+    customerReference: string
+    redBillerData: any
+  }
+}

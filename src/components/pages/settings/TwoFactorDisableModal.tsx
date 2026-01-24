@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Loader2 } from 'lucide-react'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Input from '../../ui/Input'
 import CodeInput from '../../ui/CodeInput'
 import { useDisableTwoFactor } from '../../../hooks/useAuth'
@@ -178,7 +178,7 @@ const TwoFactorDisableModal = ({ isOpen, onClose }: TwoFactorDisableModalProps) 
 
             {isPending || isSubmitting ? (
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" variant="primary" />
                 <span>Disabling 2FA...</span>
               </div>
             ) : null}

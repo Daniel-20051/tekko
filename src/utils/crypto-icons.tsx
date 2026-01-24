@@ -5,9 +5,10 @@ export interface CryptoIconConfig {
   iconColor: string
   iconBg: string
   name: string
+  imageUrl?: string
 }
 
-// Map of crypto symbols to their icon configurations
+// Map of crypto symbols to their icon configurations (fallback for when images aren't available)
 export const cryptoIconMap: Record<string, CryptoIconConfig> = {
   BTC: {
     icon: Bitcoin,
@@ -17,8 +18,8 @@ export const cryptoIconMap: Record<string, CryptoIconConfig> = {
   },
   ETH: {
     icon: Waves,
-    iconColor: 'text-gray-400',
-    iconBg: 'bg-gray-500/20',
+    iconColor: 'text-blue-500',
+    iconBg: 'bg-blue-500/20',
     name: 'Ethereum'
   },
   USDT: {
@@ -78,11 +79,18 @@ export const cryptoIconMap: Record<string, CryptoIconConfig> = {
 }
 
 // Get icon config for a currency symbol, with fallback
-export const getCryptoIconConfig = (symbol: string): CryptoIconConfig => {
-  return cryptoIconMap[symbol.toUpperCase()] || {
+export const getCryptoIconConfig = (symbol: string, imageUrl?: string): CryptoIconConfig => {
+  const config = cryptoIconMap[symbol.toUpperCase()] || {
     icon: Coins,
     iconColor: 'text-gray-500',
     iconBg: 'bg-gray-500/20',
     name: symbol
   }
+  
+  // Add imageUrl if provided
+  if (imageUrl) {
+    return { ...config, imageUrl }
+  }
+  
+  return config
 }

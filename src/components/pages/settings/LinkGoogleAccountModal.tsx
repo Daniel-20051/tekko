@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Loader2, AlertCircle } from 'lucide-react'
+import { X, AlertCircle } from 'lucide-react'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Input from '../../ui/Input'
 import { useGoogleOAuthUrl, useLinkGoogleAccount } from '../../../hooks/useAuth'
 
@@ -194,7 +195,7 @@ const LinkGoogleAccountModal = ({ isOpen, onClose }: LinkGoogleAccountModalProps
                   >
                     {linkGoogleAccountMutation.isPending ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <Spinner size="sm" variant="white" className="mr-2" />
                         Linking...
                       </>
                     ) : (
@@ -244,7 +245,7 @@ const LinkGoogleAccountModal = ({ isOpen, onClose }: LinkGoogleAccountModalProps
                   >
                     {isGettingGoogleUrl ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <Spinner size="sm" variant="white" className="mr-2" />
                         Connecting...
                       </>
                     ) : (

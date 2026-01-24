@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Clock, CheckCircle, X, Copy, Loader2 } from 'lucide-react'
+import { AlertCircle, Clock, CheckCircle, X, Copy } from 'lucide-react'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import { useSingleTransaction } from '../../../hooks/useWallet'
 import { getServiceName } from '../../../utils/transaction-utils'
 
@@ -95,7 +96,7 @@ const TransactionDetails = ({ selectedTransaction, onClose }: TransactionDetails
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" />
+              <Spinner size="lg" variant="primary" className="mb-2" />
               <p className="text-xs text-gray-500 dark:text-gray-400">Loading transaction details...</p>
             </div>
           ) : error ? (

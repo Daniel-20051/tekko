@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCryptoIconConfig } from '../../../../utils/crypto-icons'
+import { useCoinImages } from '../../../../hooks/useCoinImage'
+import CryptoImage from '../../../ui/CryptoImage'
 import Button from '../../../ui/Button'
 import type { Wallet } from '../../../../types/wallet'
 
@@ -14,10 +16,11 @@ interface CurrencyDropdownProps {
 const CurrencyDropdown = ({ wallets, selectedCurrency, onSelectCurrency }: CurrencyDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const coinImages = useCoinImages([selectedCurrency, ...wallets.map(w => w.currency)])
 
   const selectedWallet = wallets.find(w => w.currency.toUpperCase() === selectedCurrency.toUpperCase())
   const iconConfig = selectedWallet ? getCryptoIconConfig(selectedWallet.currency) : null
-  const Icon = iconConfig?.icon
+  const selectedImageUrl = coinImages[selectedCurrency.toUpperCase()]
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,17 +51,22 @@ const CurrencyDropdown = ({ wallets, selectedCurrency, onSelectCurrency }: Curre
         onClick={() => setIsOpen(!isOpen)}
         className="w-full justify-between bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 h-[42px]"
       >
-        <div className="flex items-center gap-2">
-          {Icon && iconConfig && (
-            <div className={`w-6 h-6 ${iconConfig.iconBg} rounded-lg flex items-center justify-center shrink-0`}>
-              <Icon className={`w-3.5 h-3.5 ${iconConfig.iconColor}`} />
+        <div className="flex items-center gap-3">
+          {selectedWallet && (
+            <div className="w-8 h-8 shrink-0">
+              <CryptoImage 
+                symbol={selectedWallet.currency}
+                imageUrl={selectedImageUrl}
+                size="md"
+                className="rounded-lg"
+              />
             </div>
           )}
           <span className="text-sm font-semibold text-gray-900 dark:text-white">
             {selectedWallet ? `${selectedWallet.currency} - ${iconConfig?.name || selectedWallet.currency}` : 'Select Currency'}
           </span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 ml-auto transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 ml-auto transition-transform shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
 
       <AnimatePresence>
@@ -72,25 +80,32 @@ const CurrencyDropdown = ({ wallets, selectedCurrency, onSelectCurrency }: Curre
           >
             {wallets.map((wallet) => {
               const walletIconConfig = getCryptoIconConfig(wallet.currency)
-              const WalletIcon = walletIconConfig.icon
+              const walletImageUrl = coinImages[wallet.currency.toUpperCase()]
               const isSelected = selectedCurrency === wallet.currency.toUpperCase()
 
               return (
                 <button
                   key={wallet.currency}
                   onClick={() => handleSelect(wallet.currency)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors cursor-pointer"
+                  className={`w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-primary/30 transition-colors cursor-pointer ${
+                    isSelected ? 'bg-primary/10 dark:bg-dark-bg text-primary dark:text-gray-300' : ''
+                  }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-6 h-6 ${walletIconConfig.iconBg} rounded-lg flex items-center justify-center shrink-0`}>
-                      <WalletIcon className={`w-3.5 h-3.5 ${walletIconConfig.iconColor}`} />
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 shrink-0">
+                      <CryptoImage 
+                        symbol={wallet.currency}
+                        imageUrl={walletImageUrl}
+                        size="md"
+                        className="rounded-lg"
+                      />
                     </div>
-                    <span className={`text-sm font-medium ${isSelected ? 'text-primary dark:text-primary' : 'text-gray-900 dark:text-white'}`}>
+                    <span className={`text-sm font-medium ${isSelected ? 'text-primary dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
                       {wallet.currency} - {walletIconConfig.name}
                     </span>
                   </div>
                   {isSelected && (
-                    <Check className="w-4 h-4 text-primary" />
+                    <Check className="w-5 h-5 text-primary shrink-0" />
                   )}
                 </button>
               )

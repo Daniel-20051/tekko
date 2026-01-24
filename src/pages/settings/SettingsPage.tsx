@@ -10,12 +10,16 @@ import SecurityTab from '../../components/pages/settings/SecurityTab'
 import SessionsTab from '../../components/pages/settings/SessionsTab'
 import KycTiersTab from '../../components/pages/settings/KycTiersTab'
 import SubmitBvnModal from '../../components/pages/settings/SubmitBvnModal'
+import CreateCustomerDialog from '../../components/pages/kyc/CreateCustomerDialog'
 import Button from '../../components/ui/Button'
+import { useQueryClient } from '@tanstack/react-query'
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'sessions' | 'tiers'>('profile')
   const [showBvnModal, setShowBvnModal] = useState(false)
+  const [showCustomerDialog, setShowCustomerDialog] = useState(false)
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { data: currentUser } = useCurrentUser()
   
   // Prefetch data in the background when settings page loads
@@ -65,7 +69,7 @@ const SettingsPage = () => {
                 variant="primary"
                 size="sm"
                 className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 whitespace-nowrap w-full md:w-auto mt-1 md:mt-0"
-                onClick={() => navigate({ to: '/settings/kyc' })}
+                onClick={() => setShowCustomerDialog(true)}
               >
                 <div className="flex items-center gap-1.5 md:gap-2">
                   <span>Verify Now</span>
@@ -172,6 +176,16 @@ const SettingsPage = () => {
       <SubmitBvnModal
         isOpen={showBvnModal}
         onClose={() => setShowBvnModal(false)}
+      />
+
+      {/* Create Customer Dialog */}
+      <CreateCustomerDialog
+        isOpen={showCustomerDialog}
+        onClose={() => setShowCustomerDialog(false)}
+        onSuccess={() => {
+          // Invalidate user query to refresh KYC status
+          queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        }}
       />
     </div>
   )

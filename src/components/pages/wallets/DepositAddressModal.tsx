@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getDepositAddress } from '../../../api/wallet.api'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import Spinner from '../../ui/Spinner'
 import Button from '../../ui/Button'
 
 interface DepositAddressModalProps {
@@ -156,7 +157,7 @@ const DepositAddressModal = ({ isOpen, onClose, currency }: DepositAddressModalP
             <div className="p-6 overflow-y-auto flex-1">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+                  <Spinner size="xl" variant="primary" className="mb-4" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">Loading deposit address...</p>
                 </div>
               ) : error ? (

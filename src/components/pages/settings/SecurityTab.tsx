@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Lock, LogOut, Loader2, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock, Key } from 'lucide-react'
+import { Lock, LogOut, Mail, MailCheck, Phone, PhoneCall, Shield, ShieldCheck, Clock, Key } from 'lucide-react'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Toggle from '../../ui/Toggle'
 import ChangePasswordModal from './ChangePasswordModal'
 import CreatePinModal from './CreatePinModal'
@@ -220,7 +221,7 @@ const SecurityTab = () => {
             </h2>
             {isLoading ? (
               <div className="flex items-center justify-center py-6 md:py-8">
-                <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-primary" />
+                <Spinner size="md" variant="primary" />
               </div>
             ) : error ? (
               <div className="text-center py-3 md:py-4">

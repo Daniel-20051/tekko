@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useCreateWallet, useSupportedCurrencies, useWalletBalances } from '../../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { useCoinImages } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
+import Spinner from '../../ui/Spinner'
 import Alert from '../../ui/Alert'
 import Button from '../../ui/Button'
 
@@ -42,6 +45,9 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
     // For now, we'll show all currencies. You can add fiat/digital filtering later
     return availableCurrencies
   }, [availableCurrencies])
+
+  // Get coin images for all available currencies
+  const coinImages = useCoinImages(filteredCurrencies.map(c => c.code))
 
   // Close on Escape key
   useEffect(() => {
@@ -190,7 +196,7 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
             <div className="p-4 sm:p-6 overflow-y-auto flex-1">
               {isLoadingCurrencies ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <Spinner size="lg" variant="primary" />
                 </div>
               ) : filteredCurrencies.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -204,7 +210,7 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                   {filteredCurrencies.map((currency) => {
                     const iconConfig = getCryptoIconConfig(currency.code)
-                    const Icon = iconConfig.icon
+                    const imageUrl = coinImages[currency.code.toUpperCase()]
                     const isCreating = creatingCurrency === currency.code
                     const isSuccessState = isSuccess && successCurrency === currency.code
                     const isDisabled = (isPending && isCreating) || isSuccessState
@@ -229,10 +235,13 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
                         `}
                       >
                         {/* Icon */}
-                        <div
-                          className={`w-10 h-10 sm:w-12 sm:h-12 ${iconConfig.iconBg} rounded-lg flex items-center justify-center`}
-                        >
-                          <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconConfig.iconColor}`} />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12">
+                          <CryptoImage 
+                            symbol={currency.code}
+                            imageUrl={imageUrl}
+                            size={window.innerWidth >= 640 ? 'lg' : 'md'}
+                            className="rounded-lg"
+                          />
                         </div>
 
                         {/* Currency Code */}
@@ -245,7 +254,7 @@ const CreateWalletModal = ({ isOpen, onClose }: CreateWalletModalProps) => {
                           {isSuccessState ? (
                             <CheckCircle className="w-4 h-4 text-green-500" />
                           ) : isCreating ? (
-                            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                            <Spinner size="sm" variant="primary" />
                           ) : (
                             <Plus className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                           )}

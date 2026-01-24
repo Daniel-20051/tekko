@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
 import { useCoinMarketData, useHistoricalData, useMarketWebSocket } from '../../hooks/useMarket'
 import type { RealtimePriceData } from '../../types/market'
+import Spinner from '../../components/ui/Spinner'
 import CoinHeader from '../../components/pages/markets/CoinHeader'
 import PriceCharts from '../../components/pages/markets/PriceCharts'
 import CoinStatsGrid from '../../components/pages/markets/CoinStatsGrid'
@@ -95,7 +95,7 @@ const CoinDetailPage = ({ coin }: CoinDetailPageProps) => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Spinner size="xl" variant="primary" />
           <p className="text-sm text-gray-600 dark:text-gray-400">Loading coin data...</p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useVerifyEmail } from '../../../../hooks/useAuth'
+import Spinner from '../../../ui/Spinner'
 
 const VerifyEmailForm = () => {
   const navigate = useNavigate()
@@ -75,7 +76,7 @@ const VerifyEmailForm = () => {
       {/* Loading State */}
       {verifyEmailMutation.isPending && (
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <Spinner size="xl" variant="primary" className="mb-4" />
           <p className="text-sm text-gray-600 dark:text-gray-400">Verifying...</p>
         </div>
       )}

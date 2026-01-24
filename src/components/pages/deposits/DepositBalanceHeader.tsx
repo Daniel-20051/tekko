@@ -1,4 +1,6 @@
 import { RefreshCw } from 'lucide-react'
+import { useCoinImage } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 
 interface DepositBalanceHeaderProps {
   balance: string
@@ -8,6 +10,8 @@ interface DepositBalanceHeaderProps {
 }
 
 const DepositBalanceHeader = ({ balance, currency, onRefresh, isRefreshing }: DepositBalanceHeaderProps) => {
+  const imageUrl = useCoinImage(currency)
+
   const formatBalance = (balance: string) => {
     const num = parseFloat(balance || '0')
     if (isNaN(num)) return '0.00'
@@ -18,17 +22,24 @@ const DepositBalanceHeader = ({ balance, currency, onRefresh, isRefreshing }: De
     <div className="p-3 border-b border-gray-200 dark:border-gray-800">
       <div>
         <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">Balance</p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 shrink-0">
+            <CryptoImage 
+              symbol={currency}
+              imageUrl={imageUrl}
+              size="md"
+            />
+          </div>
           <p className="text-base font-bold text-gray-900 dark:text-white">
             {formatBalance(balance)} {currency}
           </p>
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors ml-auto shrink-0"
           >
             <RefreshCw 
-              className={`w-3.5 h-3.5 text-gray-500 dark:text-gray-400 ${
+              className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${
                 isRefreshing ? 'animate-spin' : ''
               }`} 
             />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2 } from 'lucide-react'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import CodeInput from '../../ui/CodeInput'
 import { useEnableTwoFactor } from '../../../hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
@@ -105,7 +105,7 @@ const TwoFactorEnableModal = ({ isOpen, onClose }: TwoFactorEnableModalProps) =>
 
         {isEnabling || isSubmitting ? (
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Spinner size="sm" variant="primary" />
             <span>Enabling 2FA...</span>
           </div>
         ) : null}

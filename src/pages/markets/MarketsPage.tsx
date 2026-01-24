@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
-import { Loader2, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { usePrices, useMarketOverview, useMarketWebSocket } from '../../hooks/useMarket'
 import { useMarketData } from '../../hooks/useMarketData'
 import type { RealtimePriceData } from '../../types/market'
+import Spinner from '../../components/ui/Spinner'
 import MarketStats from '../../components/pages/markets/MarketStats'
 import MarketTableHeader from '../../components/pages/markets/MarketTableHeader'
 import MarketTableRow from '../../components/pages/markets/MarketTableRow'
@@ -140,7 +141,7 @@ const MarketsPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Spinner size="xl" variant="primary" />
           <p className="text-sm text-gray-600 dark:text-gray-400">Loading market data...</p>
         </div>
       </div>

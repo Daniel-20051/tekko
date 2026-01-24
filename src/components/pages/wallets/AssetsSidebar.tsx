@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react'
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useWalletBalances } from '../../../hooks/useWallet'
 import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import Spinner from '../../ui/Spinner'
 import CreateWalletModal from './CreateWalletModal'
 import WalletDropdown from './WalletDropdown'
 import AssetSearchBar from './AssetSearchBar'
@@ -180,7 +181,7 @@ const AssetsSidebar = ({ selectedAsset, onSelectAsset }: AssetsSidebarProps) => 
       <div className="flex-1 overflow-y-auto wallet-assets-scrollbar">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-2" />
+            <Spinner size="lg" variant="primary" className="mb-2" />
             <p className="text-xs text-gray-600 dark:text-gray-400">Loading wallets...</p>
           </div>
         ) : hasNoWallets || filteredAssets.length === 0 ? (

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { CheckCircle, AlertCircle } from 'lucide-react'
 import Input from '../../ui/Input'
 import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
 import Modal from '../../ui/Modal'
 import { useSubmitBvn } from '../../../hooks/useKyc'
 
@@ -288,7 +289,7 @@ const SubmitBvnModal = ({ isOpen, onClose }: SubmitBvnModalProps) => {
                 className="flex-1"
               >
                 {submitBvnMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Spinner size="sm" variant="white" />
                 ) : (
                   'Submit BVN'
                 )}
