@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getDepositAddress } from '../../../api/wallet.api'
-import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { useCoinImage } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import Spinner from '../../ui/Spinner'
 import Button from '../../ui/Button'
 
@@ -52,8 +53,7 @@ const DepositAddressModal = ({ isOpen, onClose, currency }: DepositAddressModalP
     return errorMessage || 'Service temporarily unavailable. Please try again later.'
   }
 
-  const iconConfig = getCryptoIconConfig(currency)
-  const Icon = iconConfig.icon
+  const imageUrl = useCoinImage(currency)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -130,9 +130,12 @@ const DepositAddressModal = ({ isOpen, onClose, currency }: DepositAddressModalP
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-primary/50">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 ${iconConfig.iconBg} rounded-lg flex items-center justify-center`}>
-                  <Icon className={`w-5 h-5 ${iconConfig.iconColor}`} />
-                </div>
+                <CryptoImage 
+                  symbol={currency.toUpperCase()}
+                  imageUrl={imageUrl}
+                  size="lg"
+                  className="rounded-lg"
+                />
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                     Deposit {currency.toUpperCase()}

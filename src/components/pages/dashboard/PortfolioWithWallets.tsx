@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react'
 import { Bitcoin, Waves, DollarSign, Landmark } from 'lucide-react'
 import { useBalanceStore } from '../../../store/balance.store'
 import { useCurrencyStore } from '../../../store/currency.store'
+import { useCoinImages } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import type { Wallet, PortfolioTotal } from '../../../types/wallet'
 
 interface PortfolioWithWalletsProps {
@@ -50,6 +52,9 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
   const [showWallets, setShowWallets] = useState(false)
   const { isBalanceHidden, toggleBalanceVisibility } = useBalanceStore()
   const { selectedCurrency } = useCurrencyStore()
+  
+  // Get coin images for all wallets
+  const coinImages = useCoinImages(wallets.map(w => w.currency))
   
   // Use 'portfolio' as the key for portfolio total balance visibility
   const portfolioKey = 'portfolio'
@@ -244,7 +249,7 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
                 <div className="grid grid-cols-2 gap-2 mt-3">
                   {displayWallets.length > 0 ? (
                     displayWallets.map((wallet, index) => {
-                      const Icon = wallet.icon
+                      const imageUrl = coinImages[wallet.symbol.toUpperCase()]
                       
                       return (
                         <motion.div
@@ -258,11 +263,15 @@ const PortfolioWithWallets = ({ wallets, portfolioTotal, isLoading }: PortfolioW
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <motion.div 
-                                className={`p-1.5 rounded-md ${wallet.bgColor}`}
                                 whileHover={{ rotate: 180 }}
                                 transition={{ duration: 0.3 }}
                               >
-                                <Icon className={`w-4 h-4 ${wallet.color}`} />
+                                <CryptoImage 
+                                  symbol={wallet.symbol}
+                                  imageUrl={imageUrl}
+                                  size="sm"
+                                  className="rounded-md"
+                                />
                               </motion.div>
                               <div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white text-xs">

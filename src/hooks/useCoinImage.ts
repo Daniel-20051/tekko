@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMarketOverview } from './useMarket'
+import { useThemeStore } from '../store/theme.store'
 
-// Map to cache coin images
+// Map to cache coin images (light mode)
 const coinImageCache: Record<string, string> = {
+  NGN: '/assets/naira-icon.png',
   BTC: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
   ETH: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
   SOL: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
@@ -13,13 +15,20 @@ const coinImageCache: Record<string, string> = {
   MATIC: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png',
 }
 
+// Map to cache coin images (dark mode)
+const coinImageCacheDark: Record<string, string> = {
+  NGN: '/assets/naira-dark.png',
+}
+
 /**
  * Hook to get crypto coin image URL
  * Fetches from market overview API and caches results
+ * Supports theme-aware images (e.g., NGN has different icons for light/dark mode)
  */
 export const useCoinImage = (symbol: string | null | undefined) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const { data: marketOverview } = useMarketOverview()
+  const { theme } = useThemeStore()
 
   useEffect(() => {
     if (!symbol) {
@@ -28,6 +37,15 @@ export const useCoinImage = (symbol: string | null | undefined) => {
     }
 
     const upperSymbol = symbol.toUpperCase()
+
+    // For NGN, use theme-aware icon
+    if (upperSymbol === 'NGN') {
+      const ngnIcon = theme === 'dark' 
+        ? coinImageCacheDark[upperSymbol] 
+        : coinImageCache[upperSymbol]
+      setImageUrl(ngnIcon || null)
+      return
+    }
 
     // Check cache first
     if (coinImageCache[upperSymbol]) {
@@ -49,17 +67,19 @@ export const useCoinImage = (symbol: string | null | undefined) => {
 
     // No image found
     setImageUrl(null)
-  }, [symbol, marketOverview])
+  }, [symbol, marketOverview, theme])
 
   return imageUrl
 }
 
 /**
  * Hook to get images for multiple coins at once
+ * Supports theme-aware images (e.g., NGN has different icons for light/dark mode)
  */
 export const useCoinImages = (symbols: (string | null | undefined)[]) => {
   const [images, setImages] = useState<Record<string, string | null>>({})
   const { data: marketOverview } = useMarketOverview()
+  const { theme } = useThemeStore()
   const symbolsRef = useRef(symbols)
 
   // Update ref when symbols change
@@ -85,6 +105,15 @@ export const useCoinImages = (symbols: (string | null | undefined)[]) => {
 
       const upperSymbol = symbol.toUpperCase()
 
+      // For NGN, use theme-aware icon
+      if (upperSymbol === 'NGN') {
+        const ngnIcon = theme === 'dark' 
+          ? coinImageCacheDark[upperSymbol] 
+          : coinImageCache[upperSymbol]
+        newImages[upperSymbol] = ngnIcon || null
+        return
+      }
+
       // Check cache first
       if (coinImageCache[upperSymbol]) {
         newImages[upperSymbol] = coinImageCache[upperSymbol]
@@ -107,7 +136,7 @@ export const useCoinImages = (symbols: (string | null | undefined)[]) => {
     })
 
     setImages(newImages)
-  }, [symbolsKey, marketOverview])
+  }, [symbolsKey, marketOverview, theme])
 
   return images
 }

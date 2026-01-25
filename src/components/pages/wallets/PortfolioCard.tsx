@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { useSupportedCurrencies } from '../../../hooks/useWallet'
-import { getCryptoIconConfig } from '../../../utils/crypto-icons'
+import { useCoinImage } from '../../../hooks/useCoinImage'
+import CryptoImage from '../../ui/CryptoImage'
 import type { SingleCurrencyBalance } from '../../../types/wallet'
 import { useBalanceStore } from '../../../store/balance.store'
 import { useCurrencyStore } from '../../../store/currency.store'
@@ -26,12 +27,7 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
   // Get currency symbol for display
   const currencySymbol = displayCurrency === 'NGN' ? '₦' : '$'
 
-  // Get icon config
-  const iconConfig = useMemo(() => {
-    return getCryptoIconConfig(selectedAsset.toUpperCase())
-  }, [selectedAsset])
-
-  const Icon = iconConfig.icon
+  const imageUrl = useCoinImage(selectedAsset.toUpperCase())
   const wallet = balanceData?.wallet
   const currencyCode = selectedCurrency?.code || selectedAsset.toUpperCase()
   const currencyName = selectedCurrency?.name || selectedAsset
@@ -84,9 +80,12 @@ const PortfolioCard = ({ selectedAsset, balanceData }: PortfolioCardProps) => {
       {/* Header with Icon and Total Balance */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 ${iconConfig.iconBg} rounded-full flex items-center justify-center shrink-0`}>
-            <Icon className={`w-5 h-5 ${iconConfig.iconColor}`} />
-          </div>
+          <CryptoImage 
+            symbol={selectedAsset.toUpperCase()}
+            imageUrl={imageUrl}
+            size="lg"
+            className="rounded-lg"
+          />
           <div>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
               {isHidden ? '••••' : `${formatBalance(totalBalance)}`} {currencyCode}
