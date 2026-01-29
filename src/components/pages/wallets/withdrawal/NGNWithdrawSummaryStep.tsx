@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import Button from '../../../ui/Button'
 import Modal from '../../../ui/Modal'
 import PinInput from '../../../ui/PinInput'
+import Spinner from '../../../ui/Spinner'
 import type { NGNWithdrawalFeesData, NGNWithdrawalData } from '../../../../types/wallet'
 
 interface NGNWithdrawSummaryStepProps {
@@ -218,10 +219,8 @@ const NGNWithdrawSummaryStep = ({
           )}
 
           {withdrawMutation.isPending && (
-            <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Processing withdrawal...
-              </p>
+            <div className="flex items-center justify-center gap-2">
+              <Spinner size="md" variant="primary" />
             </div>
           )}
         </div>

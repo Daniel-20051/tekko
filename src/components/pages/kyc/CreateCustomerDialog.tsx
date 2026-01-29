@@ -41,19 +41,63 @@ const detectCountryFromIP = async (): Promise<string> => {
   }
 }
 
-const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDialogProps) => {
-  const [step, setStep] = useState(1)
-  const [country, setCountry] = useState<string>('NGA')
-  const [isDetectingCountry, setIsDetectingCountry] = useState(true)
-  const [countryCode, setCountryCode] = useState('+234')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
-  const [bvn, setBvn] = useState('')
-  const [customerCreated, setCustomerCreated] = useState(false)
-  const countryDropdownRef = useRef<HTMLDivElement>(null)
-  
-  // Form data
-  const [formData, setFormData] = useState<CreateCustomerRequest>({
+// LocalStorage key for persisting KYC form data
+const KYC_FORM_STORAGE_KEY = 'kyc-form-draft'
+
+// Helper functions to save/load form state
+const saveFormState = (state: {
+  step: number
+  country: string
+  countryCode: string
+  phoneNumber: string
+  bvn: string
+  customerCreated: boolean
+  formData: CreateCustomerRequest
+}) => {
+  try {
+    localStorage.setItem(KYC_FORM_STORAGE_KEY, JSON.stringify(state))
+  } catch (error) {
+    console.error('Failed to save KYC form state:', error)
+  }
+}
+
+const loadFormState = (): {
+  step: number
+  country: string
+  countryCode: string
+  phoneNumber: string
+  bvn: string
+  customerCreated: boolean
+  formData: CreateCustomerRequest
+} | null => {
+  try {
+    const saved = localStorage.getItem(KYC_FORM_STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (error) {
+    console.error('Failed to load KYC form state:', error)
+  }
+  return null
+}
+
+const clearFormState = () => {
+  try {
+    localStorage.removeItem(KYC_FORM_STORAGE_KEY)
+  } catch (error) {
+    console.error('Failed to clear KYC form state:', error)
+  }
+}
+
+// Default form state
+const getDefaultFormState = () => ({
+  step: 1,
+  country: 'NGA',
+  countryCode: '+234',
+  phoneNumber: '',
+  bvn: '',
+  customerCreated: false,
+  formData: {
     firstName: '',
     lastName: '',
     middleName: '',
@@ -65,11 +109,31 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
       city: '',
       state: ''
     }
-  })
+  } as CreateCustomerRequest
+})
 
-  // Detect country on mount
+const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDialogProps) => {
+  // Load saved state or use defaults
+  const savedState = loadFormState()
+  const defaultState = getDefaultFormState()
+  const initialState = savedState || defaultState
+
+  const [step, setStep] = useState(initialState.step)
+  const [country, setCountry] = useState<string>(initialState.country)
+  const [isDetectingCountry, setIsDetectingCountry] = useState(true)
+  const [countryCode, setCountryCode] = useState(initialState.countryCode)
+  const [phoneNumber, setPhoneNumber] = useState(initialState.phoneNumber)
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const [bvn, setBvn] = useState(initialState.bvn)
+  const [customerCreated, setCustomerCreated] = useState(initialState.customerCreated)
+  const countryDropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Form data
+  const [formData, setFormData] = useState<CreateCustomerRequest>(initialState.formData)
+
+  // Detect country on mount (only if country not already set from saved state)
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !savedState) {
       setIsDetectingCountry(true)
       detectCountryFromIP().then((detectedCountry) => {
         setCountry(detectedCountry)
@@ -80,8 +144,10 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
         }
         setIsDetectingCountry(false)
       })
+    } else if (isOpen && savedState) {
+      setIsDetectingCountry(false)
     }
-  }, [isOpen])
+  }, [isOpen, savedState])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,29 +164,20 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
     }
   }, [showCountryDropdown])
 
-  // Reset form when dialog closes
+  // Save form state to localStorage whenever it changes
   useEffect(() => {
-    if (!isOpen) {
-      setStep(1)
-      setCountryCode('+234')
-      setPhoneNumber('')
-      setBvn('')
-      setCustomerCreated(false)
-      setFormData({
-        firstName: '',
-        lastName: '',
-        middleName: '',
-        phoneNumber: '',
-        dateOfBirth: '',
-        country: 'NGA',
-        address: {
-          line: '',
-          city: '',
-          state: ''
-        }
+    if (isOpen) {
+      saveFormState({
+        step,
+        country,
+        countryCode,
+        phoneNumber,
+        bvn,
+        customerCreated,
+        formData
       })
     }
-  }, [isOpen])
+  }, [isOpen, step, country, countryCode, phoneNumber, bvn, customerCreated, formData])
 
   // Update phoneNumber in formData when countryCode or phoneNumber changes
   useEffect(() => {
@@ -134,8 +191,22 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
   const createCustomerMutation = useMutation({
     mutationFn: (data: CreateCustomerRequest) => createCustomer(data),
     onSuccess: () => {
-      setCustomerCreated(true)
-      setStep(3) // Move to BVN step after successful customer creation
+      const newCustomerCreated = true
+      const newStep = 3
+      setCustomerCreated(newCustomerCreated)
+      setStep(newStep) // Move to BVN step after successful customer creation
+      // Save state change immediately
+      if (isOpen) {
+        saveFormState({
+          step: newStep,
+          country,
+          countryCode,
+          phoneNumber,
+          bvn,
+          customerCreated: newCustomerCreated,
+          formData
+        })
+      }
     }
   })
 
@@ -143,6 +214,8 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
   const submitBvnMutation = useMutation({
     mutationFn: (data: { bvn: string }) => submitBvn(data),
     onSuccess: () => {
+      // Clear saved form state on successful submission
+      clearFormState()
       onSuccess?.()
       setTimeout(() => {
         onClose()
@@ -176,18 +249,48 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
   const handleInputChange = (field: string, value: string) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.')
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof CreateCustomerRequest] as any,
-          [child]: value
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          [parent]: {
+            ...prev[parent as keyof CreateCustomerRequest] as any,
+            [child]: value
+          }
         }
-      }))
+        // Save to localStorage immediately
+        if (isOpen) {
+          saveFormState({
+            step,
+            country,
+            countryCode,
+            phoneNumber,
+            bvn,
+            customerCreated,
+            formData: updated
+          })
+        }
+        return updated
+      })
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }))
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          [field]: value
+        }
+        // Save to localStorage immediately
+        if (isOpen) {
+          saveFormState({
+            step,
+            country,
+            countryCode,
+            phoneNumber,
+            bvn,
+            customerCreated,
+            formData: updated
+          })
+        }
+        return updated
+      })
     }
   }
 
@@ -211,13 +314,39 @@ const CreateCustomerDialog = ({ isOpen, onClose, onSuccess }: CreateCustomerDial
 
   const handleNext = () => {
     if (step === 1 && validateStep1()) {
-      setStep(2)
+      const newStep = 2
+      setStep(newStep)
+      // Save step change immediately
+      if (isOpen) {
+        saveFormState({
+          step: newStep,
+          country,
+          countryCode,
+          phoneNumber,
+          bvn,
+          customerCreated,
+          formData
+        })
+      }
     }
   }
 
   const handleBack = () => {
     if (step === 2) {
-      setStep(1)
+      const newStep = 1
+      setStep(newStep)
+      // Save step change immediately
+      if (isOpen) {
+        saveFormState({
+          step: newStep,
+          country,
+          countryCode,
+          phoneNumber,
+          bvn,
+          customerCreated,
+          formData
+        })
+      }
     } else if (step === 3) {
       // Don't allow going back from BVN step
       // User must complete BVN verification

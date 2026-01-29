@@ -282,9 +282,10 @@ export interface DepositAccountResponse {
 
 export interface DepositAccountErrorResponse {
   success: false
-  error: 'KYC_REQUIRED'
+  error: 'KYC_REQUIRED' | 'ACCOUNT_NOT_AVAILABLE'
   message: string
-  required: {
+  code?: string
+  required?: {
     firstName: string
     lastName: string
     phoneNumber: string

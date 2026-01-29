@@ -58,7 +58,8 @@ const WalletsPage = () => {
   const allWallets = walletBalances?.wallets || []
   const hasNoWallets = !isLoadingCryptoBalances && allWallets.length === 0
 
-  // Set the first wallet as the default selected asset (only on desktop, and only once on initial load)
+  // Set NGN as the default selected asset first, then fallback to other wallets
+  // Only on desktop, and only once on initial load
   // On mobile, user should explicitly select from the list
   useEffect(() => {
     // Only auto-select on desktop (lg breakpoint and above) and only once
@@ -66,12 +67,19 @@ const WalletsPage = () => {
       const isDesktop = window.innerWidth >= 1024 // lg breakpoint
       
       if (isDesktop && !hasAutoSelectedRef.current && allWallets.length > 0 && !selectedAsset) {
-        // Get the first wallet with balance > 0, or fallback to the first wallet if all are zero
-        const firstWalletWithBalance = allWallets.find(w => parseFloat(w.balance) > 0)
-        const walletToSelect = firstWalletWithBalance || allWallets[0]
-        if (walletToSelect) {
-          setSelectedAsset(walletToSelect.currency.toLowerCase())
+        // Priority: 1. NGN if available, 2. First wallet with balance > 0, 3. First wallet
+        const ngnWallet = allWallets.find(w => w.currency.toUpperCase() === 'NGN')
+        if (ngnWallet) {
+          setSelectedAsset('ngn')
           hasAutoSelectedRef.current = true
+        } else {
+          // Fallback to first wallet with balance > 0, or first wallet if all are zero
+          const firstWalletWithBalance = allWallets.find(w => parseFloat(w.balance) > 0)
+          const walletToSelect = firstWalletWithBalance || allWallets[0]
+          if (walletToSelect) {
+            setSelectedAsset(walletToSelect.currency.toLowerCase())
+            hasAutoSelectedRef.current = true
+          }
         }
       }
     }

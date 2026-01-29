@@ -189,33 +189,54 @@ export const getDepositAccount = async (data: DepositAccountRequest): Promise<De
     ;(error as any).required = errorResponse.required
     throw error
   }
+  // Handle ACCOUNT_NOT_AVAILABLE error - pass through the error code
+  if (errorResponse.error === 'ACCOUNT_NOT_AVAILABLE' || errorResponse.code === 'ACCOUNT_NOT_AVAILABLE') {
+    const error = new Error(errorResponse.message || 'Account not available')
+    ;(error as any).errorCode = 'ACCOUNT_NOT_AVAILABLE'
+    throw error
+  }
   throw new Error(errorResponse.message || 'Failed to get deposit account')
 }
 
 // Get list of banks from external API
 export const getBanks = async (): Promise<Bank[]> => {
-
   try {
     // Use external API directly
-    const response = await apiClient.get<BanksResponse>('/api/v1/banks/institutions ', {
-     
-    })
+    const response = await apiClient.get<BanksResponse>('/api/v1/banks/institutions', {})
     
-    if (!response.data.success || !response.data.data?.banks) {
+    if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to fetch banks')
     }
     
-    // Filter only active banks and ensure institutionId is present
-    const activeBanks = response.data.data.banks
-      .filter(bank => bank.active !== false)
-      .map(bank => ({
-        ...bank,
-        // Ensure institutionId is available (it should be from the new API)
-        institutionId: bank.institutionId || bank.code, // Fallback to code if institutionId missing
-      }))
+    const responseData = response.data.data
     
-    console.log('🏦 Banks fetched successfully:', activeBanks.length, 'active banks out of', response.data.data.count, 'total')
-    return activeBanks
+    // Handle both old format (banks) and new format (institutions)
+    if ('institutions' in responseData) {
+      // New API format: map institutions to Bank format
+      const banks: Bank[] = responseData.institutions.map((institution) => ({
+        code: institution.id, // Use id as code for backward compatibility
+        name: institution.name,
+        institutionId: institution.id,
+        logo: institution.logo,
+        active: true, // All institutions from API are considered active
+      }))
+      
+      console.log('🏦 Banks fetched successfully:', banks.length, 'institutions out of', responseData.count, 'total')
+      return banks
+    } else if ('banks' in responseData) {
+      // Old API format: filter and map banks
+      const activeBanks = responseData.banks
+        .filter(bank => bank.active !== false)
+        .map(bank => ({
+          ...bank,
+          institutionId: bank.institutionId || bank.code,
+        }))
+      
+      console.log('🏦 Banks fetched successfully:', activeBanks.length, 'active banks out of', responseData.count, 'total')
+      return activeBanks
+    }
+    
+    throw new Error('Invalid API response format')
   } catch (error) {
     console.error('🏦 Error fetching banks:', error)
     throw error

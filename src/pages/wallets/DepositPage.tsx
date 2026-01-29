@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import { AlertTriangle } from 'lucide-react'
 import { useWalletBalances } from '../../hooks/useWallet'
@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDepositAddress, getDepositAccount } from '../../api/wallet.api'
 import { walletKeys } from '../../hooks/useWallet'
 import Spinner from '../../components/ui/Spinner'
+import Button from '../../components/ui/Button'
 import WalletList from '../../components/pages/deposits/WalletList'
 import CurrencyDropdown from '../../components/pages/deposits/CurrencyDropdown'
 import DepositBalanceHeader from '../../components/pages/deposits/DepositBalanceHeader'
@@ -19,6 +20,7 @@ const DepositPage = () => {
   const queryClient = useQueryClient()
   const search = useSearch({ from: '/_authenticated/deposit' })
   const { currency: initialCurrency } = search
+  const hasInitialized = useRef(false)
 
   const [selectedCurrency, setSelectedCurrency] = useState<string>(initialCurrency?.toUpperCase() || '')
   const [depositMethod, setDepositMethod] = useState<DepositMethod | null>(null)
@@ -37,8 +39,17 @@ const DepositPage = () => {
   const depositAccountMutation = useMutation({
     mutationFn: (data: { currency: string }) => getDepositAccount(data),
     onSuccess: () => setError(null),
-    onError: (error: any) => setError(error.message || 'Failed to get deposit account'),
+    onError: (error: any) => {
+      // Check if it's the ACCOUNT_NOT_AVAILABLE error
+      if (error.errorCode === 'ACCOUNT_NOT_AVAILABLE' || error.message?.includes('ACCOUNT_NOT_AVAILABLE')) {
+        setError('ACCOUNT_NOT_AVAILABLE')
+      } else {
+        setError(error.message || 'Failed to get deposit account')
+      }
+    },
   })
+
+  const fetchDepositAccount = depositAccountMutation.mutate
 
   const { data: depositAddressData, isLoading: isLoadingCryptoAddress } = useQuery({
     queryKey: ['depositAddress', selectedCurrency],
@@ -47,38 +58,53 @@ const DepositPage = () => {
     retry: false,
   })
 
+  // Auto-select currency and fetch deposit account on page load
   useEffect(() => {
-    if (initialCurrency && !selectedCurrency) {
-      setSelectedCurrency(initialCurrency.toUpperCase())
-      if (initialCurrency.toUpperCase() === 'NGN') {
-        setDepositMethod('fiat')
-        depositAccountMutation.mutate({ currency: 'NGN' })
+    if (hasInitialized.current) return
+    if (!walletBalances?.wallets || walletBalances.wallets.length === 0) return
+
+    // Priority: 1. initialCurrency from URL, 2. NGN if available, 3. First wallet
+    let currencyToSelect = ''
+    
+    if (initialCurrency) {
+      currencyToSelect = initialCurrency.toUpperCase()
+    } else {
+      // Check if NGN is available
+      const ngnWallet = walletBalances.wallets.find(w => w.currency.toUpperCase() === 'NGN')
+      if (ngnWallet) {
+        currencyToSelect = 'NGN'
       } else {
-        setDepositMethod('crypto')
-      }
-    } else if (!selectedCurrency && walletBalances?.wallets && walletBalances.wallets.length > 0) {
-      const firstWallet = walletBalances.wallets[0]
-      setSelectedCurrency(firstWallet.currency.toUpperCase())
-      if (fiatCurrencies.includes(firstWallet.currency.toUpperCase())) {
-        if (firstWallet.currency.toUpperCase() === 'NGN') {
-          setDepositMethod('fiat')
-          depositAccountMutation.mutate({ currency: 'NGN' })
-        }
-      } else {
-        setDepositMethod('crypto')
+        // Use first wallet
+        currencyToSelect = walletBalances.wallets[0].currency.toUpperCase()
       }
     }
-  }, [initialCurrency, selectedCurrency, walletBalances, depositAccountMutation])
+
+    setSelectedCurrency(currencyToSelect)
+    hasInitialized.current = true
+
+    // Determine deposit method and fetch if needed
+    if (currencyToSelect === 'NGN') {
+      setDepositMethod('fiat')
+      // Immediately fetch deposit account for NGN
+      fetchDepositAccount({ currency: 'NGN' })
+    } else if (fiatCurrencies.includes(currencyToSelect)) {
+      setDepositMethod(null)
+    } else {
+      setDepositMethod('crypto')
+    }
+  }, [walletBalances, initialCurrency, fetchDepositAccount])
 
   const handleSelectCurrency = (currency: string) => {
-    setSelectedCurrency(currency)
+    const upperCurrency = currency.toUpperCase()
+    setSelectedCurrency(upperCurrency)
     setError(null)
     setDepositMethod(null)
     
-    if (currency.toUpperCase() === 'NGN') {
+    if (upperCurrency === 'NGN') {
       setDepositMethod('fiat')
-      depositAccountMutation.mutate({ currency: 'NGN' })
-    } else if (fiatCurrencies.includes(currency.toUpperCase())) {
+      // Immediately fetch deposit account when NGN is selected
+      fetchDepositAccount({ currency: 'NGN' })
+    } else if (fiatCurrencies.includes(upperCurrency)) {
       setDepositMethod(null)
     } else {
       setDepositMethod('crypto')
@@ -160,15 +186,6 @@ const DepositPage = () => {
                 />
 
                 <div className="flex-1 overflow-y-auto p-4">
-                  {error && (
-                    <div className="mb-4 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50">
-                      <div className="flex items-start gap-2">
-                        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                        <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-                      </div>
-                    </div>
-                  )}
-
                   {depositMethod === 'crypto' && (
                     <CryptoDepositDetails
                       data={depositAddressData}
@@ -180,19 +197,47 @@ const DepositPage = () => {
                     />
                   )}
 
-                  {depositMethod === 'fiat' && depositAccountMutation.data && (
-                    <FiatDepositDetails
-                      data={depositAccountMutation.data}
-                      copied={copied}
-                      onCopy={handleCopy}
-                    />
-                  )}
-
                   {depositMethod === 'fiat' && depositAccountMutation.isPending && (
                     <div className="flex flex-col items-center justify-center py-8">
                       <Spinner size="lg" variant="primary" className="mb-3" />
                       <p className="text-xs text-gray-600 dark:text-gray-400">Loading deposit account...</p>
                     </div>
+                  )}
+
+                  {depositMethod === 'fiat' && error && !depositAccountMutation.isPending && (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+                        <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        Unable to Load Deposit Account
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-md mb-4">
+                        {error === 'ACCOUNT_NOT_AVAILABLE' 
+                          ? 'Account number generating, try again in 10 minutes'
+                          : error}
+                      </p>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setError(null)
+                          if (selectedCurrency === 'NGN') {
+                            depositAccountMutation.mutate({ currency: 'NGN' })
+                          }
+                        }}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  )}
+
+                  {depositMethod === 'fiat' && depositAccountMutation.data && !error && (
+                    <FiatDepositDetails
+                      data={depositAccountMutation.data}
+                      copied={copied}
+                      onCopy={handleCopy}
+                    />
                   )}
                 </div>
               </>

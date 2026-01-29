@@ -7,6 +7,7 @@ export interface Bank {
   gateway?: string | null
   active?: boolean
   institutionId?: string // UUID for the bank institution
+  logo?: string // Logo URL for the bank
 }
 
 // Verify Account Types
@@ -40,8 +41,17 @@ export interface BanksData {
   count: number
 }
 
+export interface InstitutionsData {
+  institutions: Array<{
+    id: string
+    name: string
+    logo?: string
+  }>
+  count: number
+}
+
 export interface BanksResponse {
   success: boolean
   message?: string
-  data: BanksData
+  data: BanksData | InstitutionsData
 }

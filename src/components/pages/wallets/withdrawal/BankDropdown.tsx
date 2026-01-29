@@ -41,13 +41,13 @@ const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = 
   // Calculate dropdown position when it opens or window resizes/scrolls
   useEffect(() => {
     const updatePosition = () => {
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect()
+      if (buttonRef.current && dropdownRef.current) {
+        const buttonRect = buttonRef.current.getBoundingClientRect()
         const viewportHeight = window.innerHeight
-        const spaceBelow = viewportHeight - rect.bottom
-        const spaceAbove = rect.top
+        const spaceBelow = viewportHeight - buttonRect.bottom
+        const spaceAbove = buttonRect.top
         const dropdownMaxHeight = 240 // max-h-60 = 240px
-        const gap = 4 // Gap between button and dropdown
+        const gap = 2 // Minimal gap between button and dropdown
         
         // Check if we should open upward
         const opensUpward = spaceBelow < dropdownMaxHeight && spaceAbove > spaceBelow
@@ -65,20 +65,10 @@ const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = 
         // Ensure minimum height
         maxHeight = Math.max(maxHeight, 100)
         
-        // Calculate top position
-        let top: number
-        if (opensUpward) {
-          // Position above the button
-          top = rect.top + window.scrollY - maxHeight - gap
-        } else {
-          // Position below the button
-          top = rect.bottom + window.scrollY + gap
-        }
-        
         setPosition({
-          top,
-          left: rect.left + window.scrollX,
-          width: rect.width,
+          top: 0, // Will be calculated relative to button
+          left: 0, // Will be calculated relative to button
+          width: buttonRect.width,
           opensUpward,
           maxHeight,
         })
@@ -141,9 +131,21 @@ const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = 
         disabled={isLoading}
         className="w-full !justify-between bg-white dark:bg-dark-surface border border-gray-200 dark:border-primary/50 h-[42px]"
       >
-        <span className="text-sm font-semibold text-gray-900 dark:text-white text-left flex-1">
-          {selectedBank ? selectedBank.name : isLoading ? 'Loading banks...' : 'Select a bank'}
-        </span>
+        <div className="flex items-center gap-3 flex-1 min-w-0 text-left">
+          {selectedBank?.logo && (
+            <img
+              src={selectedBank.logo}
+              alt={selectedBank.name}
+              className="w-5 h-5 object-contain shrink-0 rounded"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          )}
+          <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+            {selectedBank ? selectedBank.name : isLoading ? 'Loading banks...' : 'Select a bank'}
+          </span>
+        </div>
         <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
 
@@ -155,10 +157,10 @@ const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: position.opensUpward ? 10 : -10 }}
             transition={{ duration: 0.15 }}
-            className="fixed bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl z-[9999] overflow-hidden flex flex-col"
+            className={`absolute bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl z-[9999] overflow-hidden flex flex-col ${
+              position.opensUpward ? 'bottom-full mb-2' : 'top-full mt-2'
+            }`}
             style={{
-              top: `${position.top}px`,
-              left: `${position.left}px`,
               width: `${position.width}px`,
               maxHeight: `${position.maxHeight}px`,
             }}
@@ -201,11 +203,24 @@ const BankDropdown = ({ banks, selectedInstitutionId, onSelectBank, isLoading = 
                       disabled={!bank.institutionId}
                       className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className={`text-sm font-medium ${isSelected ? 'text-primary dark:text-primary' : 'text-gray-900 dark:text-white'}`}>
-                        {bank.name}
-                      </span>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {bank.logo ? (
+                          <img
+                            src={bank.logo}
+                            alt={bank.name}
+                            className="w-6 h-6 object-contain shrink-0 rounded"
+                            onError={(e) => {
+                              // Hide image if it fails to load
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                        ) : null}
+                        <span className={`text-sm font-medium truncate ${isSelected ? 'text-primary dark:text-primary' : 'text-gray-900 dark:text-white'}`}>
+                          {bank.name}
+                        </span>
+                      </div>
                       {isSelected && (
-                        <Check className="w-4 h-4 text-primary" />
+                        <Check className="w-4 h-4 text-primary shrink-0" />
                       )}
                     </button>
                   )
