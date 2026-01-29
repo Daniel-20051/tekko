@@ -8,6 +8,7 @@ import WithdrawBalanceHeader from '../../components/pages/wallets/withdrawal/Wit
 import WithdrawEmptyState from '../../components/pages/wallets/withdrawal/WithdrawEmptyState'
 import CryptoWithdrawDetails from '../../components/pages/wallets/withdrawal/CryptoWithdrawDetails'
 import FiatWithdrawDetails from '../../components/pages/wallets/withdrawal/FiatWithdrawDetails'
+import Spinner from '../../components/ui/Spinner'
 
 const WithdrawPage = () => {
   const queryClient = useQueryClient()
@@ -17,7 +18,7 @@ const WithdrawPage = () => {
   const [selectedCurrency, setSelectedCurrency] = useState<string>(initialCurrency?.toUpperCase() || '')
   const [refreshingBalance, setRefreshingBalance] = useState(false)
 
-  const { data: walletBalances } = useWalletBalances()
+  const { data: walletBalances, isLoading: isLoadingWallets } = useWalletBalances()
   const fiatCurrencies = ['NGN', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'ZAR', 'MXN', 'SGD', 'HKD', 'NOK', 'SEK', 'DKK', 'PLN', 'RUB', 'TRY', 'KRW', 'THB', 'IDR', 'MYR', 'PHP', 'VND', 'CZK', 'HUF', 'ILS', 'CLP', 'ARS', 'COP', 'PEN', 'UAH', 'RON', 'BGN', 'HRK', 'ISK', 'NZD']
   
   const selectedWallet = walletBalances?.wallets?.find(
@@ -92,12 +93,18 @@ const WithdrawPage = () => {
               wallets={availableAssets}
               selectedCurrency={selectedCurrency}
               onSelectCurrency={handleSelectCurrency}
+              isLoading={isLoadingWallets}
             />
           </div>
 
           {/* Right Panel - Withdrawal Details */}
           <div className="bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-primary/50 overflow-hidden flex flex-col max-h-[600px]">
-            {selectedCurrency ? (
+            {isLoadingWallets ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4">
+                <Spinner size="xl" variant="primary" />
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">Loading wallets...</p>
+              </div>
+            ) : selectedCurrency ? (
               <>
                 {/* Mobile: Currency Dropdown */}
                 <div className="lg:hidden p-3 border-b border-gray-200 dark:border-gray-800">

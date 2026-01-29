@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import { withdrawNGN } from '../../../../api/wallet.api'
 import { walletKeys } from '../../../../hooks/useWallet'
@@ -33,7 +33,7 @@ const NGNWithdrawSummaryStep = ({
   bankDetails,
   currency,
   availableBalance,
-  onBack: _onBack,
+  onBack,
   onSuccess,
 }: NGNWithdrawSummaryStepProps) => {
   const [showPinModal, setShowPinModal] = useState(false)
@@ -108,6 +108,19 @@ const NGNWithdrawSummaryStep = ({
       exit={{ opacity: 0, x: -20 }}
       className="space-y-4"
     >
+      {/* Back Button */}
+      <div className="flex items-center justify-between mb-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+      </div>
+
       {/* Summary */}
       <div className="space-y-3">
         {/* Amount */}

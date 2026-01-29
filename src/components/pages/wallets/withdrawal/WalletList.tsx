@@ -3,15 +3,17 @@ import { Info } from 'lucide-react'
 import { getCryptoIconConfig } from '../../../../utils/crypto-icons'
 import { useCoinImages } from '../../../../hooks/useCoinImage'
 import CryptoImage from '../../../ui/CryptoImage'
+import Spinner from '../../../ui/Spinner'
 import type { Wallet } from '../../../../types/wallet'
 
 interface WalletListProps {
   wallets: Wallet[]
   selectedCurrency: string
   onSelectCurrency: (currency: string) => void
+  isLoading?: boolean
 }
 
-const WalletList = ({ wallets, selectedCurrency, onSelectCurrency }: WalletListProps) => {
+const WalletList = ({ wallets, selectedCurrency, onSelectCurrency, isLoading = false }: WalletListProps) => {
   const coinImages = useCoinImages(wallets.map(w => w.currency))
 
   return (
@@ -23,7 +25,12 @@ const WalletList = ({ wallets, selectedCurrency, onSelectCurrency }: WalletListP
       </div>
       
       <div className="flex-1 overflow-y-auto">
-        {wallets.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-8 px-4">
+            <Spinner size="lg" variant="primary" />
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">Loading wallets...</p>
+          </div>
+        ) : wallets.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4">
             <Info className="w-8 h-8 text-gray-400 mb-2" />
             <p className="text-xs text-gray-600 dark:text-gray-400">No wallets available</p>
