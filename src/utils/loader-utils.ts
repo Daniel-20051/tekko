@@ -43,20 +43,16 @@ export function showRefreshLoader() {
   // Remove existing loader if any
   removeRefreshLoader()
   
-  // Set body background color immediately to prevent white flash
   const theme = getCurrentTheme()
-  const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff'
   
-  // Set body background immediately
+  // Create loader immediately if body exists, otherwise wait
   if (document.body) {
-    document.body.style.backgroundColor = bgColor
     createLoader()
   } else {
     // If body isn't ready, wait for DOMContentLoaded
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         if (document.body) {
-          document.body.style.backgroundColor = bgColor
           createLoader()
         }
       })
@@ -65,7 +61,6 @@ export function showRefreshLoader() {
     // If document is ready but body still doesn't exist, try again after a short delay
     setTimeout(() => {
       if (document.body) {
-        document.body.style.backgroundColor = bgColor
         createLoader()
       }
     }, 0)
@@ -80,6 +75,7 @@ export function showRefreshLoader() {
     
     const textColor = theme === 'dark' ? '#ffffff' : '#111827'
     const primaryColor = '#743a34'
+    const bgOpacity = theme === 'dark' ? '0.4' : '0.2'
     
     const loader = document.createElement('div')
     loader.id = LOADER_ID
@@ -90,7 +86,9 @@ export function showRefreshLoader() {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: ${bgColor};
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background-color: rgba(0, 0, 0, ${bgOpacity});
       transition: background-color 0.3s;
     `
     
